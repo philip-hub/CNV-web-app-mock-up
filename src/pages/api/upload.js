@@ -1,4 +1,3 @@
-import nextConnect from 'next-connect';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -10,43 +9,55 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
 
+// Configure Multer
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      console.log('Saving file to:', uploadDir);
-      cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-      console.log('Saving file as:', file.originalname);
-      cb(null, file.originalname);
-    },
-  }),
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype !== 'text/tab-separated-values') {
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext !== '.tsv') {
       return cb(new Error('Only .tsv files are allowed'), false);
     }
     cb(null, true);
   },
 });
 
-const apiRoute = nextConnect({
-  onError(error, req, res) {
-    console.error('Error occurred:', error.message);
-    res.status(501).json({ error: `Sorry, something went wrong! ${error.message}` });
-  },
-  onNoMatch(req, res) {
+const uploadMiddleware = upload.single('file');
+
+// Helper function to run middleware
+function runMiddleware(req, res, fn) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+      return resolve(result);
+    });
+  });
+}
+
+// API Route Handler
+export default async function handler(req, res) {
+  if (req.method === 'POST') {
+    try {
+      await runMiddleware(req, res, uploadMiddleware);
+      res.status(200).json({ data: 'File uploaded successfully' });
+    } catch (error) {
+      console.error('Error occurred:', error.message);
+      res.status(500).json({ error: `Sorry, something went wrong! ${error.message}` });
+    }
+  } else {
     res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
-  },
-});
-
-apiRoute.use(upload.single('file'));
-
-apiRoute.post((req, res) => {
-  console.log('File uploaded successfully');
-  res.status(200).json({ data: 'File uploaded successfully' });
-});
-
-export default apiRoute;
+  }
+}
 
 export const config = {
   api: {

@@ -5,6 +5,7 @@ const FileUpload = () => {
   const onDrop = useCallback(async (acceptedFiles) => {
     const formData = new FormData();
     acceptedFiles.forEach(file => {
+      console.log('Uploading file:', file);
       formData.append('file', file);
     });
 
