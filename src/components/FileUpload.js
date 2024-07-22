@@ -8,14 +8,20 @@ const FileUpload = () => {
       formData.append('file', file);
     });
 
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (res.ok) {
-      alert('File uploaded successfully');
-    } else {
+      if (res.ok) {
+        alert('File uploaded successfully');
+      } else {
+        const error = await res.json();
+        alert(`Failed to upload file: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
       alert('Failed to upload file');
     }
   }, []);
