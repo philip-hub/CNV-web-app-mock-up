@@ -149,3 +149,32 @@
     max-width: 1500px;
   }
   
+  /* Add to existing styles in Analysis.module.css */
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 10px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+  }
+  
+  .gridBox {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .gridGraphs {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .gridGraphs .graph {
+    width: 48%;
+  }

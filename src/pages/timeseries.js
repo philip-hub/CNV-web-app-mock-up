@@ -5,14 +5,17 @@ import NavBar from '../components/NavBar';
 
 export default function Timeseries() {
   const [showDraggable, setShowDraggable] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [view, setView] = useState('general');
   const draggableRef = useRef(null);
 
   const handleGraphClick = (e) => {
-    console.log("Left graph clicked");
+    console.log("Graph on the right clicked");
     setMousePosition({ x: e.clientX, y: e.clientY });
-    setShowDraggable(true);
+    if (view === 'general') {
+      setShowGrid(true);
+    }
   };
 
   const handleClose = () => {
@@ -22,6 +25,7 @@ export default function Timeseries() {
 
   const handleViewChange = (event) => {
     setView(event.target.value);
+    setShowGrid(false);  // Hide the grid when view changes
   };
 
   useEffect(() => {
@@ -57,7 +61,27 @@ export default function Timeseries() {
   }, [showDraggable]);
 
   const renderGraphs = () => {
-    switch(view) {
+    if (showGrid && view === 'general') {
+      return (
+        <div className={styles.gridContainer}>
+          {Array.from({ length: 12 }).map((_, index) => (
+            <div key={index} className={styles.gridBox}>
+              <div className={styles.gridGraphs}>
+                <div className={styles.graph}>
+                  <img src="/image4.png" alt={`Graph ${index * 2 + 1}`} />
+                </div>
+                <div className={styles.graph}>
+                  <img src="/image5.png" alt={`Graph ${index * 2 + 2}`} />
+                </div>
+              </div>
+              <p>Stats</p>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    switch (view) {
       case 'general':
         return (
           <div className={styles.graphContainer}>
@@ -67,10 +91,10 @@ export default function Timeseries() {
               </div>
             </div>
             <div className={styles.rightGraphs}>
-              <div className={styles.graph}>
+              <div className={styles.graph} onClick={handleGraphClick}>
                 <img src="/image2.png" alt="Graph 2" />
               </div>
-              <div className={styles.graph}>
+              <div className={styles.graph} onClick={handleGraphClick}>
                 <img src="/image3.png" alt="Graph 3" />
               </div>
             </div>
@@ -97,64 +121,24 @@ export default function Timeseries() {
       case 'showall':
         return (
           <div className={styles.showAllContainer}>
-            <div className={styles.graphContainer}>
-              <div className={styles.leftGraph} onClick={handleGraphClick}>
-                <div className={styles.graph}>
-                  <img src="/image1.png" alt="Graph 1" />
-                </div>
-              </div>
-              <div className={styles.rightGraphs}>
-                <div className={styles.graph}>
-                  <img src="/image2.png" alt="Graph 2" />
-                </div>
-                <div className={styles.graph}>
-                  <img src="/image3.png" alt="Graph 3" />
-                </div>
+            <div className={styles.showAllGraphContainer}>
+              <div className={styles.graph}>
+                <img src="/image1.png" alt="Graph 1" />
               </div>
             </div>
-            <div className={styles.graphContainer}>
-              <div className={styles.leftGraph} onClick={handleGraphClick}>
-                <div className={styles.graph}>
-                  <img src="/image1.png" alt="Graph 1" />
-                </div>
-              </div>
-              <div className={styles.rightGraphs}>
-                <div className={styles.graph}>
-                  <img src="/image2.png" alt="Graph 2" />
-                </div>
-                <div className={styles.graph}>
-                  <img src="/image3.png" alt="Graph 3" />
-                </div>
+            <div className={styles.showAllGraphContainer}>
+              <div className={styles.graph}>
+                <img src="/image2.png" alt="Graph 2" />
               </div>
             </div>
-            <div className={styles.graphContainer}>
-              <div className={styles.leftGraph} onClick={handleGraphClick}>
-                <div className={styles.graph}>
-                  <img src="/image1.png" alt="Graph 1" />
-                </div>
-              </div>
-              <div className={styles.rightGraphs}>
-                <div className={styles.graph}>
-                  <img src="/image2.png" alt="Graph 2" />
-                </div>
-                <div className={styles.graph}>
-                  <img src="/image3.png" alt="Graph 3" />
-                </div>
+            <div className={styles.showAllGraphContainer}>
+              <div className={styles.graph}>
+                <img src="/image3.png" alt="Graph 3" />
               </div>
             </div>
-            <div className={styles.graphContainer}>
-              <div className={styles.leftGraph} onClick={handleGraphClick}>
-                <div className={styles.graph}>
-                  <img src="/image1.png" alt="Graph 1" />
-                </div>
-              </div>
-              <div className={styles.rightGraphs}>
-                <div className={styles.graph}>
-                  <img src="/image2.png" alt="Graph 2" />
-                </div>
-                <div className={styles.graph}>
-                  <img src="/image3.png" alt="Graph 3" />
-                </div>
+            <div className={styles.showAllGraphContainer}>
+              <div className={styles.graph}>
+                <img src="/image1.png" alt="Graph 1" />
               </div>
             </div>
           </div>
@@ -207,11 +191,7 @@ export default function Timeseries() {
       )}
 
       <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://nextjs.org" target="_blank" rel="noopener noreferrer">
           Powered by{' '}
           <span className={styles.logo}>
             <img src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
