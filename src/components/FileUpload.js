@@ -36,7 +36,7 @@ const FileUpload = () => {
   return (
     <div {...getRootProps({ className: 'dropzone' })} style={{ border: '2px dashed #cccccc', padding: '20px', textAlign: 'center' }}>
       <input {...getInputProps()} />
-      <p>Drag 'n' drop a .tsv file here, or click to select a file</p>
+      <p>Drag and drop a .tsv file here, or click to select a file</p>
     </div>
   );
 };

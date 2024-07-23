@@ -26,10 +26,10 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to My Next.js App
+           Copy Number Analysis
         </h1>
         <p className={styles.description}>
-          This is the home page of the application.
+          Upload the files and select analysis options
         </p>
         <FileUpload />
         <div style={{ marginTop: '20px' }}>
