@@ -19,7 +19,7 @@ const NavBar = () => {
     <div className={styles.navbar}>
       <button onClick={handleHomeClick} className={styles.homeButton}>Home</button>
       <select value={selectedTechnique} onChange={handleTechniqueChange} className={styles.dropdown}>
-        <option value="" disabled>Select Technique</option>
+        <option value="" disabled>Analysis Technique</option>
         <option value="technique1">Technique 1</option>
         <option value="technique2">Technique 2</option>
         <option value="technique3">Technique 3</option>

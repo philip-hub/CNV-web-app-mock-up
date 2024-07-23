@@ -1,5 +1,6 @@
 import Head from 'next/head';
-import styles from '../styles/Home.module.css';
+import styles from '../styles/Analysis.module.css';
+import NavBar from '../components/NavBar';
 
 export default function Single() {
   return (
@@ -10,16 +11,33 @@ export default function Single() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <NavBar />
+
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Single Sample Analysis
-        </h1>
-        <p className={styles.description}>
-          This is the Single Sample Analysis page.
-        </p>
+        <div className={styles.graphContainer}>
+          <div className={styles.graph}>
+            <img src="/image1.png" alt="Graph 1" />
+          </div>
+          <div className={styles.graph}>
+            <img src="/image2.png" alt="Graph 2" />
+          </div>
+          <div className={styles.graph}>
+            <img src="/image3.png" alt="Graph 3" />
+          </div>
+        </div>
       </main>
 
       <footer className={styles.footer}>
+        <a
+          href="https://nextjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by{' '}
+          <span className={styles.logo}>
+            <img src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
+          </span>
+        </a>
       </footer>
     </div>
   );
