@@ -1,8 +1,21 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import FileUpload from '../components/FileUpload';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 export default function Home() {
+  const router = useRouter();
+  const [selectedOption, setSelectedOption] = useState('');
+
+  const handleSelectionChange = (event) => {
+    const selectedValue = event.target.value;
+    setSelectedOption(selectedValue);
+    if (selectedValue) {
+      router.push(`/${selectedValue}`);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <Head>
@@ -19,10 +32,27 @@ export default function Home() {
           This is the home page of the application.
         </p>
         <FileUpload />
+        <div style={{ marginTop: '20px' }}>
+          <select value={selectedOption} onChange={handleSelectionChange}>
+            <option value="" disabled>Select Analysis Type</option>
+            <option value="single">Single Sample Analysis</option>
+            <option value="multi">Multifile Sample Analysis</option>
+            <option value="timeseries">Timeseries Analysis</option>
+          </select>
+        </div>
       </main>
 
       <footer className={styles.footer}>
-
+        <a
+          href="https://nextjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by{' '}
+          <span className={styles.logo}>
+            <img src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
+          </span>
+        </a>
       </footer>
     </div>
   );
