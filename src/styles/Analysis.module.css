@@ -20,19 +20,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%; /* Increased width */
-    max-width: 1600px; /* Increased max-width */
+    width: 90%;
+    max-width: 1500px;
   }
   
   .leftGraph {
-    flex: 1.5; /* Increased flex value */
+    flex: 1.5;
     margin-right: 20px;
   }
   
   .rightGraphs {
     display: flex;
     flex-direction: column;
-    flex: 2.5; /* Increased flex value */
+    flex: 2.5;
   }
   
   .graph {
@@ -42,12 +42,74 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%; /* Make sure images fit well */
+    height: 100%;
+    cursor: pointer;
   }
   
   .graph img {
     max-width: 100%;
     height: auto;
+  }
+  
+  .draggable {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    width: 350px;
+    height: 350px; /* Adjust height to fit titles and graphs */
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .draggableContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .draggableGraph {
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 100%;
+    height: 120px; /* Adjust height to fit titles and graphs */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .draggableGraph img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .graphTitle {
+    margin: 0;
+    padding-bottom: 5px;
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .closeButton {
+    align-self: flex-end;
+    background-color: #f00;
+    color: white;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .closeButton:hover {
+    background-color: #c00;
   }
   
   .footer {
