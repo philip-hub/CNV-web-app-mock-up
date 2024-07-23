@@ -41,3 +41,4 @@ next-env.d.ts
 #Avoid Uploading Favicons
 *.ico
 *.svg
+*.png
