@@ -18,14 +18,25 @@
   
   .graphContainer {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
     width: 80%;
     max-width: 1200px;
   }
   
-  .graph {
+  .leftGraph {
     flex: 1;
-    margin: 10px;
+    margin-right: 20px;
+  }
+  
+  .rightGraphs {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+  }
+  
+  .graph {
+    margin-bottom: 20px;
     border: 1px solid #ccc;
     padding: 10px;
     display: flex;

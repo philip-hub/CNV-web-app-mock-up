@@ -15,14 +15,18 @@ export default function Single() {
 
       <main className={styles.main}>
         <div className={styles.graphContainer}>
-          <div className={styles.graph}>
-            <img src="/image1.png" alt="Graph 1" />
+          <div className={styles.leftGraph}>
+            <div className={styles.graph}>
+              <img src="/image1.png" alt="Graph 1" />
+            </div>
           </div>
-          <div className={styles.graph}>
-            <img src="/image2.png" alt="Graph 2" />
-          </div>
-          <div className={styles.graph}>
-            <img src="/image3.png" alt="Graph 3" />
+          <div className={styles.rightGraphs}>
+            <div className={styles.graph}>
+              <img src="/image2.png" alt="Graph 2" />
+            </div>
+            <div className={styles.graph}>
+              <img src="/image3.png" alt="Graph 3" />
+            </div>
           </div>
         </div>
       </main>
