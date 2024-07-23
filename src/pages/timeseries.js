@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import styles from '../styles/Home.module.css';
+import styles from '../styles/Analysis.module.css';
 import NavBar from '../components/NavBar';
 
 export default function Timeseries() {
@@ -14,12 +14,21 @@ export default function Timeseries() {
       <NavBar />
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Timeseries Analysis
-        </h1>
-        <p className={styles.description}>
-          This is the Timeseries Analysis page.
-        </p>
+        <div className={styles.graphContainer}>
+          <div className={styles.leftGraph}>
+            <div className={styles.graph}>
+              <img src="/image1.png" alt="Graph 1" />
+            </div>
+          </div>
+          <div className={styles.rightGraphs}>
+            <div className={styles.graph}>
+              <img src="/image2.png" alt="Graph 2" />
+            </div>
+            <div className={styles.graph}>
+              <img src="/image3.png" alt="Graph 3" />
+            </div>
+          </div>
+        </div>
       </main>
 
       <footer className={styles.footer}>

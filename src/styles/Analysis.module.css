@@ -20,19 +20,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 80%;
-    max-width: 1200px;
+    width: 100%; /* Increased width */
+    max-width: 1600px; /* Increased max-width */
   }
   
   .leftGraph {
-    flex: 1;
+    flex: 1.5; /* Increased flex value */
     margin-right: 20px;
   }
   
   .rightGraphs {
     display: flex;
     flex-direction: column;
-    flex: 2;
+    flex: 2.5; /* Increased flex value */
   }
   
   .graph {
@@ -42,6 +42,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100%; /* Make sure images fit well */
   }
   
   .graph img {
