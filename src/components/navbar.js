@@ -24,7 +24,15 @@ const NavBar = () => {
         <option value="technique2">Technique 2</option>
         <option value="technique3">Technique 3</option>
       </select>
-    </div>
+
+
+  <select value={selectedTechnique} onChange={handleTechniqueChange} className={styles.dropdown}>
+  <option value="" disabled>Data View</option>
+  <option value="technique1">All Data</option>
+  <option value="technique2">Simplifed 1</option>
+  <option value="technique3">Simplifed 2</option>
+  </select>
+</div>
   );
 };
 
