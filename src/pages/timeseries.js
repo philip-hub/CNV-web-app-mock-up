@@ -68,13 +68,14 @@ export default function Timeseries() {
             <div key={index} className={styles.gridBox}>
               <div className={styles.gridGraphs}>
                 <div className={styles.graph}>
-                  <img src="/image4.png" alt={`Graph ${index * 2 + 1}`} />
+                  <img src="/image9.png" alt={`Graph ${index * 2 + 1}`} />
                 </div>
                 <div className={styles.graph}>
-                  <img src="/image5.png" alt={`Graph ${index * 2 + 2}`} />
+                  <img src="/image10.png" alt={`Graph ${index * 2 + 2}`} />
                 </div>
               </div>
               <p>Stats</p>
+              <p>Timestamp {index + 1}</p>
             </div>
           ))}
         </div>

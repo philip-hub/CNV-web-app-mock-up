@@ -149,7 +149,9 @@
     max-width: 1500px;
   }
   
-  /* Add to existing styles in Analysis.module.css */
+/* Add to existing styles in Analysis.module.css */
+
+/* Add to existing styles in Analysis.module.css */
 
 .gridContainer {
     display: grid;
@@ -178,3 +180,4 @@
   .gridGraphs .graph {
     width: 48%;
   }
+  
