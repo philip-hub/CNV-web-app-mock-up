@@ -4,50 +4,80 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import NavBar from '../components/NavBar';
+import FileUpload from '../components/FileUpload';
 
 // Dynamically import Plotly component with SSR disabled
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
-export default function Home() {
+export default function Test() {
   const router = useRouter();
   const [selectedOption, setSelectedOption] = useState('');
+  const [results, setResults] = useState(null);
 
+  const handleFileUpload = (data) => {
+    setResults(data);
+  };
 
-  function data(){
-    const x = [1, 2, 3];
-    const y = [2, 6, 3];
-    return x, y
-  }
+  const handleSelectionChange = (event) => {
+    const selectedValue = event.target.value;
+    setSelectedOption(selectedValue);
+    if (selectedValue) {
+      router.push(`/${selectedValue}`);
+    }
+  };
 
-  
+  const renderPlot = () => {
+    if (!results) {
+      return null;
+    }
 
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Home Page</title>
-        <meta name="description" content="Welcome to the home page" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    const x = results.map(item => item.arm);
+    const y = results.map(item => item.log_ratio);
 
-      <main className={styles.main}>
-      <NavBar />
-        <h1 className={styles.title}>
-           Copy Number Analysis
-        </h1>
-      
-        <Plot
+    return (
+      <Plot
         data={[
           {
-            x: data()[0],
-            y: data()[1],
+            x: x,
+            y: y,
             type: 'scatter',
             mode: 'lines+markers',
             marker: { color: 'red' },
           },
-          { type: 'bar', x: [1, 2, 3], y: [2, 5, 3] },
+          { type: 'bar', x: x, y: y },
         ]}
-        layout={{ width: 320, height: 240, title: 'A Fancy Plot' }}
-        />
+        layout={{ width: 720, height: 480, title: 'Log Ratio Plot' }}
+      />
+    );
+  };
+
+  return (
+    <div className={styles.container}>
+      <Head>
+        <title>Test Page</title>
+        <meta name="description" content="Welcome to the test page" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <main className={styles.main}>
+        <NavBar />
+        <h1 className={styles.title}>
+          Copy Number Analysis
+        </h1>
+        <p className={styles.description}>
+          Upload the files and select analysis options
+        </p>
+        <FileUpload onUpload={handleFileUpload} />
+        <div style={{ marginTop: '20px' }}>
+          <select value={selectedOption} onChange={handleSelectionChange}>
+            <option value="" disabled>Select Analysis Type</option>
+            <option value="single">Single Sample Analysis</option>
+            <option value="multi">Multifile Sample Analysis</option>
+            <option value="timeseries">Timeseries Analysis</option>
+            <option value="test">View Plot Test</option>
+          </select>
+        </div>
+        {results && renderPlot()}
       </main>
 
       <footer className={styles.footer}>
