@@ -145,15 +145,7 @@ export default function Test() {
           Upload the files and select analysis options
         </p>
         <FileUpload onUpload={handleFileUpload} />
-        <div style={{ marginTop: '20px' }}>
-          <select value={selectedOption} onChange={handleSelectionChange}>
-            <option value="" disabled>Select Analysis Type</option>
-            <option value="single">Single Sample Analysis</option>
-            <option value="multi">Multifile Sample Analysis</option>
-            <option value="timeseries">Timeseries Analysis</option>
-            <option value="test">View Plot Test</option>
-          </select>
-        </div>
+
         {results && (
           <div>
             {renderLogRatioPlot()}
