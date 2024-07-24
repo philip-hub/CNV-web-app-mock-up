@@ -26,14 +26,13 @@ export default function Test() {
     }
   };
 
-  const renderPlot = () => {
+  const renderLogRatioPlot = () => {
     if (!results) {
       return null;
     }
 
     const x = results.map(item => item.arm);
     const logRatios = results.map(item => item.log_ratio);
-    const NRMFs = results.map(item => item.NRMF);
     const chromosomes = results.map(item => item.arm); // Assuming the arm property is used to distinguish chromosomes
 
     return (
@@ -50,7 +49,37 @@ export default function Test() {
               colorscale: 'Viridis'
             },
             name: 'Log Ratio'
+          }
+        ]}
+        layout={{
+          title: 'Log Ratio',
+          xaxis: {
+            title: 'Genomic Position',
+            tickvals: Array.from({ length: results.length }, (_, i) => i),
+            ticktext: x
           },
+          yaxis: {
+            title: 'Log Ratio',
+            range: [-2, 2]
+          },
+          shapes: [] // Initial empty shapes array for vertical lines
+        }}
+      />
+    );
+  };
+
+  const renderNRMFPlot = () => {
+    if (!results) {
+      return null;
+    }
+
+    const x = results.map(item => item.arm);
+    const NRMFs = results.map(item => item.NRMF);
+    const chromosomes = results.map(item => item.arm); // Assuming the arm property is used to distinguish chromosomes
+
+    return (
+      <Plot
+        data={[
           {
             x: x,
             y: NRMFs,
@@ -65,15 +94,15 @@ export default function Test() {
           }
         ]}
         layout={{
-          title: 'Log Ratio and NRMF',
+          title: 'NRMF',
           xaxis: {
             title: 'Genomic Position',
             tickvals: Array.from({ length: results.length }, (_, i) => i),
             ticktext: x
           },
           yaxis: {
-            title: 'Value',
-            range: [-2, 2]
+            title: 'NRMF',
+            range: [0, Math.max(...NRMFs)] // Adjust the range as needed
           },
           shapes: [] // Initial empty shapes array for vertical lines
         }}
@@ -107,7 +136,12 @@ export default function Test() {
             <option value="test">View Plot Test</option>
           </select>
         </div>
-        {results && renderPlot()}
+        {results && (
+          <div>
+            {renderLogRatioPlot()}
+            {renderNRMFPlot()}
+          </div>
+        )}
       </main>
 
       <footer className={styles.footer}>
