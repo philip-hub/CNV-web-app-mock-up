@@ -7,6 +7,7 @@ import { useState } from 'react';
 export default function Home() {
   const router = useRouter();
   const [selectedOption, setSelectedOption] = useState('');
+  const [results, setResults] = useState(null);
 
   const handleSelectionChange = (event) => {
     const selectedValue = event.target.value;
@@ -14,6 +15,10 @@ export default function Home() {
     if (selectedValue) {
       router.push(`/${selectedValue}`);
     }
+  };
+
+  const handleFileUpload = (data) => {
+    setResults(data);
   };
 
   return (
@@ -31,7 +36,7 @@ export default function Home() {
         <p className={styles.description}>
           Upload the files and select analysis options
         </p>
-        <FileUpload />
+        <FileUpload onUpload={handleFileUpload} />
         <div style={{ marginTop: '20px' }}>
           <select value={selectedOption} onChange={handleSelectionChange}>
             <option value="" disabled>Select Analysis Type</option>
@@ -41,6 +46,12 @@ export default function Home() {
             <option value="test">View Plot Test</option>
           </select>
         </div>
+        {results && (
+          <div>
+            <h2>Results:</h2>
+            <pre>{JSON.stringify(results, null, 2)}</pre>
+          </div>
+        )}
       </main>
 
       <footer className={styles.footer}>

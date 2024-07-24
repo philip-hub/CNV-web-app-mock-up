@@ -1,42 +1,47 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-const FileUpload = () => {
+const FileUpload = ({ onUpload }) => {
   const onDrop = useCallback(async (acceptedFiles) => {
+    const file = acceptedFiles[0];
     const formData = new FormData();
-    acceptedFiles.forEach(file => {
-      console.log('Uploading file:', file);
-      formData.append('file', file);
+    formData.append('file', file);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
     });
 
-    try {
-      const res = await fetch('/api/upload', {
+    if (response.ok) {
+      const data = await response.json();
+      const filePath = `/uploads/${file.name}`;
+
+      // Call the calculate API
+      const calcResponse = await fetch('/api/calculate', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filePath }),
       });
 
-      if (res.ok) {
-        alert('File uploaded successfully');
+      if (!calcResponse.ok) {
+        alert('Failed to calculate log ratios and NRMF');
       } else {
-        const error = await res.json();
-        alert(`Failed to upload file: ${error.error}`);
+        const calcData = await calcResponse.json();
+        onUpload(calcData);
       }
-    } catch (error) {
-      console.error('Error uploading file:', error);
+    } else {
       alert('Failed to upload file');
     }
-  }, []);
+  }, [onUpload]);
 
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: '.tsv',
-    multiple: false
-  });
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
-    <div {...getRootProps({ className: 'dropzone' })} style={{ border: '2px dashed #cccccc', padding: '20px', textAlign: 'center' }}>
+    <div {...getRootProps()} style={{ border: '1px dashed black', padding: '20px', textAlign: 'center' }}>
       <input {...getInputProps()} />
-      <p>Drag and drop a .tsv file here, or click to select a file</p>
+      <p>Drag 'n' drop a .tsv file here, or click to select a file</p>
     </div>
   );
 };
