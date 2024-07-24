@@ -39,7 +39,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'Coverage column "dm" not found' });
         }
 
-        // Calculate the median coverage
+        // Calculate the median coverage (mlcv equivalent)
         const validDmValues = karyotypes.map(row => row.dm).filter(dm => !isNaN(dm));
         const medianCoverage = validDmValues.reduce((acc, dm) => acc + dm, 0) / validDmValues.length;
 
