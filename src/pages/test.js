@@ -2,19 +2,24 @@ import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import Plot from 'react-plotly.js';
+import dynamic from 'next/dynamic';
+import NavBar from '../components/NavBar';
+
+// Dynamically import Plotly component with SSR disabled
+const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
 export default function Home() {
   const router = useRouter();
   const [selectedOption, setSelectedOption] = useState('');
 
-  const handleSelectionChange = (event) => {
-    const selectedValue = event.target.value;
-    setSelectedOption(selectedValue);
-    if (selectedValue) {
-      router.push(`/${selectedValue}`);
-    }
-  };
+
+  function data(){
+    const x = [1, 2, 3];
+    const y = [2, 6, 3];
+    return x, y
+  }
+
+  
 
   return (
     <div className={styles.container}>
@@ -25,6 +30,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
+      <NavBar />
         <h1 className={styles.title}>
            Copy Number Analysis
         </h1>
@@ -32,16 +38,16 @@ export default function Home() {
         <Plot
         data={[
           {
-            x: [1, 2, 3],
-            y: [2, 6, 3],
+            x: data()[0],
+            y: data()[1],
             type: 'scatter',
             mode: 'lines+markers',
-            marker: {color: 'red'},
+            marker: { color: 'red' },
           },
-          {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
+          { type: 'bar', x: [1, 2, 3], y: [2, 5, 3] },
         ]}
-        layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
-      />
+        layout={{ width: 320, height: 240, title: 'A Fancy Plot' }}
+        />
       </main>
 
       <footer className={styles.footer}>
@@ -50,4 +56,3 @@ export default function Home() {
     </div>
   );
 }
-
