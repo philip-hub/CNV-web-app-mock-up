@@ -32,7 +32,8 @@ export default function Test() {
     }
 
     const x = results.map(item => item.arm);
-    const y = results.map(item => item.log_ratio);
+    const logRatios = results.map(item => item.log_ratio);
+    const NRMFs = results.map(item => item.NRMF);
     const chromosomes = results.map(item => item.arm); // Assuming the arm property is used to distinguish chromosomes
 
     return (
@@ -40,7 +41,7 @@ export default function Test() {
         data={[
           {
             x: x,
-            y: y,
+            y: logRatios,
             mode: 'markers',
             type: 'scatter',
             marker: {
@@ -49,17 +50,29 @@ export default function Test() {
               colorscale: 'Viridis'
             },
             name: 'Log Ratio'
+          },
+          {
+            x: x,
+            y: NRMFs,
+            mode: 'markers',
+            type: 'scatter',
+            marker: {
+              size: 2,
+              color: chromosomes,
+              colorscale: 'Blues'
+            },
+            name: 'NRMF'
           }
         ]}
         layout={{
-          title: 'Log Ratio',
+          title: 'Log Ratio and NRMF',
           xaxis: {
             title: 'Genomic Position',
             tickvals: Array.from({ length: results.length }, (_, i) => i),
             ticktext: x
           },
           yaxis: {
-            title: 'Log Ratio',
+            title: 'Value',
             range: [-2, 2]
           },
           shapes: [] // Initial empty shapes array for vertical lines
