@@ -26,26 +26,37 @@ export default function Test() {
     }
   };
 
+  const extractChromosomeNumber = (arm) => {
+    return arm.replace('chr', '').replace('p', '').replace('q', '');
+  };
+
   const renderLogRatioPlot = () => {
     if (!results) {
       return null;
     }
 
-    const x = results.map(item => item.arm);
+    const x = results.map(item => extractChromosomeNumber(item.arm));
     const logRatios = results.map(item => item.log_ratio);
     const chromosomes = results.map(item => item.arm); // Assuming the arm property is used to distinguish chromosomes
+
+    // Sort chromosomes for proper order
+    const sortedIndices = x.map((val, index) => [val, index]).sort((a, b) => a[0] - b[0]).map(item => item[1]);
+
+    const sortedX = sortedIndices.map(index => x[index]);
+    const sortedLogRatios = sortedIndices.map(index => logRatios[index]);
+    const sortedChromosomes = sortedIndices.map(index => chromosomes[index]);
 
     return (
       <Plot
         data={[
           {
-            x: x,
-            y: logRatios,
+            x: sortedX,
+            y: sortedLogRatios,
             mode: 'markers',
             type: 'scatter',
             marker: {
               size: 2,
-              color: chromosomes,
+              color: sortedChromosomes,
               colorscale: 'Viridis'
             },
             name: 'Log Ratio'
@@ -54,9 +65,9 @@ export default function Test() {
         layout={{
           title: 'Log Ratio',
           xaxis: {
-            title: 'Genomic Position',
-            tickvals: Array.from({ length: results.length }, (_, i) => i),
-            ticktext: x
+            title: 'Chromosome',
+            tickvals: [...new Set(sortedX)],
+            ticktext: [...new Set(sortedX)]
           },
           yaxis: {
             title: 'Log Ratio',
@@ -73,21 +84,28 @@ export default function Test() {
       return null;
     }
 
-    const x = results.map(item => item.arm);
+    const x = results.map(item => extractChromosomeNumber(item.arm));
     const NRMFs = results.map(item => item.NRMF);
     const chromosomes = results.map(item => item.arm); // Assuming the arm property is used to distinguish chromosomes
+
+    // Sort chromosomes for proper order
+    const sortedIndices = x.map((val, index) => [val, index]).sort((a, b) => a[0] - b[0]).map(item => item[1]);
+
+    const sortedX = sortedIndices.map(index => x[index]);
+    const sortedNRMFs = sortedIndices.map(index => NRMFs[index]);
+    const sortedChromosomes = sortedIndices.map(index => chromosomes[index]);
 
     return (
       <Plot
         data={[
           {
-            x: x,
-            y: NRMFs,
+            x: sortedX,
+            y: sortedNRMFs,
             mode: 'markers',
             type: 'scatter',
             marker: {
               size: 2,
-              color: chromosomes,
+              color: sortedChromosomes,
               colorscale: 'Blues'
             },
             name: 'NRMF'
@@ -96,13 +114,13 @@ export default function Test() {
         layout={{
           title: 'NRMF',
           xaxis: {
-            title: 'Genomic Position',
-            tickvals: Array.from({ length: results.length }, (_, i) => i),
-            ticktext: x
+            title: 'Chromosome',
+            tickvals: [...new Set(sortedX)],
+            ticktext: [...new Set(sortedX)]
           },
           yaxis: {
             title: 'NRMF',
-            range: [0, Math.max(...NRMFs)] // Adjust the range as needed
+            range: [0, Math.max(...sortedNRMFs)] // Adjust the range as needed
           },
           shapes: [] // Initial empty shapes array for vertical lines
         }}
