@@ -1,0 +1,33 @@
+heat maps for x and y for intensity
+
+generate/rendering
+
+don;t worry about techniques dropdown
+
+idea:
+
+stocastic transcribing
+
+we have copy numbers as a transcribing mode and compare it to DNA
+
+compare RNA sequences and whole exon sequences
+
+time series
+
+predefined
+
+and user defined ordering
+
+multi smaple
+
+clustering
+
+single cell heat map with cell
+
+
+on chromosome plots for multi
+
+add it to where they are all shown you can then click it and it will show a zoomed graph in version of the chromosome for the samples
+when you click on it include the comparison for that one chromosome
+
+add an ordering to multisample and get rid of times series page
