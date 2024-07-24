@@ -33,6 +33,7 @@ export default function Test() {
 
     const x = results.map(item => item.arm);
     const y = results.map(item => item.log_ratio);
+    const chromosomes = results.map(item => item.arm); // Assuming the arm property is used to distinguish chromosomes
 
     return (
       <Plot
@@ -40,13 +41,29 @@ export default function Test() {
           {
             x: x,
             y: y,
+            mode: 'markers',
             type: 'scatter',
-            mode: 'lines+markers',
-            marker: { color: 'red' },
-          },
-          { type: 'bar', x: x, y: y },
+            marker: {
+              size: 2,
+              color: chromosomes,
+              colorscale: 'Viridis'
+            },
+            name: 'Log Ratio'
+          }
         ]}
-        layout={{ width: 720, height: 480, title: 'Log Ratio Plot' }}
+        layout={{
+          title: 'Log Ratio',
+          xaxis: {
+            title: 'Genomic Position',
+            tickvals: Array.from({ length: results.length }, (_, i) => i),
+            ticktext: x
+          },
+          yaxis: {
+            title: 'Log Ratio',
+            range: [-2, 2]
+          },
+          shapes: [] // Initial empty shapes array for vertical lines
+        }}
       />
     );
   };
