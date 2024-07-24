@@ -1,8 +1,8 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import FileUpload from '../components/FileUpload';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import Plot from 'react-plotly.js';
 
 export default function Home() {
   const router = useRouter();
@@ -28,23 +28,26 @@ export default function Home() {
         <h1 className={styles.title}>
            Copy Number Analysis
         </h1>
-        <p className={styles.description}>
-          Upload the files and select analysis options
-        </p>
-        <FileUpload />
-        <div style={{ marginTop: '20px' }}>
-          <select value={selectedOption} onChange={handleSelectionChange}>
-            <option value="" disabled>Select Analysis Type</option>
-            <option value="single">Single Sample Analysis</option>
-            <option value="multi">Multifile Sample Analysis</option>
-            <option value="timeseries">Timeseries Analysis</option>
-            <option value="test">View Plot Test</option>
-          </select>
-        </div>
+      
+        <Plot
+        data={[
+          {
+            x: [1, 2, 3],
+            y: [2, 6, 3],
+            type: 'scatter',
+            mode: 'lines+markers',
+            marker: {color: 'red'},
+          },
+          {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
+        ]}
+        layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
+      />
       </main>
 
       <footer className={styles.footer}>
+        <a href="https://github.com/philip-hub/CNV-web-app-mock-up" target="_blank">Source Code</a>
       </footer>
     </div>
   );
 }
+
