@@ -1,162 +1,163 @@
-import Head from 'next/head';
-import styles from '../styles/Home.module.css';
-import { useRouter } from 'next/router';
-import { useState } from 'react';
-import dynamic from 'next/dynamic';
-import NavBar from '../components/NavBar';
-import FileUpload from '../components/FileUpload';
+import React, { useState } from 'react';
 
-// Dynamically import Plotly component with SSR disabled
-const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
+export default function Home() {
+    const [plotData, setPlotData] = useState(null);
 
-export default function Test() {
-  const router = useRouter();
-  const [selectedOption, setSelectedOption] = useState('');
-  const [results, setResults] = useState(null);
+    const handleFileUpload = async (event) => {
+        const file = event.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
 
-  const handleFileUpload = (data) => {
-    setResults(data);
-  };
+        const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+        });
 
-  const handleSelectionChange = (event) => {
-    const selectedValue = event.target.value;
-    setSelectedOption(selectedValue);
-    if (selectedValue) {
-      router.push(`/${selectedValue}`);
-    }
-  };
+        if (!uploadResponse.ok) {
+            console.error('Failed to upload file');
+            return;
+        }
 
-  const extractChromosomeNumber = (arm) => {
-    return arm.replace('chr', '').replace('p', '').replace('q', '');
-  };
+        const uploadResult = await uploadResponse.json();
+        const filePath = uploadResult.filePath;
 
-  const renderLogRatioPlot = () => {
-    if (!results) {
-      return null;
-    }
+        if (!filePath) {
+            console.error('File path is required');
+            return;
+        }
 
-    const x = results.map(item => extractChromosomeNumber(item.arm));
-    const logRatios = results.map(item => item.log_ratio);
-    const chromosomes = results.map(item => item.arm); // Assuming the arm property is used to distinguish chromosomes
+        const calculateResponse = await fetch('/api/calculate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ filePath })
+        });
 
-    // Sort chromosomes for proper order
-    const sortedIndices = x.map((val, index) => [val, index]).sort((a, b) => a[0] - b[0]).map(item => item[1]);
+        if (!calculateResponse.ok) {
+            console.error('Failed to process file');
+            return;
+        }
 
-    const sortedX = sortedIndices.map(index => x[index]);
-    const sortedLogRatios = sortedIndices.map(index => logRatios[index]);
-    const sortedChromosomes = sortedIndices.map(index => chromosomes[index]);
+        const result = await calculateResponse.json();
+        console.log('API result:', result); // Debugging line
+
+        const vafData = result.vafData;
+        const coverageData = result.coverageData;
+
+        if (!vafData || !coverageData) {
+            console.error('Invalid data structure from API');
+            return;
+        }
+
+        const chromosomes = [...new Set(vafData.map(d => d.arm))];
+
+        const vafPlots = chromosomes.map((chrom, index) => ({
+            x: vafData.filter(d => d.arm === chrom).map(d => d.Pos),
+            y: vafData.filter(d => d.arm === chrom).map(d => d.v),
+            type: 'scatter',
+            mode: 'markers',
+            text: [],
+            name: chrom,
+            xaxis: `x${index + 1}`,
+            yaxis: `y${index + 1}`
+        }));
+
+        const coveragePlots = chromosomes.map((chrom, index) => ({
+            x: coverageData.filter(d => d.arm === chrom).map(d => d.Pos),
+            y: coverageData.filter(d => d.arm === chrom).map(d => d.lcv),
+            type: 'scatter',
+            mode: 'markers',
+            name: chrom,
+            text: [],
+            xaxis: `x${index + 1}`,
+            yaxis: `y${index + 1}`
+        }));
+
+        console.log(chromosomes.length)
+        const plotWidth = chromosomes.length * 300; // Adjust the multiplier as needed
+
+        const vafLayout = {
+            title: 'Vaf Score vs Position',
+            showlegend: false,
+            width: plotWidth,
+            height: 600, // Adjust the height if needed
+            grid: {
+                rows: 1,
+                columns: chromosomes.length,
+                pattern: 'independent'
+            },
+            margin: {
+                l: 50,
+                r: 50,
+                b: 50,
+                t: 50,
+                pad: 4
+            }
+        };
+
+        const coverageLayout = {
+            title: 'Coverage Score vs Position',
+            showlegend: false,
+            width: plotWidth,
+            height: 600, // Adjust the height if needed
+            grid: {
+                rows: 1,
+                columns: chromosomes.length,
+                pattern: 'independent'
+            },
+            margin: {
+                l: 50,
+                r: 50,
+                b: 50,
+                t: 50,
+                pad: 4
+            }
+        };
+
+        chromosomes.forEach((chrom, index) => {
+            vafLayout[`xaxis${index + 1}`] = { title: `Position (${chrom})` };
+            vafLayout[`yaxis${index + 1}`] = { title: 'Vaf Score' };
+            coverageLayout[`xaxis${index + 1}`] = { title: `Position (${chrom})` };
+            coverageLayout[`yaxis${index + 1}`] = { title: 'Coverage Score' };
+        });
+
+        setPlotData({ vafPlots, vafLayout, coveragePlots, coverageLayout });
+    };
 
     return (
-      <Plot
-        data={[
-          {
-            x: sortedX,
-            y: sortedLogRatios,
-            mode: 'markers',
-            type: 'scatter',
-            marker: {
-              size: 2,
-              color: sortedChromosomes,
-              colorscale: 'Viridis'
-            },
-            name: 'Log Ratio'
-          }
-        ]}
-        layout={{
-          title: 'Log Ratio',
-          xaxis: {
-            title: 'Chromosome',
-            tickvals: [...new Set(sortedX)],
-            ticktext: [...new Set(sortedX)]
-          },
-          yaxis: {
-            title: 'Log Ratio',
-            range: [-2, 2]
-          },
-          shapes: [] // Initial empty shapes array for vertical lines
-        }}
-      />
+        <div>
+            <h1>Upload your TSV file</h1>
+            <input type="file" onChange={handleFileUpload} />
+            {plotData && (
+                <div>
+                    <DynamicPlot 
+                        vafPlots={plotData.vafPlots} 
+                        vafLayout={plotData.vafLayout} 
+                        coveragePlots={plotData.coveragePlots} 
+                        coverageLayout={plotData.coverageLayout} 
+                    />
+                </div>
+            )}
+        </div>
     );
-  };
-
-  const renderNRMFPlot = () => {
-    if (!results) {
-      return null;
-    }
-
-    const x = results.map(item => extractChromosomeNumber(item.arm));
-    const NRMFs = results.map(item => item.NRMF);
-    const chromosomes = results.map(item => item.arm); // Assuming the arm property is used to distinguish chromosomes
-
-    // Sort chromosomes for proper order
-    const sortedIndices = x.map((val, index) => [val, index]).sort((a, b) => a[0] - b[0]).map(item => item[1]);
-
-    const sortedX = sortedIndices.map(index => x[index]);
-    const sortedNRMFs = sortedIndices.map(index => NRMFs[index]);
-    const sortedChromosomes = sortedIndices.map(index => chromosomes[index]);
-
-    return (
-      <Plot
-        data={[
-          {
-            x: sortedX,
-            y: sortedNRMFs,
-            mode: 'markers',
-            type: 'scatter',
-            marker: {
-              size: 2,
-              color: sortedChromosomes,
-              colorscale: 'Blues'
-            },
-            name: 'NRMF'
-          }
-        ]}
-        layout={{
-          title: 'NRMF',
-          xaxis: {
-            title: 'Chromosome',
-            tickvals: [...new Set(sortedX)],
-            ticktext: [...new Set(sortedX)]
-          },
-          yaxis: {
-            title: 'NRMF',
-            range: [0, Math.max(...sortedNRMFs)] // Adjust the range as needed
-          },
-          shapes: [] // Initial empty shapes array for vertical lines
-        }}
-      />
-    );
-  };
-
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Test Page</title>
-        <meta name="description" content="Welcome to the test page" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <NavBar />
-        <h1 className={styles.title}>
-          Copy Number Analysis
-        </h1>
-        <p className={styles.description}>
-          Upload the files and select analysis options
-        </p>
-        <FileUpload onUpload={handleFileUpload} />
-
-        {results && (
-          <div>
-            {renderLogRatioPlot()}
-            {renderNRMFPlot()}
-          </div>
-        )}
-      </main>
-
-      <footer className={styles.footer}>
-        <a href="https://github.com/philip-hub/CNV-web-app-mock-up" target="_blank">Source Code</a>
-      </footer>
-    </div>
-  );
 }
+
+const DynamicPlot = ({ vafPlots, vafLayout, coveragePlots, coverageLayout }) => {
+    const [Plot, setPlot] = useState(null);
+
+    React.useEffect(() => {
+        import('react-plotly.js').then((Plotly) => {
+            setPlot(() => Plotly.default);
+        });
+    }, []);
+
+    if (!Plot) return null;
+
+    return (
+        <>
+            <Plot data={vafPlots} layout={vafLayout} config={{ responsive: true }} />
+            <Plot data={coveragePlots} layout={coverageLayout} config={{ responsive: true }} />
+        </>
+    );
+};
