@@ -10,11 +10,15 @@ export default async function handler(req, res) {
     const { filePath } = req.body;
 
     if (!filePath) {
+        console.error('File path is required');
         return res.status(400).json({ message: 'File path is required' });
     }
 
+    const absoluteFilePath = path.join(process.cwd(), 'uploads', path.basename(filePath));
+
     try {
-        const fileContent = await fs.readFile(path.join(process.cwd(), filePath), 'utf8');
+        const fileContent = await fs.readFile(absoluteFilePath, 'utf8');
+        console.log('File content read successfully');
 
         // Parse the TSV file content
         const parsedData = Papa.parse(fileContent, {
@@ -23,52 +27,35 @@ export default async function handler(req, res) {
         });
 
         const karyotypes = parsedData.data;
+        console.log('Parsed data:', karyotypes);
 
-        // Check if the coverage column exists and parse it as float
-        karyotypes.forEach(row => {
-            if (row.dm !== undefined) {
-                row.dm = parseFloat(row.dm);
-                if (isNaN(row.dm)) {
-                    row.dm = 0; // Handle NaN by setting to 0 or any default value
-                }
+        // Check if the required columns exist
+        const requiredColumns = ['arm', 'Pos', 'v', 'lcv'];
+        for (const column of requiredColumns) {
+            if (!karyotypes[0].hasOwnProperty(column)) {
+                console.error(`Required column "${column}" not found`);
+                return res.status(400).json({ message: `Required column "${column}" not found` });
             }
-        });
-
-        // Check if the coverage column exists
-        if (!karyotypes[0].hasOwnProperty('dm')) {
-            return res.status(400).json({ message: 'Coverage column "dm" not found' });
         }
 
-        // Calculate the median coverage (mlcv equivalent)
-        const validDmValues = karyotypes.map(row => row.dm).filter(dm => !isNaN(dm));
-        const medianCoverage = validDmValues.reduce((acc, dm) => acc + dm, 0) / validDmValues.length;
-
-        // Calculate the log ratio and NRMF
-        const totalReads = validDmValues.reduce((acc, dm) => acc + dm, 0);
-        const expectedFraction = 1 / karyotypes.length;
-
-        karyotypes.forEach(row => {
-            if (!isNaN(row.dm)) {
-                row.log_ratio = Math.log2(row.dm / medianCoverage);
-                row.read_mapping_fraction = row.dm / totalReads;
-                row.NRMF = row.read_mapping_fraction / expectedFraction;
-            } else {
-                row.log_ratio = null;
-                row.read_mapping_fraction = null;
-                row.NRMF = null;
-            }
-        });
-
-        // Select the relevant columns
-        const result = karyotypes.map(row => ({
+        // Prepare Vaf Score and Coverage Score data
+        const vafData = karyotypes.map(row => ({
             arm: row.arm,
-            log_ratio: row.log_ratio,
-            NRMF: row.NRMF
+            Pos: parseInt(row.Pos),
+            v: parseFloat(row.v)
+        }));
+        const coverageData = karyotypes.map(row => ({
+            arm: row.arm,
+            Pos: parseInt(row.Pos),
+            lcv: parseFloat(row.lcv)
         }));
 
-        res.status(200).json(result);
+        console.log('Vaf Data:', vafData);
+        console.log('Coverage Data:', coverageData);
+
+        res.status(200).json({ vafData, coverageData });
     } catch (error) {
-        console.error(error);
+        console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }
