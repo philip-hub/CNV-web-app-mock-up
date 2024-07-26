@@ -59,6 +59,7 @@ export default function Home() {
             mode: 'markers',
             text: [],
             name: chrom,
+            marker: { size: 2 },
             xaxis: `x${index + 1}`,
             yaxis: `y${index + 1}`
         }));
@@ -70,29 +71,33 @@ export default function Home() {
             mode: 'markers',
             name: chrom,
             text: [],
+            marker: { size: 2 },
             xaxis: `x${index + 1}`,
             yaxis: `y${index + 1}`
         }));
 
-        console.log(chromosomes.length)
-        const plotWidth = chromosomes.length * 300; // Adjust the multiplier as needed
+        const plotWidth = chromosomes.length * 150; // Adjust the multiplier as needed
+        const plotHeight = 600;
 
         const vafLayout = {
             title: 'Vaf Score vs Position',
             showlegend: false,
             width: plotWidth,
-            height: 600, // Adjust the height if needed
+            height: plotHeight, // Adjust the height if needed
             grid: {
                 rows: 1,
                 columns: chromosomes.length,
                 pattern: 'independent'
             },
             margin: {
-                l: 50,
-                r: 50,
-                b: 50,
-                t: 50,
-                pad: 4
+                l: 10,
+                r: 10,
+                b: 10,
+                t: 10,
+                pad: 0 // Reduced padding to eliminate extra space
+            },
+            font: {
+                size: 10
             }
         };
 
@@ -100,26 +105,29 @@ export default function Home() {
             title: 'Coverage Score vs Position',
             showlegend: false,
             width: plotWidth,
-            height: 600, // Adjust the height if needed
+            height: plotHeight, // Adjust the height if needed
             grid: {
                 rows: 1,
                 columns: chromosomes.length,
                 pattern: 'independent'
             },
             margin: {
-                l: 50,
-                r: 50,
-                b: 50,
-                t: 50,
-                pad: 4
+                l: 10,
+                r: 10,
+                b: 10,
+                t: 10,
+                pad: 0 // Reduced padding to eliminate extra space
+            },
+            font: {
+                size: 10
             }
         };
 
         chromosomes.forEach((chrom, index) => {
-            vafLayout[`xaxis${index + 1}`] = { title: `Position (${chrom})` };
-            vafLayout[`yaxis${index + 1}`] = { title: 'Vaf Score' };
-            coverageLayout[`xaxis${index + 1}`] = { title: `Position (${chrom})` };
-            coverageLayout[`yaxis${index + 1}`] = { title: 'Coverage Score' };
+            vafLayout[`xaxis${index + 1}`] = { title: `(${chrom})`, showticklabels: index === 0, domain: [(index / chromosomes.length), ((index + 1) / chromosomes.length) - 0.01] };
+            vafLayout[`yaxis${index + 1}`] = { title: index === 0 ? 'Vaf Score' : '', showticklabels: index === 0, domain: [0, 1] };
+            coverageLayout[`xaxis${index + 1}`] = { title: `(${chrom})`, showticklabels: index === 0, domain: [(index / chromosomes.length), ((index + 1) / chromosomes.length) - 0.01] };
+            coverageLayout[`yaxis${index + 1}`] = { title: index === 0 ? 'Coverage Score' : '', showticklabels: index === 0, domain: [0, 1] };
         });
 
         setPlotData({ vafPlots, vafLayout, coveragePlots, coverageLayout });
