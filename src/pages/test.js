@@ -57,7 +57,7 @@ export default function Home() {
             y: vafData.filter(d => d.arm === chrom).map(d => d.v),
             type: 'scatter',
             mode: 'markers',
-            text: [], 
+            text: [],
             name: chrom,
             xaxis: `x${index + 1}`,
             yaxis: `y${index + 1}`
@@ -69,44 +69,60 @@ export default function Home() {
             type: 'scatter',
             mode: 'markers',
             name: chrom,
-            text: [], 
+            text: [],
             xaxis: `x${index + 1}`,
             yaxis: `y${index + 1}`
         }));
 
+        console.log(chromosomes.length)
+        const plotWidth = chromosomes.length * 300; // Adjust the multiplier as needed
 
-       //const plotWidth = 500;
         const vafLayout = {
             title: 'Vaf Score vs Position',
             showlegend: false,
-            width: 500,
+            width: plotWidth,
+            height: 600, // Adjust the height if needed
             grid: {
                 rows: 1,
                 columns: chromosomes.length,
                 pattern: 'independent'
+            },
+            margin: {
+                l: 50,
+                r: 50,
+                b: 50,
+                t: 50,
+                pad: 4
             }
         };
 
         const coverageLayout = {
             title: 'Coverage Score vs Position',
             showlegend: false,
-            width: 3000,
+            width: plotWidth,
+            height: 600, // Adjust the height if needed
             grid: {
                 rows: 1,
                 columns: chromosomes.length,
                 pattern: 'independent'
+            },
+            margin: {
+                l: 50,
+                r: 50,
+                b: 50,
+                t: 50,
+                pad: 4
             }
         };
 
         chromosomes.forEach((chrom, index) => {
             vafLayout[`xaxis${index + 1}`] = { title: `Position (${chrom})` };
             vafLayout[`yaxis${index + 1}`] = { title: 'Vaf Score' };
-            //coverageLayout[`xaxis${index + 1}`] = { title: `Position (${chrom})` };
+            coverageLayout[`xaxis${index + 1}`] = { title: `Position (${chrom})` };
             coverageLayout[`yaxis${index + 1}`] = { title: 'Coverage Score' };
         });
 
-        setPlotData({ vafPlots, vafLayout});
-        setPlotData({ coveragePlots, coverageLayout })
+        setPlotData({ vafPlots, vafLayout, coveragePlots, coverageLayout });
     };
 
     return (
