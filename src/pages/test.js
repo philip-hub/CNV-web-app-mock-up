@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Plot from 'react-plotly.js';
 
 export default function Home() {
     const [plotData, setPlotData] = useState(null);
@@ -58,10 +57,10 @@ export default function Home() {
             y: vafData.filter(d => d.arm === chrom).map(d => d.v),
             type: 'scatter',
             mode: 'markers',
+            text: [], 
             name: chrom,
-            marker: { size: 3 },
-            xaxis: 'x' + (index + 1),
-            yaxis: 'y1'
+            xaxis: `x${index + 1}`,
+            yaxis: `y${index + 1}`
         }));
 
         const coveragePlots = chromosomes.map((chrom, index) => ({
@@ -70,52 +69,79 @@ export default function Home() {
             type: 'scatter',
             mode: 'markers',
             name: chrom,
-            marker: { size: 3 },
-            xaxis: 'x' + (index + 1),
-            yaxis: 'y1'
+            text: [], 
+            xaxis: `x${index + 1}`,
+            yaxis: `y${index + 1}`
         }));
 
-        const layout = {
+
+       //const plotWidth = 500;
+        const vafLayout = {
             title: 'Vaf Score vs Position',
-            height: 600, // Adjust height as needed
-            showlegend: true,
-            grid: { rows: 1, columns: chromosomes.length, pattern: 'independent' },
-            xaxis: { title: 'Position', automargin: true },
-            yaxis: { title: 'Vaf Score', automargin: true }
+            showlegend: false,
+            width: 500,
+            grid: {
+                rows: 1,
+                columns: chromosomes.length,
+                pattern: 'independent'
+            }
         };
 
-        const layout2 = {
+        const coverageLayout = {
             title: 'Coverage Score vs Position',
-            height: 600, // Adjust height as needed
-            showlegend: true,
-            grid: { rows: 1, columns: chromosomes.length, pattern: 'independent' },
-            xaxis: { title: 'Position', automargin: true },
-            yaxis: { title: 'Coverage Score', automargin: true }
+            showlegend: false,
+            width: 3000,
+            grid: {
+                rows: 1,
+                columns: chromosomes.length,
+                pattern: 'independent'
+            }
         };
 
-        setPlotData({ vafPlots, coveragePlots, layout, layout2 });
+        chromosomes.forEach((chrom, index) => {
+            vafLayout[`xaxis${index + 1}`] = { title: `Position (${chrom})` };
+            vafLayout[`yaxis${index + 1}`] = { title: 'Vaf Score' };
+            //coverageLayout[`xaxis${index + 1}`] = { title: `Position (${chrom})` };
+            coverageLayout[`yaxis${index + 1}`] = { title: 'Coverage Score' };
+        });
+
+        setPlotData({ vafPlots, vafLayout});
+        setPlotData({ coveragePlots, coverageLayout })
     };
 
     return (
         <div>
-            <h1>Upload File</h1>
+            <h1>Upload your TSV file</h1>
             <input type="file" onChange={handleFileUpload} />
             {plotData && (
                 <div>
-                    <Plot
-                        data={plotData.vafPlots}
-                        layout={plotData.layout}
-                        useResizeHandler
-                        style={{ width: '100%', height: '100%' }}
-                    />
-                    <Plot
-                        data={plotData.coveragePlots}
-                        layout={plotData.layout2}
-                        useResizeHandler
-                        style={{ width: '100%', height: '100%' }}
+                    <DynamicPlot 
+                        vafPlots={plotData.vafPlots} 
+                        vafLayout={plotData.vafLayout} 
+                        coveragePlots={plotData.coveragePlots} 
+                        coverageLayout={plotData.coverageLayout} 
                     />
                 </div>
             )}
         </div>
     );
 }
+
+const DynamicPlot = ({ vafPlots, vafLayout, coveragePlots, coverageLayout }) => {
+    const [Plot, setPlot] = useState(null);
+
+    React.useEffect(() => {
+        import('react-plotly.js').then((Plotly) => {
+            setPlot(() => Plotly.default);
+        });
+    }, []);
+
+    if (!Plot) return null;
+
+    return (
+        <>
+            <Plot data={vafPlots} layout={vafLayout} config={{ responsive: true }} />
+            <Plot data={coveragePlots} layout={coverageLayout} config={{ responsive: true }} />
+        </>
+    );
+};
