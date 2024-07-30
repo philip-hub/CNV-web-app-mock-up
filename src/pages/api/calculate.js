@@ -26,34 +26,27 @@ export default async function handler(req, res) {
             delimiter: '\t'
         });
 
-        const karyotypes = parsedData.data;
-        console.log('Parsed data:', karyotypes);
+        const data = parsedData.data;
+        console.log('Parsed data:', data);
 
         // Check if the required columns exist
-        const requiredColumns = ['arm', 'Pos', 'v', 'lcv'];
+        const requiredColumns = ['x', 'y'];
         for (const column of requiredColumns) {
-            if (!karyotypes[0].hasOwnProperty(column)) {
+            if (!data[0].hasOwnProperty(column)) {
                 console.error(`Required column "${column}" not found`);
                 return res.status(400).json({ message: `Required column "${column}" not found` });
             }
         }
 
-        // Prepare Vaf Score and Coverage Score data
-        const vafData = karyotypes.map(row => ({
-            arm: row.arm,
-            Pos: parseInt(row.Pos),
-            v: parseFloat(row.v)
-        }));
-        const coverageData = karyotypes.map(row => ({
-            arm: row.arm,
-            Pos: parseInt(row.Pos),
-            lcv: parseFloat(row.lcv)
+        // Extract x and y data
+        const plotData = data.map(row => ({
+            x: parseFloat(row.x),
+            y: parseFloat(row.y)
         }));
 
-        console.log('Vaf Data:', vafData);
-        console.log('Coverage Data:', coverageData);
+        console.log('Plot Data:', plotData);
 
-        res.status(200).json({ vafData, coverageData });
+        res.status(200).json({ plotData });
     } catch (error) {
         console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });
