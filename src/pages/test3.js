@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 export default function Home() {
     const [plotData1, setPlotData1] = useState(null);
     const [plotData2, setPlotData2] = useState(null);
+    const [plotData3, setPlotData3] = useState(null);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -43,9 +44,9 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3 } = result;
 
-        if (!plotData1 || !plotData2) {
+        if (!plotData1 || !plotData2 || !plotData3) {
             console.error('Invalid data structure from API');
             return;
         }
@@ -192,18 +193,61 @@ export default function Home() {
             ...createAnnotationsAndShapes(plotData2, uniqueArm2Values)
         };
 
+        // Plot data for the third plot
+        const scatterPlot3 = {
+            x: plotData3.map(d => d.x),
+            y: plotData3.map(d => d.y),
+            type: 'scatter',
+            mode: 'markers',
+            marker: { size: 5, color: 'rgba(0, 0, 255, 0.5)' },
+            name: 'AI vs CN'
+        };
+
+        const layout3 = {
+            title: 'Scatter Plot of AI vs CN',
+            showlegend: false,
+            width: 500,
+            height: 500,  // Make it square
+            margin: {
+                l: 50,
+                r: 50,
+                b: 50,
+                t: 50,
+                pad: 0
+            },
+            xaxis: {
+                title: 'CN',
+                tickfont: {
+                    size: 10
+                }
+            },
+            yaxis: {
+                title: 'AI',
+                tickfont: {
+                    size: 10
+                }
+            },
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white',
+            grid: {
+                color: 'lightgray'
+            }
+        };
+
         setPlotData1({ scatterPlot: scatterPlot1, layout: layout1 });
         setPlotData2({ scatterPlot: scatterPlot2, layout: layout2 });
+        setPlotData3({ scatterPlot: scatterPlot3, layout: layout3 });
     };
 
     return (
         <div>
             <h1>Upload your TSV file</h1>
             <input type="file" onChange={handleFileUpload} />
-            {plotData1 && plotData2 && (
+            {plotData1 && plotData2 && plotData3 && (
                 <div>
                     <DynamicPlot scatterPlot={plotData1.scatterPlot} layout={plotData1.layout} />
                     <DynamicPlot scatterPlot={plotData2.scatterPlot} layout={plotData2.layout} />
+                    <DynamicPlot scatterPlot={plotData3.scatterPlot} layout={plotData3.layout} />
                 </div>
             )}
         </div>

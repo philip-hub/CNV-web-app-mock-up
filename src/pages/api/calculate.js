@@ -29,11 +29,12 @@ export default async function handler(req, res) {
         const data = parsedData.data;
         console.log('Parsed data:', data);
 
-        // Check if the required columns exist for both sets
+        // Check if the required columns exist for all sets
         const requiredColumns1 = ['X1', 'Y1', 'arm1'];
         const requiredColumns2 = ['X2', 'Y2', 'arm2'];
+        const requiredColumns3 = ['X3', 'Y3'];
 
-        for (const column of requiredColumns1.concat(requiredColumns2)) {
+        for (const column of [...requiredColumns1, ...requiredColumns2, ...requiredColumns3]) {
             if (!data[0].hasOwnProperty(column)) {
                 console.error(`Required column "${column}" not found`);
                 return res.status(400).json({ message: `Required column "${column}" not found` });
@@ -56,12 +57,19 @@ export default async function handler(req, res) {
         }));
         const uniqueArm2Values = [...new Set(data.map(row => row.arm2))];
 
+        // Extract data for the third plot
+        const plotData3 = data.map(row => ({
+            x: parseFloat(row.X3),
+            y: parseFloat(row.Y3)
+        }));
+
         console.log('Plot Data 1:', plotData1);
         console.log('Unique arm1 values:', uniqueArm1Values);
         console.log('Plot Data 2:', plotData2);
         console.log('Unique arm2 values:', uniqueArm2Values);
+        console.log('Plot Data 3:', plotData3);
 
-        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values });
+        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3 });
     } catch (error) {
         console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });
