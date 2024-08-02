@@ -15,6 +15,7 @@ export default function Home() {
     const [plotData2, setPlotData2] = useState(null);
     const [plotData3, setPlotData3] = useState(null);
     const [plotData4, setPlotData4] = useState(null);
+    const [lineData4, setLineData4] = useState([]);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -55,7 +56,7 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, lineData4 } = result;
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4) {
             console.error('Invalid data structure from API');
@@ -272,12 +273,21 @@ export default function Home() {
             y: coloredPlotData4.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 1, color: coloredPlotData4.map(d => d.color) },
+            marker: { size: 5, color: coloredPlotData4.map(d => d.color) },
             name: 'Fourth Plot'
         };
 
+        const linePlots4 = lineData4 ? lineData4.map(line => ({
+            x: line.x,
+            y: line.y,
+            type: 'scatter',
+            mode: 'lines',
+            line: { color: colorMapping[line.arm] },
+            showlegend: false
+        })) : [];
+
         const layout4 = {
-            title: 'CDF Distribution of Vaf Score',
+            title: 'Fourth Plot',
             showlegend: false,
             width: 500,
             height: 500,  // Make it square
@@ -310,7 +320,7 @@ export default function Home() {
         setPlotData1({ scatterPlot: scatterPlot1, layout: layout1 });
         setPlotData2({ scatterPlot: scatterPlot2, layout: layout2 });
         setPlotData3({ scatterPlot: scatterPlot3, layout: layout3 });
-        setPlotData4({ scatterPlot: scatterPlot4, layout: layout4 });
+        setPlotData4({ scatterPlot: scatterPlot4, linePlots: linePlots4, layout: layout4 });
     };
 
     return (
@@ -327,7 +337,7 @@ export default function Home() {
                         <DynamicPlot scatterPlot={plotData2.scatterPlot} layout={plotData2.layout} />
                     </div>
                     <div style={{ gridColumn: 'span 2' }}>
-                        <DynamicPlot scatterPlot={plotData4.scatterPlot} layout={plotData4.layout} />
+                        <DynamicPlot scatterPlot={plotData4.scatterPlot} linePlots={plotData4.linePlots} layout={plotData4.layout} />
                     </div>
                 </div>
             )}
@@ -335,7 +345,7 @@ export default function Home() {
     );
 }
 
-const DynamicPlot = ({ scatterPlot, layout }) => {
+const DynamicPlot = ({ scatterPlot, linePlots, layout }) => {
     const [Plot, setPlot] = useState(null);
 
     React.useEffect(() => {
@@ -347,6 +357,6 @@ const DynamicPlot = ({ scatterPlot, layout }) => {
     if (!Plot) return null;
 
     return (
-        <Plot data={[scatterPlot]} layout={layout} config={{ responsive: true }} />
+        <Plot data={[scatterPlot, ...(linePlots || [])]} layout={layout} config={{ responsive: true }} />
     );
 };

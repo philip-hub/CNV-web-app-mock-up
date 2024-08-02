@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
+import { linearRegression } from './linearRegression';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -66,13 +67,25 @@ export default async function handler(req, res) {
         }));
         const uniqueArm3Values = [...new Set(data.map(row => row.arm3))];
 
-        // Extract data for the fourth plot
+        // Extract data for the fourth plot and fit lines
         const plotData4 = data.map(row => ({
             x: parseFloat(row.X4),
             y: parseFloat(row.Y4),
             arm: row.arm4
         }));
         const uniqueArm4Values = [...new Set(data.map(row => row.arm4))];
+
+        const lineData4 = uniqueArm4Values.map(arm => {
+            const armData = plotData4.filter(d => d.arm === arm);
+            const { slope, intercept } = linearRegression(armData.map(d => d.x), armData.map(d => d.y));
+            const xMin = Math.min(...armData.map(d => d.x));
+            const xMax = Math.max(...armData.map(d => d.x));
+            return {
+                arm,
+                x: [xMin, xMax],
+                y: [slope * xMin + intercept, slope * xMax + intercept]
+            };
+        });
 
         console.log('Plot Data 1:', plotData1);
         console.log('Unique arm1 values:', uniqueArm1Values);
@@ -82,8 +95,9 @@ export default async function handler(req, res) {
         console.log('Unique arm3 values:', uniqueArm3Values);
         console.log('Plot Data 4:', plotData4);
         console.log('Unique arm4 values:', uniqueArm4Values);
+        console.log('Line Data 4:', lineData4);
 
-        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values });
+        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, lineData4 });
     } catch (error) {
         console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });
