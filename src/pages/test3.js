@@ -14,6 +14,7 @@ export default function Home() {
     const [plotData1, setPlotData1] = useState(null);
     const [plotData2, setPlotData2] = useState(null);
     const [plotData3, setPlotData3] = useState(null);
+    const [plotData4, setPlotData4] = useState(null);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -54,15 +55,15 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values } = result;
 
-        if (!plotData1 || !plotData2 || !plotData3) {
+        if (!plotData1 || !plotData2 || !plotData3 || !plotData4) {
             console.error('Invalid data structure from API');
             return;
         }
 
         // Combine unique arms from all plots
-        const allUniqueArms = [...new Set([...uniqueArm1Values, ...uniqueArm2Values, ...uniqueArm3Values])];
+        const allUniqueArms = [...new Set([...uniqueArm1Values, ...uniqueArm2Values, ...uniqueArm3Values, ...uniqueArm4Values])];
 
         // Create a color mapping for all unique arms
         const colorMapping = {};
@@ -80,6 +81,7 @@ export default function Home() {
         const coloredPlotData1 = applyColorMapping(plotData1);
         const coloredPlotData2 = applyColorMapping(plotData2);
         const coloredPlotData3 = applyColorMapping(plotData3);
+        const coloredPlotData4 = applyColorMapping(plotData4);
 
         const createAnnotationsAndShapes = (plotData, uniqueArmValues) => {
             const armPositions = {};
@@ -139,7 +141,7 @@ export default function Home() {
             y: coloredPlotData1.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 2, color: coloredPlotData1.map(d => d.color) },
+            marker: { size: 3, color: coloredPlotData1.map(d => d.color) },
             name: 'Coverage Plot'
         };
 
@@ -184,7 +186,7 @@ export default function Home() {
             y: coloredPlotData2.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 2, color: coloredPlotData2.map(d => d.color) },
+            marker: { size: 3, color: coloredPlotData2.map(d => d.color) },
             name: 'Vaf Plot'
         };
 
@@ -264,16 +266,58 @@ export default function Home() {
             }
         };
 
+        // Plot data for the fourth plot
+        const scatterPlot4 = {
+            x: coloredPlotData4.map(d => d.x),
+            y: coloredPlotData4.map(d => d.y),
+            type: 'scatter',
+            mode: 'markers',
+            marker: { size: 1, color: coloredPlotData4.map(d => d.color) },
+            name: 'Fourth Plot'
+        };
+
+        const layout4 = {
+            title: 'CDF Distribution of Vaf Score',
+            showlegend: false,
+            width: 500,
+            height: 500,  // Make it square
+            margin: {
+                l: 50,
+                r: 50,
+                b: 50,
+                t: 50,
+                pad: 0
+            },
+            xaxis: {
+                title: 'X4',
+                tickfont: {
+                    size: 10
+                }
+            },
+            yaxis: {
+                title: 'Y4',
+                tickfont: {
+                    size: 10
+                }
+            },
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white',
+            grid: {
+                color: 'lightgray'
+            }
+        };
+
         setPlotData1({ scatterPlot: scatterPlot1, layout: layout1 });
         setPlotData2({ scatterPlot: scatterPlot2, layout: layout2 });
         setPlotData3({ scatterPlot: scatterPlot3, layout: layout3 });
+        setPlotData4({ scatterPlot: scatterPlot4, layout: layout4 });
     };
 
     return (
         <div>
             <h1>Upload your TSV file</h1>
             <input type="file" onChange={handleFileUpload} />
-            {plotData1 && plotData2 && plotData3 && (
+            {plotData1 && plotData2 && plotData3 && plotData4 && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
                     <div>
                         <DynamicPlot scatterPlot={plotData3.scatterPlot} layout={plotData3.layout} />
@@ -281,6 +325,9 @@ export default function Home() {
                     <div>
                         <DynamicPlot scatterPlot={plotData1.scatterPlot} layout={plotData1.layout} />
                         <DynamicPlot scatterPlot={plotData2.scatterPlot} layout={plotData2.layout} />
+                    </div>
+                    <div style={{ gridColumn: 'span 2' }}>
+                        <DynamicPlot scatterPlot={plotData4.scatterPlot} layout={plotData4.layout} />
                     </div>
                 </div>
             )}
@@ -303,5 +350,3 @@ const DynamicPlot = ({ scatterPlot, layout }) => {
         <Plot data={[scatterPlot]} layout={layout} config={{ responsive: true }} />
     );
 };
-
-

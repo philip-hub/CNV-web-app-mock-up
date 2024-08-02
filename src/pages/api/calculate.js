@@ -33,8 +33,9 @@ export default async function handler(req, res) {
         const requiredColumns1 = ['X1', 'Y1', 'arm1'];
         const requiredColumns2 = ['X2', 'Y2', 'arm2'];
         const requiredColumns3 = ['X3', 'Y3', 'arm3'];
+        const requiredColumns4 = ['X4', 'Y4', 'arm4'];
 
-        for (const column of [...requiredColumns1, ...requiredColumns2, ...requiredColumns3]) {
+        for (const column of [...requiredColumns1, ...requiredColumns2, ...requiredColumns3, ...requiredColumns4]) {
             if (!data[0].hasOwnProperty(column)) {
                 console.error(`Required column "${column}" not found`);
                 return res.status(400).json({ message: `Required column "${column}" not found` });
@@ -65,14 +66,24 @@ export default async function handler(req, res) {
         }));
         const uniqueArm3Values = [...new Set(data.map(row => row.arm3))];
 
+        // Extract data for the fourth plot
+        const plotData4 = data.map(row => ({
+            x: parseFloat(row.X4),
+            y: parseFloat(row.Y4),
+            arm: row.arm4
+        }));
+        const uniqueArm4Values = [...new Set(data.map(row => row.arm4))];
+
         console.log('Plot Data 1:', plotData1);
         console.log('Unique arm1 values:', uniqueArm1Values);
         console.log('Plot Data 2:', plotData2);
         console.log('Unique arm2 values:', uniqueArm2Values);
         console.log('Plot Data 3:', plotData3);
         console.log('Unique arm3 values:', uniqueArm3Values);
+        console.log('Plot Data 4:', plotData4);
+        console.log('Unique arm4 values:', uniqueArm4Values);
 
-        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values });
+        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values });
     } catch (error) {
         console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });
