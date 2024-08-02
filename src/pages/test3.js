@@ -303,3 +303,5 @@ const DynamicPlot = ({ scatterPlot, layout }) => {
         <Plot data={[scatterPlot]} layout={layout} config={{ responsive: true }} />
     );
 };
+
+
