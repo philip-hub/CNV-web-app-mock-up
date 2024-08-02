@@ -42,12 +42,36 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const plotData = result.plotData;
+        const { plotData, uniqueArm1Values } = result;
 
         if (!plotData) {
             console.error('Invalid data structure from API');
             return;
         }
+
+        // Find the lowest x1 point for each arm1 value
+        const arm1Positions = {};
+        plotData.forEach(d => {
+            if (!arm1Positions[d.arm1] || d.x < arm1Positions[d.arm1].x) {
+                arm1Positions[d.arm1] = { x: d.x, y: d.y };
+            }
+        });
+
+        // Create annotations for the x-axis
+        const annotations = uniqueArm1Values.map(arm1 => ({
+            x: arm1Positions[arm1].x,
+            y: -0.2,  // Place below the axis
+            xref: 'x',
+            yref: 'paper',
+            text: arm1,
+            showarrow: false,
+            xanchor: 'center',
+            yanchor: 'top',
+            font: {
+                size: 10
+            },
+            textangle: 90  // Rotate the text vertically
+        }));
 
         // Plot data
         const scatterPlot = {
@@ -55,30 +79,43 @@ export default function Home() {
             y: plotData.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 5 },
-            name: 'Scatter Plot'
+            marker: { size: 3, color: 'rgba(0, 255, 0, 0.5)' },
+            name: 'Coverage Plot'
         };
 
         const layout = {
-            title: 'Scatter Plot of x and y',
+            title: 'Coverage Plot',
             showlegend: false,
-            width: 800,
-            height: 600,
+            width: 1500,
+            height: 400,
             margin: {
                 l: 40,
                 r: 40,
-                b: 60,
+                b: 100,
                 t: 40,
                 pad: 0
             },
             xaxis: {
-                title: 'x',
-                showticklabels: true
+                title: '',
+                showticklabels: false,  // Remove x-axis numbers
+                tickangle: 90,
+                tickfont: {
+                    size: 10
+                }
             },
             yaxis: {
-                title: 'y',
-                showticklabels: true
-            }
+                title: 'log2(median/ref)',
+                showticklabels: true,
+                tickfont: {
+                    size: 10
+                }
+            },
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white',
+            grid: {
+                color: 'lightgray'
+            },
+            annotations: annotations
         };
 
         setPlotData({ scatterPlot, layout });

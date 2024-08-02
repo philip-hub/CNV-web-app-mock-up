@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         console.log('Parsed data:', data);
 
         // Check if the required columns exist
-        const requiredColumns = ['x', 'y'];
+        const requiredColumns = ['X1', 'Y1', 'arm1'];
         for (const column of requiredColumns) {
             if (!data[0].hasOwnProperty(column)) {
                 console.error(`Required column "${column}" not found`);
@@ -38,15 +38,20 @@ export default async function handler(req, res) {
             }
         }
 
-        // Extract x and y data
+        // Extract X1, Y1, and arm1 data
         const plotData = data.map(row => ({
-            x: parseFloat(row.x),
-            y: parseFloat(row.y)
+            x: parseFloat(row.X1),
+            y: parseFloat(row.Y1),
+            arm1: row.arm1
         }));
 
-        console.log('Plot Data:', plotData);
+        // Extract unique arm1 values
+        const uniqueArm1Values = [...new Set(data.map(row => row.arm1))];
 
-        res.status(200).json({ plotData });
+        console.log('Plot Data:', plotData);
+        console.log('Unique arm1 values:', uniqueArm1Values);
+
+        res.status(200).json({ plotData, uniqueArm1Values });
     } catch (error) {
         console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });
