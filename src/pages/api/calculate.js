@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
-import { linearRegression } from './linearRegression';
+import { polynomialRegression } from './polynomialRegression';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -21,7 +21,6 @@ export default async function handler(req, res) {
         const fileContent = await fs.readFile(absoluteFilePath, 'utf8');
         console.log('File content read successfully');
 
-        // Parse the TSV file content
         const parsedData = Papa.parse(fileContent, {
             header: true,
             delimiter: '\t'
@@ -30,7 +29,6 @@ export default async function handler(req, res) {
         const data = parsedData.data;
         console.log('Parsed data:', data);
 
-        // Check if the required columns exist for all sets
         const requiredColumns1 = ['X1', 'Y1', 'arm1'];
         const requiredColumns2 = ['X2', 'Y2', 'arm2'];
         const requiredColumns3 = ['X3', 'Y3', 'arm3'];
@@ -43,7 +41,6 @@ export default async function handler(req, res) {
             }
         }
 
-        // Extract data for the first plot
         const plotData1 = data.map(row => ({
             x: parseFloat(row.X1),
             y: parseFloat(row.Y1),
@@ -51,7 +48,6 @@ export default async function handler(req, res) {
         }));
         const uniqueArm1Values = [...new Set(data.map(row => row.arm1))];
 
-        // Extract data for the second plot
         const plotData2 = data.map(row => ({
             x: parseFloat(row.X2),
             y: parseFloat(row.Y2),
@@ -59,7 +55,6 @@ export default async function handler(req, res) {
         }));
         const uniqueArm2Values = [...new Set(data.map(row => row.arm2))];
 
-        // Extract data for the third plot
         const plotData3 = data.map(row => ({
             x: parseFloat(row.X3),
             y: parseFloat(row.Y3),
@@ -67,7 +62,6 @@ export default async function handler(req, res) {
         }));
         const uniqueArm3Values = [...new Set(data.map(row => row.arm3))];
 
-        // Extract data for the fourth plot and fit lines
         const plotData4 = data.map(row => ({
             x: parseFloat(row.X4),
             y: parseFloat(row.Y4),
@@ -77,13 +71,22 @@ export default async function handler(req, res) {
 
         const lineData4 = uniqueArm4Values.map(arm => {
             const armData = plotData4.filter(d => d.arm === arm);
-            const { slope, intercept } = linearRegression(armData.map(d => d.x), armData.map(d => d.y));
+            const coefficients = polynomialRegression(armData.map(d => d.x), armData.map(d => d.y), 2);
+
             const xMin = Math.min(...armData.map(d => d.x));
             const xMax = Math.max(...armData.map(d => d.x));
+            const xFit = [];
+            const yFit = [];
+
+            for (let x = xMin; x <= xMax; x += (xMax - xMin) / 100) {
+                xFit.push(x);
+                yFit.push(coefficients.reduce((sum, coef, index) => sum + coef * Math.pow(x, index), 0));
+            }
+
             return {
                 arm,
-                x: [xMin, xMax],
-                y: [slope * xMin + intercept, slope * xMax + intercept]
+                x: xFit,
+                y: yFit
             };
         });
 
