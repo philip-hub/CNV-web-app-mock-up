@@ -109,11 +109,11 @@ export default function Home() {
             type: 'scatter',
             mode: 'markers',
             marker: { size: 3, color: 'rgba(0, 255, 0, 0.5)' },
-            name: 'Coverage Plot 1'
+            name: 'Coverage Plot'
         };
 
         const layout1 = {
-            title: 'Coverage Plot 1',
+            title: 'Coverage Plot',
             showlegend: false,
             width: 1700,  // Increase width
             height: 300,  // Decrease height
@@ -154,11 +154,11 @@ export default function Home() {
             type: 'scatter',
             mode: 'markers',
             marker: { size: 3, color: 'rgba(0, 0, 255, 0.5)' },
-            name: 'Coverage Plot 2'
+            name: 'Vaf Plot'
         };
 
         const layout2 = {
-            title: 'Coverage Plot 2',
+            title: 'Vaf Plot',
             showlegend: false,
             width: 1700,  // Increase width
             height: 300,  // Decrease height
@@ -178,7 +178,7 @@ export default function Home() {
                 }
             },
             yaxis: {
-                title: 'log2(median/ref)',
+                title: 'Vaf Score',
                 showticklabels: true,
                 tickfont: {
                     size: 10
