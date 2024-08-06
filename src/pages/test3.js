@@ -12,6 +12,7 @@ export default function Home() {
     const [clickedArm, setClickedArm] = useState(null); // State to hold the clicked arm name
     const [highlightedArm, setHighlightedArm] = useState(null); // State to hold the highlighted arm for coloring
     const [arm7ColorMapping, setArm7ColorMapping] = useState({}); // State to hold arm7ColorMapping
+    const [cloneMapping, setCloneMapping] = useState({}); // State to hold cloneMapping
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -52,7 +53,7 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping } = result;
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
@@ -60,6 +61,8 @@ export default function Home() {
         }
 
         setArm7ColorMapping(arm7ColorMapping); // Set arm7ColorMapping state
+
+        setCloneMapping(cloneMapping); // Set cloneMapping state
 
         const applyColorMapping = (plotData) => {
             return plotData.map(d => ({
@@ -384,8 +387,9 @@ export default function Home() {
         if (event.points && event.points.length > 0) {
             const clickedPoint = event.points[0];
             const clickedArm = clickedPoint.customdata;
+            const cloneName = cloneMapping[clickedArm] || 'Unknown clone'; // Get the clone name
             console.log(clickedArm); // Log the clicked arm name to the console
-            setClickedArm(clickedArm); // Set the clicked arm name
+            setClickedArm(`${clickedArm} ${cloneName}`); // Set the clicked arm name and clone name
             setHighlightedArm(clickedArm); // Set the highlighted arm for coloring
         }
     };
