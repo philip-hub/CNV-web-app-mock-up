@@ -1,14 +1,4 @@
 import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
-
-const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
-
-const colorPalette = [
-    '#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', 
-    '#984ea3', '#999999', '#e41a1c', '#dede00', '#a6cee3',
-    '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c',
-    '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99'
-];
 
 export default function Home() {
     const [plotData1, setPlotData1] = useState(null);
