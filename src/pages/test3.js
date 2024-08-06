@@ -3,6 +3,13 @@ import dynamic from 'next/dynamic';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
+const colorPalette = [
+    '#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', 
+    '#984ea3', '#999999', '#e41a1c', '#dede00', '#a6cee3',
+    '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c',
+    '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99'
+];
+
 export default function Home() {
     const [plotData1, setPlotData1] = useState(null);
     const [plotData2, setPlotData2] = useState(null);
@@ -171,7 +178,7 @@ export default function Home() {
             },
             xaxis: {
                 title: '',
-                showticklabels: false,  // Remove x-axis numbers
+                showticklabels: true,  // Show x-axis numbers
                 tickangle: 90,
                 tickfont: {
                     size: 10
@@ -189,7 +196,8 @@ export default function Home() {
             grid: {
                 color: 'lightgray'
             },
-            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, arm6Values))
+            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, arm6Values)),
+            annotations: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).annotations
         };
 
         // Plot data for the second plot
@@ -216,7 +224,7 @@ export default function Home() {
             },
             xaxis: {
                 title: '',
-                showticklabels: false,  // Remove x-axis numbers
+                showticklabels: true,  // Show x-axis numbers
                 tickangle: 90,
                 tickfont: {
                     size: 10
@@ -234,7 +242,8 @@ export default function Home() {
             grid: {
                 color: 'lightgray'
             },
-            shapes: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).shapes
+            shapes: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).shapes,
+            annotations: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).annotations
         };
 
         // Plot data for the third plot
