@@ -10,6 +10,8 @@ export default function Home() {
     const [plotData4, setPlotData4] = useState(null);
     const [plotData5, setPlotData5] = useState(null);
     const [clickedArm, setClickedArm] = useState(null); // State to hold the clicked arm name
+    const [highlightedArm, setHighlightedArm] = useState(null); // State to hold the highlighted arm for coloring
+    const [arm7ColorMapping, setArm7ColorMapping] = useState({}); // State to hold arm7ColorMapping
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -56,6 +58,8 @@ export default function Home() {
             console.error('Invalid data structure from API');
             return;
         }
+
+        setArm7ColorMapping(arm7ColorMapping); // Set arm7ColorMapping state
 
         const applyColorMapping = (plotData) => {
             return plotData.map(d => ({
@@ -249,7 +253,7 @@ export default function Home() {
             y: coloredPlotData3.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 6, color: coloredPlotData3.map(d => d.color) },
+            marker: { size: 5, color: coloredPlotData3.map(d => d.color) },
             name: 'AI vs CN',
             customdata: coloredPlotData3.map(d => d.customdata) // Add customdata to plot
         };
@@ -291,7 +295,7 @@ export default function Home() {
             y: coloredPlotData4.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 1, color: "grey"},// coloredPlotData4.map(d => d.color)
+            marker: { size: 1, color: "grey" }, //coloredPlotData4.map(d => d.color)
             name: 'Vaf Score CDF',
             customdata: coloredPlotData4.map(d => d.customdata) // Add customdata to plot
         };
@@ -333,7 +337,7 @@ export default function Home() {
             y: coloredPlotData5.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 1, color: "grey" }, //coloredPlotData5.map(d => d.color)
+            marker: { size: 1, color: "grey" },//coloredPlotData5.map(d => d.color)
             name: 'Coverage Score CDF',
             customdata: coloredPlotData5.map(d => d.customdata) // Add customdata to plot
         };
@@ -379,9 +383,29 @@ export default function Home() {
     const handlePlotClick = (event) => {
         if (event.points && event.points.length > 0) {
             const clickedPoint = event.points[0];
-            console.log(clickedPoint.customdata); // Log the clicked arm name to the console
-            setClickedArm(clickedPoint.customdata); // Set the clicked arm name
+            const clickedArm = clickedPoint.customdata;
+            console.log(clickedArm); // Log the clicked arm name to the console
+            setClickedArm(clickedArm); // Set the clicked arm name
+            setHighlightedArm(clickedArm); // Set the highlighted arm for coloring
         }
+    };
+
+    const updatePlotDataWithHighlight = (plotData) => {
+        if (!arm7ColorMapping) {
+            return plotData;
+        }
+        return {
+            ...plotData,
+            scatterPlot: {
+                ...plotData.scatterPlot,
+                marker: {
+                    ...plotData.scatterPlot.marker,
+                    color: plotData.scatterPlot.customdata.map(arm =>
+                        arm === highlightedArm ? 'yellow' : arm7ColorMapping[arm]
+                    )
+                }
+            }
+        };
     };
 
     return (
@@ -391,17 +415,17 @@ export default function Home() {
             {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
                     <div>
-                        <DynamicPlot scatterPlot={plotData3.scatterPlot} layout={plotData3.layout} onClick={handlePlotClick} />
+                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData3).scatterPlot} layout={plotData3.layout} onClick={handlePlotClick} />
                     </div>
                     <div>
-                        <DynamicPlot scatterPlot={plotData1.scatterPlot} layout={plotData1.layout} onClick={handlePlotClick} />
-                        <DynamicPlot scatterPlot={plotData2.scatterPlot} layout={plotData2.layout} onClick={handlePlotClick} />
+                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData1).scatterPlot} layout={plotData1.layout} onClick={handlePlotClick} />
+                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData2).scatterPlot} layout={plotData2.layout} onClick={handlePlotClick} />
                     </div>
                     <div style={{ gridColumn: 'span 1' }}>
-                        <DynamicPlot scatterPlot={plotData4.scatterPlot} layout={plotData4.layout} onClick={handlePlotClick} />
+                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData4).scatterPlot} layout={plotData4.layout} onClick={handlePlotClick} />
                     </div>
                     <div style={{ gridColumn: 'span 1' }}>
-                        <DynamicPlot scatterPlot={plotData5.scatterPlot} layout={plotData5.layout} onClick={handlePlotClick} />
+                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData5).scatterPlot} layout={plotData5.layout} onClick={handlePlotClick} />
                     </div>
                 </div>
             )}
