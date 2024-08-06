@@ -3,13 +3,6 @@ import dynamic from 'next/dynamic';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
-const colorPalette = [
-    '#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', 
-    '#984ea3', '#999999', '#e41a1c', '#dede00', '#a6cee3',
-    '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c',
-    '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99'
-];
-
 export default function Home() {
     const [plotData1, setPlotData1] = useState(null);
     const [plotData2, setPlotData2] = useState(null);
@@ -56,26 +49,17 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping } = result;
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
             return;
         }
 
-        // Combine unique arms from all plots
-        const allUniqueArms = [...new Set([...uniqueArm1Values, ...uniqueArm2Values, ...uniqueArm3Values, ...uniqueArm4Values, ...uniqueArm5Values])];
-
-        // Create a color mapping for all unique arms
-        const colorMapping = {};
-        allUniqueArms.forEach((arm, index) => {
-            colorMapping[arm] = colorPalette[index % colorPalette.length];
-        });
-
         const applyColorMapping = (plotData) => {
             return plotData.map(d => ({
                 ...d,
-                color: colorMapping[d.arm]
+                color: arm7ColorMapping[d.arm]
             }));
         };
 
