@@ -34,8 +34,9 @@ export default async function handler(req, res) {
         const requiredColumns4 = ['X4', 'Y4', 'arm4'];
         const requiredColumns5 = ['X5', 'Y5', 'arm5'];
         const requiredColumns6 = ['M', 'arm6'];
+        const requiredColumns7 = ['arm7', 'color'];
 
-        for (const column of [...requiredColumns1, ...requiredColumns2, ...requiredColumns3, ...requiredColumns4, ...requiredColumns5, ...requiredColumns6]) {
+        for (const column of [...requiredColumns1, ...requiredColumns2, ...requiredColumns3, ...requiredColumns4, ...requiredColumns5, ...requiredColumns6, ...requiredColumns7]) {
             if (!data[0].hasOwnProperty(column)) {
                 console.error(`Required column "${column}" not found`);
                 return res.status(400).json({ message: `Required column "${column}" not found` });
@@ -80,7 +81,14 @@ export default async function handler(req, res) {
         const mValues = data.map(row => row.M ? parseFloat(row.M) : null);
         const arm6Values = data.map(row => row.arm6);
 
-        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values });
+        const arm7ColorMapping = data.reduce((acc, row) => {
+            if (row.arm7 && row.color) {
+                acc[row.arm7] = row.color;
+            }
+            return acc;
+        }, {});
+
+        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping });
     } catch (error) {
         console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });
