@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
 export default function Home() {
     const [plotData1, setPlotData1] = useState(null);
@@ -6,6 +9,7 @@ export default function Home() {
     const [plotData3, setPlotData3] = useState(null);
     const [plotData4, setPlotData4] = useState(null);
     const [plotData5, setPlotData5] = useState(null);
+    const [clickedArm, setClickedArm] = useState(null); // State to hold the clicked arm name
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -56,7 +60,8 @@ export default function Home() {
         const applyColorMapping = (plotData) => {
             return plotData.map(d => ({
                 ...d,
-                color: arm7ColorMapping[d.arm]
+                color: arm7ColorMapping[d.arm],
+                customdata: d.arm  // Add arm to customdata
             }));
         };
 
@@ -151,7 +156,8 @@ export default function Home() {
             type: 'scatter',
             mode: 'markers',
             marker: { size: 2, color: coloredPlotData1.map(d => d.color) },
-            name: 'Coverage Plot'
+            name: 'Coverage Plot',
+            customdata: coloredPlotData1.map(d => d.customdata) // Add customdata to plot
         };
 
         const layout1 = {
@@ -197,7 +203,8 @@ export default function Home() {
             type: 'scatter',
             mode: 'markers',
             marker: { size: 2, color: coloredPlotData2.map(d => d.color) },
-            name: 'Vaf Plot'
+            name: 'Vaf Plot',
+            customdata: coloredPlotData2.map(d => d.customdata) // Add customdata to plot
         };
 
         const layout2 = {
@@ -243,7 +250,8 @@ export default function Home() {
             type: 'scatter',
             mode: 'markers',
             marker: { size: 6, color: coloredPlotData3.map(d => d.color) },
-            name: 'AI vs CN'
+            name: 'AI vs CN',
+            customdata: coloredPlotData3.map(d => d.customdata) // Add customdata to plot
         };
 
         const layout3 = {
@@ -283,8 +291,9 @@ export default function Home() {
             y: coloredPlotData4.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 1, color: "grey" }, //coloredPlotData4.map(d => d.color)
-            name: 'Vaf Score CDF'
+            marker: { size: 1, color: "grey"},// coloredPlotData4.map(d => d.color)
+            name: 'Vaf Score CDF',
+            customdata: coloredPlotData4.map(d => d.customdata) // Add customdata to plot
         };
 
         const layout4 = {
@@ -324,8 +333,9 @@ export default function Home() {
             y: coloredPlotData5.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 1, color: "grey" },//coloredPlotData5.map(d => d.color) 
-            name: 'Coverage Score CDF'
+            marker: { size: 1, color: "grey" }, //coloredPlotData5.map(d => d.color)
+            name: 'Coverage Score CDF',
+            customdata: coloredPlotData5.map(d => d.customdata) // Add customdata to plot
         };
 
         const layout5 = {
@@ -366,6 +376,14 @@ export default function Home() {
         setPlotData5({ scatterPlot: scatterPlot5, layout: layout5 });
     };
 
+    const handlePlotClick = (event) => {
+        if (event.points && event.points.length > 0) {
+            const clickedPoint = event.points[0];
+            console.log(clickedPoint.customdata); // Log the clicked arm name to the console
+            setClickedArm(clickedPoint.customdata); // Set the clicked arm name
+        }
+    };
+
     return (
         <div>
             <h1>Upload your TSV file</h1>
@@ -373,25 +391,26 @@ export default function Home() {
             {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
                     <div>
-                        <DynamicPlot scatterPlot={plotData3.scatterPlot} layout={plotData3.layout} />
+                        <DynamicPlot scatterPlot={plotData3.scatterPlot} layout={plotData3.layout} onClick={handlePlotClick} />
                     </div>
                     <div>
-                        <DynamicPlot scatterPlot={plotData1.scatterPlot} layout={plotData1.layout} />
-                        <DynamicPlot scatterPlot={plotData2.scatterPlot} layout={plotData2.layout} />
+                        <DynamicPlot scatterPlot={plotData1.scatterPlot} layout={plotData1.layout} onClick={handlePlotClick} />
+                        <DynamicPlot scatterPlot={plotData2.scatterPlot} layout={plotData2.layout} onClick={handlePlotClick} />
                     </div>
                     <div style={{ gridColumn: 'span 1' }}>
-                        <DynamicPlot scatterPlot={plotData4.scatterPlot} layout={plotData4.layout} />
+                        <DynamicPlot scatterPlot={plotData4.scatterPlot} layout={plotData4.layout} onClick={handlePlotClick} />
                     </div>
                     <div style={{ gridColumn: 'span 1' }}>
-                        <DynamicPlot scatterPlot={plotData5.scatterPlot} layout={plotData5.layout} />
+                        <DynamicPlot scatterPlot={plotData5.scatterPlot} layout={plotData5.layout} onClick={handlePlotClick} />
                     </div>
                 </div>
             )}
+            {clickedArm && <h1>Clicked Arm: {clickedArm}</h1>} {/* Render the clicked arm name */}
         </div>
     );
 }
 
-const DynamicPlot = ({ scatterPlot, layout }) => {
+const DynamicPlot = ({ scatterPlot, layout, onClick }) => {
     const [Plot, setPlot] = useState(null);
 
     React.useEffect(() => {
@@ -403,6 +422,6 @@ const DynamicPlot = ({ scatterPlot, layout }) => {
     if (!Plot) return null;
 
     return (
-        <Plot data={[scatterPlot]} layout={layout} config={{ responsive: true }} />
+        <Plot data={[scatterPlot]} layout={layout} config={{ responsive: true }} onClick={onClick} />
     );
 };
