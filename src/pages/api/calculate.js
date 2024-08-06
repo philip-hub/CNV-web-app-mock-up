@@ -33,8 +33,9 @@ export default async function handler(req, res) {
         const requiredColumns3 = ['X3', 'Y3', 'arm3'];
         const requiredColumns4 = ['X4', 'Y4', 'arm4'];
         const requiredColumns5 = ['X5', 'Y5', 'arm5'];
+        const requiredColumns6 = ['M', 'arm6'];
 
-        for (const column of [...requiredColumns1, ...requiredColumns2, ...requiredColumns3, ...requiredColumns4, ...requiredColumns5]) {
+        for (const column of [...requiredColumns1, ...requiredColumns2, ...requiredColumns3, ...requiredColumns4, ...requiredColumns5, ...requiredColumns6]) {
             if (!data[0].hasOwnProperty(column)) {
                 console.error(`Required column "${column}" not found`);
                 return res.status(400).json({ message: `Required column "${column}" not found` });
@@ -76,7 +77,10 @@ export default async function handler(req, res) {
         }));
         const uniqueArm5Values = [...new Set(data.map(row => row.arm5))];
 
-        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values });
+        const mValues = data.map(row => parseFloat(row.M));
+        const arm6Values = data.map(row => row.arm6);
+
+        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values });
     } catch (error) {
         console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });

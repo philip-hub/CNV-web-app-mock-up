@@ -56,7 +56,7 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, m, arm6 } = result;
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
@@ -137,6 +137,31 @@ export default function Home() {
             return { annotations, shapes };
         };
 
+        const createLines = (plotData, uniqueArmValues, m, arm6) => {
+            const lines = uniqueArmValues.map(arm => {
+                const armData = plotData.filter(d => d.arm === arm);
+                if (armData.length === 0 || arm !== arm6) {
+                    return null;
+                }
+                const xStart = armData[0].x;
+                const xEnd = armData[armData.length - 1].x;
+                return {
+                    type: 'line',
+                    x0: xStart,
+                    y0: m,
+                    x1: xEnd,
+                    y1: m,
+                    xref: 'x',
+                    yref: 'y',
+                    line: {
+                        color: 'red',
+                        width: 2
+                    }
+                };
+            }).filter(line => line !== null);
+            return lines;
+        };
+
         // Plot data for the first plot
         const scatterPlot1 = {
             x: coloredPlotData1.map(d => d.x),
@@ -179,7 +204,10 @@ export default function Home() {
             grid: {
                 color: 'lightgray'
             },
-            ...createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values)
+            shapes: [
+                ...createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes,
+                ...createLines(coloredPlotData1, uniqueArm1Values, m, arm6)
+            ]
         };
 
         // Plot data for the second plot
@@ -274,7 +302,7 @@ export default function Home() {
             y: coloredPlotData4.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 1, color: coloredPlotData4.map(d => d.color) },
+            marker: { size: 5, color: coloredPlotData4.map(d => d.color) },
             name: 'Vaf Score CDF'
         };
 
@@ -315,7 +343,7 @@ export default function Home() {
             y: coloredPlotData5.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 1, color: coloredPlotData5.map(d => d.color) },
+            marker: { size: 5, color: coloredPlotData5.map(d => d.color) },
             name: 'Coverage Score CDF'
         };
 
