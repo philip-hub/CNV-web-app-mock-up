@@ -56,7 +56,7 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, m, arm6 } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values } = result;
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
@@ -137,28 +137,29 @@ export default function Home() {
             return { annotations, shapes };
         };
 
-        const createLines = (plotData, uniqueArmValues, m, arm6) => {
-            const lines = uniqueArmValues.map(arm => {
-                const armData = plotData.filter(d => d.arm === arm);
-                if (armData.length === 0 || arm !== arm6) {
-                    return null;
+        const createLines = (mValues, arm6Values) => {
+            const lines = [];
+            mValues.forEach((m, index) => {
+                const arm = arm6Values[index];
+                const xValues = plotData1.filter(d => d.arm === arm).map(d => d.x);
+                if (xValues.length > 10) {
+                    const x0 = Math.min(...xValues);
+                    const x1 = Math.max(...xValues);
+                    lines.push({
+                        type: 'line',
+                        x0: x0,
+                        y0: m,
+                        x1: x1,
+                        y1: m,
+                        xref: 'x',
+                        yref: 'y',
+                        line: {
+                            color: 'red',
+                            width: 2
+                        }
+                    });
                 }
-                const xStart = armData[0].x;
-                const xEnd = armData[armData.length - 1].x;
-                return {
-                    type: 'line',
-                    x0: xStart,
-                    y0: m,
-                    x1: xEnd,
-                    y1: m,
-                    xref: 'x',
-                    yref: 'y',
-                    line: {
-                        color: 'red',
-                        width: 2
-                    }
-                };
-            }).filter(line => line !== null);
+            });
             return lines;
         };
 
@@ -204,10 +205,7 @@ export default function Home() {
             grid: {
                 color: 'lightgray'
             },
-            shapes: [
-                ...createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes,
-                ...createLines(coloredPlotData1, uniqueArm1Values, m, arm6)
-            ]
+            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, arm6Values))
         };
 
         // Plot data for the second plot
@@ -252,7 +250,7 @@ export default function Home() {
             grid: {
                 color: 'lightgray'
             },
-            ...createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values)
+            shapes: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).shapes
         };
 
         // Plot data for the third plot

@@ -77,7 +77,7 @@ export default async function handler(req, res) {
         }));
         const uniqueArm5Values = [...new Set(data.map(row => row.arm5))];
 
-        const mValues = data.map(row => parseFloat(row.M));
+        const mValues = data.map(row => row.M ? parseFloat(row.M) : null);
         const arm6Values = data.map(row => row.arm6);
 
         res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values });
