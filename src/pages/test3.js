@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
+import styles from '../styles/Home.module.css';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
@@ -415,10 +416,28 @@ export default function Home() {
         };
     };
 
+
+    const colors = [
+        { label: 'LOSS', className: styles.LOSS },
+        { label: 'LDIP', className: styles.LDIP },
+        { label: 'DIP', className: styles.DIP },
+        { label: 'FDIP', className: styles.FDIP },
+        { label: 'RDIP', className: styles.RDIP },
+        { label: 'DUP', className: styles.DUP },
+        { label: 'HDUP', className: styles.HDUP },
+        { label: 'LOH', className: styles.LOH },
+        { label: 'GAIN', className: styles.GAIN },
+        { label: 'GAIN+', className: styles.GAINPLUS },
+    ];
+    
+
     return (
         <div>
             <h1>Upload your TSV file</h1>
             <input type="file" onChange={handleFileUpload} />
+
+
+
             {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
                     <div>
@@ -437,6 +456,14 @@ export default function Home() {
                 </div>
             )}
             {clickedArm && <h1>Clicked Arm: {clickedArm}</h1>} {/* Render the clicked arm name */}
+            <div className={styles.grid}>
+            {colors.map((color, index) => (
+                <div key={index} className={`${styles.gridItem} ${color.className}`}>
+                    {color.label}
+                </div>
+            ))}
+        </div>
+        
         </div>
     );
 }
