@@ -178,7 +178,7 @@ export default function Home() {
             },
             xaxis: {
                 title: '',
-                showticklabels: true,  // Show x-axis numbers
+                showticklabels: false,  // Show x-axis numbers
                 tickangle: 90,
                 tickfont: {
                     size: 10
@@ -225,7 +225,7 @@ export default function Home() {
             },
             xaxis: {
                 title: '',
-                showticklabels: true,  // Show x-axis numbers
+                showticklabels: false,  // Show x-axis numbers
                 tickangle: 90,
                 tickfont: {
                     size: 10
