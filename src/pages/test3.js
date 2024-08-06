@@ -252,7 +252,7 @@ export default function Home() {
             y: coloredPlotData3.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 5, color: coloredPlotData3.map(d => d.color) },
+            marker: { size: 6, color: coloredPlotData3.map(d => d.color) },
             name: 'AI vs CN'
         };
 
@@ -293,7 +293,7 @@ export default function Home() {
             y: coloredPlotData4.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 5, color: coloredPlotData4.map(d => d.color) },
+            marker: { size: 1, color: "grey" }, //coloredPlotData4.map(d => d.color)
             name: 'Vaf Score CDF'
         };
 
@@ -334,7 +334,7 @@ export default function Home() {
             y: coloredPlotData5.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 5, color: coloredPlotData5.map(d => d.color) },
+            marker: { size: 1, color: "grey" },//coloredPlotData5.map(d => d.color) 
             name: 'Coverage Score CDF'
         };
 
