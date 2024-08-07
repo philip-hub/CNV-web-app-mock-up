@@ -14,6 +14,10 @@ export default function Home() {
     const [highlightedArm, setHighlightedArm] = useState(null); // State to hold the highlighted arm for coloring
     const [arm7ColorMapping, setArm7ColorMapping] = useState({}); // State to hold arm7ColorMapping
     const [cloneMapping, setCloneMapping] = useState({}); // State to hold cloneMapping
+    const [Y3Mapping, setY3Mapping] = useState({}); // State to hold Y3Mapping
+    const [X3Mapping, setX3Mapping] = useState({}); // State to hold X3Mapping
+    const [mMapping, setMMapping] = useState({});   // State to hold mMapping
+    const [clickedArmData, setClickedArmData] = useState({}); // State to hold clicked arm data
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -54,7 +58,7 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping } = result;
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
@@ -62,8 +66,10 @@ export default function Home() {
         }
 
         setArm7ColorMapping(arm7ColorMapping); // Set arm7ColorMapping state
-
         setCloneMapping(cloneMapping); // Set cloneMapping state
+        setY3Mapping(Y3Mapping);       // Set Y3Mapping state
+        setX3Mapping(X3Mapping);       // Set X3Mapping state
+        setMMapping(mMapping);         // Set mMapping state
 
         const applyColorMapping = (plotData) => {
             return plotData.map(d => ({
@@ -392,6 +398,13 @@ export default function Home() {
             console.log(clickedArm); // Log the clicked arm name to the console
             setClickedArm(`${clickedArm} ${cloneName}`); // Set the clicked arm name and clone name
             setHighlightedArm(clickedArm); // Set the highlighted arm for coloring
+
+            // Set the clicked arm data for displaying CN, AI, and M values
+            setClickedArmData({
+                CN: X3Mapping[clickedArm] || 'N/A',
+                AI: Y3Mapping[clickedArm] || 'N/A',
+                M: mMapping[clickedArm] || 'N/A'
+            });
         }
     };
 
@@ -436,8 +449,6 @@ export default function Home() {
             <h1>Upload your TSV file</h1>
             <input type="file" onChange={handleFileUpload} />
 
-
-
             {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
                     <div>
@@ -456,6 +467,13 @@ export default function Home() {
                 </div>
             )}
             {clickedArm && <h1>Clicked Arm: {clickedArm}</h1>} {/* Render the clicked arm name */}
+            {clickedArmData && (
+                <div>
+                    <p>CN: {clickedArmData.CN}</p>
+                    <p>AI: {clickedArmData.AI}</p>
+                    <p>M: {clickedArmData.M}</p>
+                </div>
+            )}
             <div className={styles.grid}>
             {colors.map((color, index) => (
                 <div key={index} className={`${styles.gridItem} ${color.className}`}>
