@@ -1,15 +1,9 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import DraggableWindow from '../components/DraggableWindow';
+import styles from '../styles/Home.module.css';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
-
-const colorPalette = [
-    '#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', 
-    '#984ea3', '#999999', '#e41a1c', '#dede00', '#a6cee3',
-    '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c',
-    '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99'
-];
 
 export default function Home() {
     const [plotData1, setPlotData1] = useState(null);
@@ -17,9 +11,18 @@ export default function Home() {
     const [plotData3, setPlotData3] = useState(null);
     const [plotData4, setPlotData4] = useState(null);
     const [plotData5, setPlotData5] = useState(null);
-    const [highlightedArm, setHighlightedArm] = useState(null);
-    const [draggableWindowPosition, setDraggableWindowPosition] = useState(null);
-    const [draggableWindowData, setDraggableWindowData] = useState(null);
+    const [clickedArm, setClickedArm] = useState(null); // State to hold the clicked arm name
+    const [highlightedArm, setHighlightedArm] = useState(null); // State to hold the highlighted arm for coloring
+    const [arm7ColorMapping, setArm7ColorMapping] = useState({}); // State to hold arm7ColorMapping
+    const [cloneMapping, setCloneMapping] = useState({}); // State to hold cloneMapping
+    const [Y3Mapping, setY3Mapping] = useState({}); // State to hold Y3Mapping
+    const [X3Mapping, setX3Mapping] = useState({}); // State to hold X3Mapping
+    const [mMapping, setMMapping] = useState({});   // State to hold mMapping
+    const [dmMapping, setDmMapping] = useState({}); // State to hold dmMapping
+    const [dcnMapping, setDcnMapping] = useState({}); // State to hold dcnMapping
+    const [clickedArmData, setClickedArmData] = useState({}); // State to hold clicked arm data
+    const [showWindow, setShowWindow] = useState(false); // State to show or hide the draggable window
+    const [windowPosition, setWindowPosition] = useState({ x: 0, y: 0 }); // State for window position
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -67,19 +70,19 @@ export default function Home() {
             return;
         }
 
-        // Combine unique arms from all plots
-        const allUniqueArms = [...new Set([...uniqueArm1Values, ...uniqueArm2Values, ...uniqueArm3Values, ...uniqueArm4Values, ...uniqueArm5Values])];
-
-        // Create a color mapping for all unique arms
-        const colorMapping = {};
-        allUniqueArms.forEach((arm, index) => {
-            colorMapping[arm] = arm7ColorMapping[arm] || colorPalette[index % colorPalette.length];
-        });
+        setArm7ColorMapping(arm7ColorMapping); // Set arm7ColorMapping state
+        setCloneMapping(cloneMapping); // Set cloneMapping state
+        setY3Mapping(Y3Mapping);       // Set Y3Mapping state
+        setX3Mapping(X3Mapping);       // Set X3Mapping state
+        setMMapping(mMapping);         // Set mMapping state
+        setDmMapping(dmMapping);       // Set dmMapping state
+        setDcnMapping(dcnMapping);     // Set dcnMapping state
 
         const applyColorMapping = (plotData) => {
             return plotData.map(d => ({
                 ...d,
-                color: colorMapping[d.arm]
+                color: arm7ColorMapping[d.arm],
+                customdata: d.arm  // Add arm to customdata
             }));
         };
 
@@ -141,14 +144,41 @@ export default function Home() {
             return { annotations, shapes };
         };
 
+        const createLines = (mValues, arm6Values) => {
+            const lines = [];
+            mValues.forEach((m, index) => {
+                const arm = arm6Values[index];
+                const xValues = plotData1.filter(d => d.arm === arm).map(d => d.x);
+                if (xValues.length > 10) {
+                    const x0 = Math.min(...xValues);
+                    const x1 = Math.max(...xValues);
+                    lines.push({
+                        type: 'line',
+                        x0: x0,
+                        y0: m,
+                        x1: x1,
+                        y1: m,
+                        xref: 'x',
+                        yref: 'y',
+                        line: {
+                            color: 'red',
+                            width: 2
+                        }
+                    });
+                }
+            });
+            return lines;
+        };
+
         // Plot data for the first plot
         const scatterPlot1 = {
             x: coloredPlotData1.map(d => d.x),
             y: coloredPlotData1.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 4, color: coloredPlotData1.map(d => d.color) },
-            name: 'Coverage Plot'
+            marker: { size: 6, color: coloredPlotData1.map(d => d.color) },
+            name: 'Coverage Plot',
+            customdata: coloredPlotData1.map(d => d.customdata) // Add customdata to plot
         };
 
         const layout1 = {
@@ -165,7 +195,7 @@ export default function Home() {
             },
             xaxis: {
                 title: '',
-                showticklabels: false,  // Remove x-axis numbers
+                showticklabels: false,  // Show x-axis numbers
                 tickangle: 90,
                 tickfont: {
                     size: 10
@@ -183,7 +213,8 @@ export default function Home() {
             grid: {
                 color: 'lightgray'
             },
-            ...createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values)
+            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, arm6Values)),
+            annotations: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).annotations
         };
 
         // Plot data for the second plot
@@ -192,8 +223,9 @@ export default function Home() {
             y: coloredPlotData2.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 4, color: coloredPlotData2.map(d => d.color) },
-            name: 'Vaf Plot'
+            marker: { size: 6, color: coloredPlotData2.map(d => d.color) },
+            name: 'Vaf Plot',
+            customdata: coloredPlotData2.map(d => d.customdata) // Add customdata to plot
         };
 
         const layout2 = {
@@ -210,7 +242,7 @@ export default function Home() {
             },
             xaxis: {
                 title: '',
-                showticklabels: false,  // Remove x-axis numbers
+                showticklabels: false,  // Show x-axis numbers
                 tickangle: 90,
                 tickfont: {
                     size: 10
@@ -228,7 +260,8 @@ export default function Home() {
             grid: {
                 color: 'lightgray'
             },
-            ...createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values)
+            shapes: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).shapes,
+            annotations: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).annotations
         };
 
         // Plot data for the third plot
@@ -237,8 +270,9 @@ export default function Home() {
             y: coloredPlotData3.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 8, color: coloredPlotData3.map(d => d.color) },
-            name: 'AI vs CN'
+            marker: { size: 10, color: coloredPlotData3.map(d => d.color) },
+            name: 'AI vs CN',
+            customdata: coloredPlotData3.map(d => d.customdata) // Add customdata to plot
         };
 
         const layout3 = {
@@ -278,8 +312,9 @@ export default function Home() {
             y: coloredPlotData4.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 3, color: coloredPlotData4.map(d => d.color) },
-            name: 'Vaf Score CDF'
+            marker: { size: 5, color: coloredPlotData4.map(d => d.color), opacity: 1 },
+            name: 'Vaf Score CDF',
+            customdata: coloredPlotData4.map(d => d.customdata) // Add customdata to plot
         };
 
         const layout4 = {
@@ -319,8 +354,9 @@ export default function Home() {
             y: coloredPlotData5.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 3, color: coloredPlotData5.map(d => d.color) },
-            name: 'Coverage Score CDF'
+            marker: { size: 5, color: coloredPlotData5.map(d => d.color), opacity: 1 },
+            name: 'Coverage Score CDF',
+            customdata: coloredPlotData5.map(d => d.customdata) // Add customdata to plot
         };
 
         const layout5 = {
@@ -361,26 +397,39 @@ export default function Home() {
         setPlotData5({ scatterPlot: scatterPlot5, layout: layout5 });
     };
 
-    const handlePlotClick = (arm, event, plotIndex) => {
-        setHighlightedArm(arm);
-        setDraggableWindowPosition({ x: event.clientX - 30, y: event.clientY + 10 });
-        setDraggableWindowData({
-            clickedArm: arm,
-            cn: plotData3.scatterPlot.x[plotData3.scatterPlot.customdata.findIndex(d => d === arm)],
-            ai: plotData3.scatterPlot.y[plotData3.scatterPlot.customdata.findIndex(d => d === arm)],
-            m: mMapping[arm],
-            dm: dmMapping[arm],
-            dcn: dcnMapping[arm]
-        });
+    const handlePlotClick = (event) => {
+        if (event.points && event.points.length > 0) {
+            const clickedPoint = event.points[0];
+            const clickedArm = clickedPoint.customdata;
+            const cloneName = cloneMapping[clickedArm] || 'Unknown clone'; // Get the clone name
+            console.log(clickedArm); // Log the clicked arm name to the console
+            setClickedArm(`${clickedArm} ${cloneName}`); // Set the clicked arm name and clone name
+            setHighlightedArm(clickedArm); // Set the highlighted arm for coloring
+
+            // Set the clicked arm data for displaying CN, AI, M, dm, and dcn values
+            setClickedArmData({
+                clickedArm: `${clickedArm} ${cloneName}`, // Add the clicked arm to the data
+                CN: X3Mapping[clickedArm] || 'N/A',
+                AI: Y3Mapping[clickedArm] || 'N/A',
+                M: mMapping[clickedArm] || 'N/A',
+                dm: dmMapping[clickedArm] || 'N/A',
+                dcn: dcnMapping[clickedArm] || 'N/A'
+            });
+
+            // Set the window position near the clicked point
+            setWindowPosition({ x: clickedPoint.xaxis.d2p(clickedPoint.x) + clickedPoint.xaxis.l, y: clickedPoint.yaxis.d2p(clickedPoint.y) + clickedPoint.yaxis.t });
+            setShowWindow(true); // Show the draggable window
+        }
     };
 
-    const closeDraggableWindow = () => {
-        setDraggableWindowData(null);
+    const handleCloseWindow = () => {
+        setShowWindow(false); // Hide the draggable window
     };
 
-    const updatePlotDataWithHighlight = (plotData) => {
-        if (!highlightedArm) return plotData;
-
+    const updatePlotDataWithHighlight = (plotData, plotDataRef) => {
+        if (!arm7ColorMapping) {
+            return plotData;
+        }
         return {
             ...plotData,
             scatterPlot: {
@@ -388,65 +437,62 @@ export default function Home() {
                 marker: {
                     ...plotData.scatterPlot.marker,
                     color: plotData.scatterPlot.customdata.map(arm =>
-                        arm === highlightedArm ? 'yellow' : arm7ColorMapping[arm]
+                        arm === highlightedArm ? 'gold' : arm7ColorMapping[arm]
+                    ),
+                    size: plotData.scatterPlot.customdata.map(arm =>
+                        arm === highlightedArm ? 9 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 5 : (plotDataRef === plotData1 || plotDataRef === plotData2 ? 6 : 12))
                     ),
                     opacity: plotData.scatterPlot.customdata.map(arm =>
-                        arm === highlightedArm ? 1 : 0.2
-                    ),
-                    size: plotData.scatterPlot.marker.size
+                        arm === highlightedArm ? 1 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 0.1 : 1)
+                    )
                 }
             }
         };
     };
 
+    const colors = [
+        { label: 'LOSS', className: styles.LOSS },
+        { label: 'LDIP', className: styles.LDIP },
+        { label: 'DIP', className: styles.DIP },
+        { label: 'FDIP', className: styles.FDIP },
+        { label: 'RDIP', className: styles.RDIP },
+        { label: 'DUP', className: styles.DUP },
+        { label: 'HDUP', className: styles.HDUP },
+        { label: 'LOH', className: styles.LOH },
+        { label: 'GAIN', className: styles.GAIN },
+        { label: 'GAIN+', className: styles.GAINPLUS },
+    ];
+
     return (
         <div>
             <h1>Upload your TSV file</h1>
             <input type="file" onChange={handleFileUpload} />
+
             {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
                     <div>
-                        <DynamicPlot
-                            scatterPlot={updatePlotDataWithHighlight(plotData3).scatterPlot}
-                            layout={updatePlotDataWithHighlight(plotData3).layout}
-                            onClick={(event) => handlePlotClick(event.points[0].customdata, event, 3)}
-                        />
+                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData3, plotData3).scatterPlot} layout={plotData3.layout} onClick={handlePlotClick} />
                     </div>
                     <div>
-                        <DynamicPlot
-                            scatterPlot={updatePlotDataWithHighlight(plotData1).scatterPlot}
-                            layout={updatePlotDataWithHighlight(plotData1).layout}
-                            onClick={(event) => handlePlotClick(event.points[0].customdata, event, 1)}
-                        />
-                        <DynamicPlot
-                            scatterPlot={updatePlotDataWithHighlight(plotData2).scatterPlot}
-                            layout={updatePlotDataWithHighlight(plotData2).layout}
-                            onClick={(event) => handlePlotClick(event.points[0].customdata, event, 2)}
-                        />
+                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData1, plotData1).scatterPlot} layout={plotData1.layout} onClick={handlePlotClick} />
+                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData2, plotData2).scatterPlot} layout={plotData2.layout} onClick={handlePlotClick} />
                     </div>
                     <div style={{ gridColumn: 'span 1' }}>
-                        <DynamicPlot
-                            scatterPlot={updatePlotDataWithHighlight(plotData4).scatterPlot}
-                            layout={updatePlotDataWithHighlight(plotData4).layout}
-                            onClick={(event) => handlePlotClick(event.points[0].customdata, event, 4)}
-                        />
+                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData4, plotData4).scatterPlot} layout={plotData4.layout} onClick={handlePlotClick} />
                     </div>
                     <div style={{ gridColumn: 'span 1' }}>
-                        <DynamicPlot
-                            scatterPlot={updatePlotDataWithHighlight(plotData5).scatterPlot}
-                            layout={updatePlotDataWithHighlight(plotData5).layout}
-                            onClick={(event) => handlePlotClick(event.points[0].customdata, event, 5)}
-                        />
+                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData5, plotData5).scatterPlot} layout={plotData5.layout} onClick={handlePlotClick} />
                     </div>
                 </div>
             )}
-            {draggableWindowData && (
-                <DraggableWindow
-                    position={draggableWindowPosition}
-                    onClose={closeDraggableWindow}
-                    data={draggableWindowData}
-                />
-            )}
+            {showWindow && <DraggableWindow position={windowPosition} onClose={handleCloseWindow} data={clickedArmData} />}
+            <div className={styles.grid}>
+                {colors.map((color, index) => (
+                    <div key={index} className={`${styles.gridItem} ${color.className}`}>
+                        {color.label}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
