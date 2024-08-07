@@ -305,7 +305,7 @@ export default function Home() {
             y: coloredPlotData4.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 3, color: coloredPlotData4.map(d => d.color) },
+            marker: { size: 3, color: coloredPlotData4.map(d => d.color), opacity: 1 },
             name: 'Vaf Score CDF',
             customdata: coloredPlotData4.map(d => d.customdata) // Add customdata to plot
         };
@@ -347,7 +347,7 @@ export default function Home() {
             y: coloredPlotData5.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 3, color: coloredPlotData5.map(d => d.color) },
+            marker: { size: 3, color: coloredPlotData5.map(d => d.color), opacity: 1 },
             name: 'Coverage Score CDF',
             customdata: coloredPlotData5.map(d => d.customdata) // Add customdata to plot
         };
@@ -422,7 +422,10 @@ export default function Home() {
                         arm === highlightedArm ? 'midnight blue' : arm7ColorMapping[arm]
                     ),
                     size: plotData.scatterPlot.customdata.map(arm =>
-                        arm === highlightedArm ? 7 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 3 : (plotDataRef === plotData1 || plotDataRef === plotData2 ? 4 : 8))
+                        arm === highlightedArm ? 9 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 3 : (plotDataRef === plotData1 || plotDataRef === plotData2 ? 4 : 10))
+                    ),
+                    opacity: plotData.scatterPlot.customdata.map(arm =>
+                        arm === highlightedArm ? 1 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 0.1 : 1)
                     )
                 }
             }
