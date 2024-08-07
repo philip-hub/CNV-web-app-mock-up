@@ -419,7 +419,7 @@ export default function Home() {
                 marker: {
                     ...plotData.scatterPlot.marker,
                     color: plotData.scatterPlot.customdata.map(arm =>
-                        arm === highlightedArm ? 'midnight blue' : arm7ColorMapping[arm]
+                        arm === highlightedArm ? 'gold' : arm7ColorMapping[arm]
                     ),
                     size: plotData.scatterPlot.customdata.map(arm =>
                         arm === highlightedArm ? 9 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 3 : (plotDataRef === plotData1 || plotDataRef === plotData2 ? 4 : 10))
