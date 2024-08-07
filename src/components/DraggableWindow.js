@@ -4,17 +4,14 @@ import styles from './DraggableWindow.module.css';
 
 const DraggableWindow = ({ position, onClose, data }) => {
     return (
-        <Draggable defaultPosition={{ x: position.x, y: position.y }}>
+        <Draggable defaultPosition={position} bounds="parent">
             <div className={styles.draggableWindow}>
-                <div className={styles.header}>
-                    <span>Details</span>
-                    <button onClick={onClose} className={styles.closeButton}>X</button>
-                </div>
-                <div className={styles.content}>
+                <button className={styles.closeButton} onClick={onClose}>X</button>
+                <div>
                     <p>Clicked Arm: {data.clickedArm}</p>
-                    <p>CN: {data.CN}</p>
-                    <p>AI: {data.AI}</p>
-                    <p>M: {data.M}</p>
+                    <p>CN: {data.cn}</p>
+                    <p>AI: {data.ai}</p>
+                    <p>M: {data.m}</p>
                     <p>dm: {data.dm}</p>
                     <p>dcn: {data.dcn}</p>
                 </div>
