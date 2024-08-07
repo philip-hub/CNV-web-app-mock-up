@@ -36,8 +36,9 @@ export default async function handler(req, res) {
         const requiredColumns6 = ['M', 'arm6'];
         const requiredColumns7 = ['arm7', 'color'];
         const requiredColumns8 = ['clone'];
+        const requiredColumns9 = ['dm', 'dcn'];
 
-        for (const column of [...requiredColumns1, ...requiredColumns2, ...requiredColumns3, ...requiredColumns4, ...requiredColumns5, ...requiredColumns6, ...requiredColumns7, ...requiredColumns8]) {
+        for (const column of [...requiredColumns1, ...requiredColumns2, ...requiredColumns3, ...requiredColumns4, ...requiredColumns5, ...requiredColumns6, ...requiredColumns7, ...requiredColumns8, ...requiredColumns9]) {
             if (!data[0].hasOwnProperty(column)) {
                 console.error(`Required column "${column}" not found`);
                 return res.status(400).json({ message: `Required column "${column}" not found` });
@@ -96,7 +97,6 @@ export default async function handler(req, res) {
             return acc;
         }, {});
 
-        // Create mappings for Y3, X3, and M
         const Y3Mapping = data.reduce((acc, row) => {
             if (row.arm7) {
                 acc[row.arm7] = parseFloat(row.Y3);
@@ -118,7 +118,21 @@ export default async function handler(req, res) {
             return acc;
         }, {});
 
-        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping });
+        const dmMapping = data.reduce((acc, row) => {
+            if (row.arm7) {
+                acc[row.arm7] = parseFloat(row.dm);
+            }
+            return acc;
+        }, {});
+
+        const dcnMapping = data.reduce((acc, row) => {
+            if (row.arm7) {
+                acc[row.arm7] = parseFloat(row.dcn);
+            }
+            return acc;
+        }, {});
+
+        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping });
     } catch (error) {
         console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });
