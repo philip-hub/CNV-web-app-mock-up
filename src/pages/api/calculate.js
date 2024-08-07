@@ -96,9 +96,29 @@ export default async function handler(req, res) {
             return acc;
         }, {});
 
-        
+        // Create mappings for Y3, X3, and M
+        const Y3Mapping = data.reduce((acc, row) => {
+            if (row.arm7) {
+                acc[row.arm7] = parseFloat(row.Y3);
+            }
+            return acc;
+        }, {});
 
-        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping,cloneMapping });
+        const X3Mapping = data.reduce((acc, row) => {
+            if (row.arm7) {
+                acc[row.arm7] = parseFloat(row.X3);
+            }
+            return acc;
+        }, {});
+
+        const mMapping = data.reduce((acc, row) => {
+            if (row.arm7) {
+                acc[row.arm7] = parseFloat(row.M);
+            }
+            return acc;
+        }, {});
+
+        res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping });
     } catch (error) {
         console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });
