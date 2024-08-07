@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import DraggableWindow from '../components/DraggableWindow';
- // Import the DraggableWindow component
 import styles from '../styles/Home.module.css';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
