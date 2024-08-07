@@ -1,0 +1,28 @@
+.draggableWindow {
+    position: absolute;
+    width: 200px;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.header {
+    background-color: #f2f2f2;
+    padding: 5px;
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+}
+
+.content {
+    padding: 10px;
+}
