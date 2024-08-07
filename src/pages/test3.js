@@ -17,6 +17,8 @@ export default function Home() {
     const [Y3Mapping, setY3Mapping] = useState({}); // State to hold Y3Mapping
     const [X3Mapping, setX3Mapping] = useState({}); // State to hold X3Mapping
     const [mMapping, setMMapping] = useState({});   // State to hold mMapping
+    const [dmMapping, setDmMapping] = useState({}); // State to hold dmMapping
+    const [dcnMapping, setDcnMapping] = useState({}); // State to hold dcnMapping
     const [clickedArmData, setClickedArmData] = useState({}); // State to hold clicked arm data
 
     const handleFileUpload = async (event) => {
@@ -58,7 +60,7 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping } = result;
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
@@ -70,6 +72,8 @@ export default function Home() {
         setY3Mapping(Y3Mapping);       // Set Y3Mapping state
         setX3Mapping(X3Mapping);       // Set X3Mapping state
         setMMapping(mMapping);         // Set mMapping state
+        setDmMapping(dmMapping);       // Set dmMapping state
+        setDcnMapping(dcnMapping);     // Set dcnMapping state
 
         const applyColorMapping = (plotData) => {
             return plotData.map(d => ({
@@ -399,11 +403,13 @@ export default function Home() {
             setClickedArm(`${clickedArm} ${cloneName}`); // Set the clicked arm name and clone name
             setHighlightedArm(clickedArm); // Set the highlighted arm for coloring
 
-            // Set the clicked arm data for displaying CN, AI, and M values
+            // Set the clicked arm data for displaying CN, AI, M, dm, and dcn values
             setClickedArmData({
                 CN: X3Mapping[clickedArm] || 'N/A',
                 AI: Y3Mapping[clickedArm] || 'N/A',
-                M: mMapping[clickedArm] || 'N/A'
+                M: mMapping[clickedArm] || 'N/A',
+                dm: dmMapping[clickedArm] || 'N/A',
+                dcn: dcnMapping[clickedArm] || 'N/A'
             });
         }
     };
@@ -432,7 +438,6 @@ export default function Home() {
         };
     };
 
-
     const colors = [
         { label: 'LOSS', className: styles.LOSS },
         { label: 'LDIP', className: styles.LDIP },
@@ -445,7 +450,6 @@ export default function Home() {
         { label: 'GAIN', className: styles.GAIN },
         { label: 'GAIN+', className: styles.GAINPLUS },
     ];
-    
 
     return (
         <div>
@@ -475,16 +479,17 @@ export default function Home() {
                     <p>CN: {clickedArmData.CN}</p>
                     <p>AI: {clickedArmData.AI}</p>
                     <p>M: {clickedArmData.M}</p>
+                    <p>dm: {clickedArmData.dm}</p>
+                    <p>dcn: {clickedArmData.dcn}</p>
                 </div>
             )}
             <div className={styles.grid}>
-            {colors.map((color, index) => (
-                <div key={index} className={`${styles.gridItem} ${color.className}`}>
-                    {color.label}
-                </div>
-            ))}
-        </div>
-        
+                {colors.map((color, index) => (
+                    <div key={index} className={`${styles.gridItem} ${color.className}`}>
+                        {color.label}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
