@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import styles from '../styles/Home.module.css';
+import tableStyles from '../styles/DraggableTable.module.css';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
@@ -15,9 +16,10 @@ export default function Home() {
 
     useEffect(() => {
         if (uniqueSamples.length > 0) {
-            setFilenameOrder(uniqueSamples.map(sample => ({
+            setFilenameOrder(uniqueSamples.map((sample, index) => ({
                 sample,
-                filename: filenameMapping[sample]
+                filename: filenameMapping[sample],
+                sampleIndex: index + 1 // Adding sample index for display
             })));
         }
     }, [uniqueSamples, filenameMapping]);
@@ -111,7 +113,6 @@ export default function Home() {
         const y = [];
         const z = [];
         const hoverText = [];
-        const annotations = [];
 
         uniqueSamples.forEach((sample, sampleIndex) => {
             const sampleData = plotData.filter(d => d.sample === sample);
@@ -129,21 +130,10 @@ export default function Home() {
             });
             z.push(zRow);
             hoverText.push(hoverTextRow);
-            annotations.push({
-                xref: 'paper',
-                yref: 'y',
-                x: -0.1,
-                y: sampleIndex,
-                text: filenameMapping[sample],
-                showarrow: false,
-                font: {
-                    size: 10
-                }
-            });
             y.push(sampleIndex);
         });
 
-        return { x, y, z, hoverText, annotations };
+        return { x, y, z, hoverText };
     };
 
     const createHeatmapPlot = (data, title, colorscale, zmid = null) => {
@@ -168,7 +158,6 @@ export default function Home() {
                     title: title,
                     xaxis: { title: 'Arm' },
                     yaxis: { title: 'Sample', tickvals: data.y, ticktext: uniqueSamples, tickmode: 'array' },
-                    annotations: data.annotations,
                     height: height,
                 }}
             />
@@ -206,7 +195,7 @@ export default function Home() {
         }).filter(a => a !== null);
 
         return (
-            <Plot
+<Plot
                 data={[
                     {
                         x: x,
@@ -220,10 +209,15 @@ export default function Home() {
                 layout={{
                     title: `Scatter Plot for Arm: ${selectedArm}`,
                     xaxis: { title: 'CN' },
-                    yaxis: { title: 'AI' },
+                    yaxis: { 
+                        title: 'AI',
+                        range: [-0.9, 3.1],
+                        autorange: false 
+                    },
                     annotations: annotations,
                 }}
             />
+
         );
     };
 
@@ -234,23 +228,25 @@ export default function Home() {
 
             {filenameOrder.length > 0 && (
                 <div>
-                    <table id="orderTable">
+                    <table id="orderTable" className={tableStyles.table}>
                         <thead>
                             <tr>
-                                <th>Filename</th>
+                                <th>Filename (lowest sample on top)</th>
+                    
                             </tr>
                         </thead>
                         <tbody>
                             {filenameOrder.map((item, index) => (
                                 <tr
                                     key={item.sample}
-                                    className="draggable"
+                                    className={tableStyles.draggable}
                                     draggable="true"
                                     onDragStart={(event) => handleDragStart(event, index)}
                                     onDragOver={handleDragOver}
                                     onDrop={(event) => handleDrop(event, index)}
                                 >
                                     <td>{item.filename}</td>
+                        
                                 </tr>
                             ))}
                         </tbody>
