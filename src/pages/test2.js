@@ -151,13 +151,34 @@ export default function Home() {
         const x = selectedData1.map(d => d.cn);
         const y = selectedData2.map(d => d.ai);
 
+        const annotations = x.map((cn, i) => {
+            if (i < x.length - 1) {
+                return {
+                    ax: cn,
+                    ay: y[i],
+                    axref: 'x',
+                    ayref: 'y',
+                    x: x[i + 1],
+                    y: y[i + 1],
+                    xref: 'x',
+                    yref: 'y',
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 1,
+                    arrowcolor: 'black'
+                };
+            }
+            return null;
+        }).filter(a => a !== null);
+
         return (
             <Plot
                 data={[
                     {
                         x: x,
                         y: y,
-                        mode: 'markers',
+                        mode: 'markers+lines',
                         type: 'scatter',
                         marker: { size: 10, color: 'blue' },
                         text: selectedData1.map((d, i) => `Sample: ${d.sample}<br>CN: ${d.cn}<br>AI: ${selectedData2[i].ai}`)
@@ -167,6 +188,7 @@ export default function Home() {
                     title: `Scatter Plot for Arm: ${selectedArm}`,
                     xaxis: { title: 'CN' },
                     yaxis: { title: 'AI' },
+                    annotations: annotations,
                 }}
             />
         );
