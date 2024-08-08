@@ -163,10 +163,10 @@ export default function Home() {
                     xref: 'x',
                     yref: 'y',
                     showarrow: true,
-                    arrowhead: 2,
-                    arrowsize: 1,
-                    arrowwidth: 1,
-                    arrowcolor: 'black'
+                    arrowhead:3,
+                    arrowsize: 2,
+                    arrowwidth: 2,
+                    arrowcolor: 'lime'
                 };
             }
             return null;
