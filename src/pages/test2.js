@@ -57,45 +57,81 @@ export default function Home() {
         setUniqueArms(uniqueArms);
     };
 
-    const getColorScale = (value, min, max) => {
-        const normalizedValue = (value - min) / (max - min);
-        const red = Math.min(255, Math.floor(normalizedValue * 255));
-        const blue = Math.min(255, Math.floor((1 - normalizedValue) * 255));
-        return `rgb(${red}, 0, ${blue})`;
-    };
+    const coolwarmColorscale = [
+        [0, 'blue'],
+        [0.5, 'white'],
+        [1, 'red']
+    ];
 
-    const createHeatmapData = (plotData, valueKey) => {
-        const x = [];
+    const coolColorscale = [
+        [0, 'blue'],
+        [1, 'yellow']
+    ];
+
+    const createHeatmapData = (plotData, valueKey, valueLabel) => {
+        const x = uniqueArms;
         const y = [];
         const z = [];
-        const colors = [];
+        const hoverText = [];
+        const annotations = [];
 
-        uniqueSamples.forEach((sample) => {
+        uniqueSamples.forEach((sample, sampleIndex) => {
             const sampleData = plotData.filter(d => d.sample === sample);
             const zRow = [];
-            const colorRow = [];
+            const hoverTextRow = [];
             uniqueArms.forEach((arm) => {
                 const dataPoint = sampleData.find(d => d.arm === arm);
                 if (dataPoint) {
                     zRow.push(dataPoint[valueKey]);
-                    colorRow.push(getColorScale(dataPoint[valueKey], 0, 1)); // Adjust the range as needed
+                    hoverTextRow.push(`arm: ${arm}<br>sample: ${sample}<br>${valueLabel}: ${dataPoint[valueKey]}`);
                 } else {
                     zRow.push(null);
-                    colorRow.push('rgb(255, 255, 255)');
+                    hoverTextRow.push(`arm: ${arm}<br>sample: ${sample}<br>${valueLabel}: N/A`);
                 }
             });
             z.push(zRow);
-            colors.push(colorRow);
+            hoverText.push(hoverTextRow);
+            annotations.push({
+                xref: 'paper',
+                yref: 'y',
+                x: -0.1,
+                y: sampleIndex,
+                text: sample,
+                showarrow: false,
+                font: {
+                    size: 10
+                }
+            });
+            y.push(sampleIndex);
         });
 
-        return {
-            x: uniqueArms,
-            y: uniqueSamples,
-            z: z,
-            type: 'heatmap',
-            colorscale: colors,
-            showscale: false,
-        };
+        return { x, y, z, hoverText, annotations };
+    };
+
+    const createHeatmapPlot = (data, title, colorscale, zmid = null) => {
+        return (
+            <Plot
+                data={[
+                    {
+                        x: data.x,
+                        y: data.y,
+                        z: data.z,
+                        type: 'heatmap',
+                        colorscale: colorscale,
+                        zmid: zmid,
+                        showscale: true,
+                        text: data.hoverText,
+                        hoverinfo: 'text',
+                    },
+                ]}
+                layout={{
+                    title: title,
+                    xaxis: { title: 'Arm' },
+                    yaxis: { title: 'Sample', showticklabels: false },
+                    annotations: data.annotations,
+                }}
+            />
+        );
     };
 
     return (
@@ -106,16 +142,10 @@ export default function Home() {
             {plotData1 && plotData2 && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     <div>
-                        <Plot
-                            data={[createHeatmapData(plotData1, 'cn')]}
-                            layout={{ title: 'CN Heatmap', xaxis: { title: 'Arm' }, yaxis: { title: 'Sample' } }}
-                        />
+                        {createHeatmapPlot(createHeatmapData(plotData1, 'cn', 'copy number'), 'CN Heatmap', coolwarmColorscale, 2)}
                     </div>
                     <div>
-                        <Plot
-                            data={[createHeatmapData(plotData2, 'ai')]}
-                            layout={{ title: 'AI Heatmap', xaxis: { title: 'Arm' }, yaxis: { title: 'Sample' } }}
-                        />
+                        {createHeatmapPlot(createHeatmapData(plotData2, 'ai', 'AI'), 'AI Heatmap', coolColorscale)}
                     </div>
                 </div>
             )}
