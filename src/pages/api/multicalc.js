@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         const data = parsedData.data;
         console.log('Parsed data:', data);
 
-        const requiredColumns = ['ai', 'cn', 'arm', 'sample', 'clone'];
+        const requiredColumns = ['ai', 'cn', 'arm', 'sample', 'clone', 'filename'];
 
         for (const column of requiredColumns) {
             if (!data[0].hasOwnProperty(column)) {
@@ -41,18 +41,24 @@ export default async function handler(req, res) {
             sample: row.sample,
             arm: row.arm,
             cn: parseFloat(row.cn),
+            filename: row.filename,
         }));
 
         const plotData2 = data.map(row => ({
             sample: row.sample,
             arm: row.arm,
             ai: parseFloat(row.ai),
+            filename: row.filename,
         }));
 
         const uniqueSamples = [...new Set(data.map(row => row.sample))];
         const uniqueArms = [...new Set(data.map(row => row.arm))];
+        const filenameMapping = data.reduce((acc, row) => {
+            acc[row.sample] = row.filename;
+            return acc;
+        }, {});
 
-        res.status(200).json({ plotData1, plotData2, uniqueSamples, uniqueArms });
+        res.status(200).json({ plotData1, plotData2, uniqueSamples, uniqueArms, filenameMapping });
     } catch (error) {
         console.error('Error processing file:', error);
         res.status(500).json({ message: 'Internal server error' });
