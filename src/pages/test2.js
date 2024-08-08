@@ -109,6 +109,8 @@ export default function Home() {
     };
 
     const createHeatmapPlot = (data, title, colorscale, zmid = null) => {
+        const rowHeight = 70; // Set a fixed row height for each sample
+        const height = 50 + uniqueSamples.length * rowHeight; // Calculate the total height based on the number of samples
         return (
             <Plot
                 data={[
@@ -127,8 +129,9 @@ export default function Home() {
                 layout={{
                     title: title,
                     xaxis: { title: 'Arm' },
-                    yaxis: { title: 'Sample', showticklabels: false },
+                    yaxis: { title: 'Sample', tickvals: data.y, ticktext: uniqueSamples, tickmode: 'array' },
                     annotations: data.annotations,
+                    height: height,
                 }}
             />
         );
