@@ -9,6 +9,7 @@ export default function Home() {
     const [plotData2, setPlotData2] = useState(null);
     const [uniqueSamples, setUniqueSamples] = useState([]);
     const [uniqueArms, setUniqueArms] = useState([]);
+    const [selectedArm, setSelectedArm] = useState(null);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -55,6 +56,10 @@ export default function Home() {
         setPlotData2(plotData2);
         setUniqueSamples(uniqueSamples);
         setUniqueArms(uniqueArms);
+    };
+
+    const handleArmChange = (event) => {
+        setSelectedArm(event.target.value);
     };
 
     const coolwarmColorscale = [
@@ -137,6 +142,58 @@ export default function Home() {
         );
     };
 
+    const createScatterPlot = (plotData1, plotData2, selectedArm) => {
+        if (!selectedArm) return null;
+
+        const selectedData1 = plotData1.filter(d => d.arm === selectedArm);
+        const selectedData2 = plotData2.filter(d => d.arm === selectedArm);
+
+        const x = selectedData1.map(d => d.cn);
+        const y = selectedData2.map(d => d.ai);
+
+        const annotations = x.map((cn, i) => {
+            if (i < x.length - 1) {
+                return {
+                    ax: cn,
+                    ay: y[i],
+                    axref: 'x',
+                    ayref: 'y',
+                    x: x[i + 1],
+                    y: y[i + 1],
+                    xref: 'x',
+                    yref: 'y',
+                    showarrow: true,
+                    arrowhead:3,
+                    arrowsize: 2,
+                    arrowwidth: 2,
+                    arrowcolor: 'lime'
+                };
+            }
+            return null;
+        }).filter(a => a !== null);
+
+        return (
+            <Plot
+                data={[
+                    {
+                        x: x,
+                        y: y,
+                        mode: 'markers+lines',
+                        type: 'scatter',
+                        marker: { size: 10, color: 'blue' },
+                        text: selectedData1.map((d, i) => `Sample: ${d.sample}<br>CN: ${d.cn}<br>AI: ${selectedData2[i].ai}`)
+                    }
+                ]}
+                layout={{
+                    title: `Scatter Plot for Arm: ${selectedArm}`,
+                    xaxis: { title: 'CN' },
+                    yaxis: { title: 'AI' },
+                    annotations: annotations,
+                }}
+            />
+        );
+    };
+
     return (
         <div>
             <h1>Upload your TSV file</h1>
@@ -150,6 +207,24 @@ export default function Home() {
                     <div>
                         {createHeatmapPlot(createHeatmapData(plotData2, 'ai', 'AI'), 'AI Heatmap', coolColorscale)}
                     </div>
+                </div>
+            )}
+
+            {plotData1 && plotData2 && uniqueArms.length > 0 && (
+                <div style={{ marginTop: '20px' }}>
+                    <label htmlFor="arm-select">Select Arm: </label>
+                    <select id="arm-select" onChange={handleArmChange}>
+                        <option value="">--Select an arm--</option>
+                        {uniqueArms.map((arm) => (
+                            <option key={arm} value={arm}>{arm}</option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
+            {selectedArm && (
+                <div style={{ marginTop: '20px' }}>
+                    {createScatterPlot(plotData1, plotData2, selectedArm)}
                 </div>
             )}
         </div>
