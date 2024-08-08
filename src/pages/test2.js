@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import styles from '../styles/Home.module.css';
 
@@ -10,6 +10,17 @@ export default function Home() {
     const [uniqueSamples, setUniqueSamples] = useState([]);
     const [uniqueArms, setUniqueArms] = useState([]);
     const [selectedArm, setSelectedArm] = useState(null);
+    const [filenameMapping, setFilenameMapping] = useState({});
+    const [filenameOrder, setFilenameOrder] = useState([]);
+
+    useEffect(() => {
+        if (uniqueSamples.length > 0) {
+            setFilenameOrder(uniqueSamples.map(sample => ({
+                sample,
+                filename: filenameMapping[sample]
+            })));
+        }
+    }, [uniqueSamples, filenameMapping]);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -50,16 +61,38 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result);
 
-        const { plotData1, plotData2, uniqueSamples, uniqueArms } = result;
+        const { plotData1, plotData2, uniqueSamples, uniqueArms, filenameMapping } = result;
 
         setPlotData1(plotData1);
         setPlotData2(plotData2);
         setUniqueSamples(uniqueSamples);
         setUniqueArms(uniqueArms);
+        setFilenameMapping(filenameMapping);
     };
 
     const handleArmChange = (event) => {
         setSelectedArm(event.target.value);
+    };
+
+    const handleDragStart = (event, index) => {
+        event.dataTransfer.setData('draggedIndex', index);
+    };
+
+    const handleDragOver = (event) => {
+        event.preventDefault();
+    };
+
+    const handleDrop = (event, index) => {
+        const draggedIndex = event.dataTransfer.getData('draggedIndex');
+        const updatedOrder = [...filenameOrder];
+        const [removed] = updatedOrder.splice(draggedIndex, 1);
+        updatedOrder.splice(index, 0, removed);
+        setFilenameOrder(updatedOrder);
+    };
+
+    const handleUpdateOrder = () => {
+        const newOrder = filenameOrder.map(item => item.sample);
+        setUniqueSamples(newOrder);
     };
 
     const coolwarmColorscale = [
@@ -101,7 +134,7 @@ export default function Home() {
                 yref: 'y',
                 x: -0.1,
                 y: sampleIndex,
-                text: sample,
+                text: filenameMapping[sample],
                 showarrow: false,
                 font: {
                     size: 10
@@ -163,7 +196,7 @@ export default function Home() {
                     xref: 'x',
                     yref: 'y',
                     showarrow: true,
-                    arrowhead:3,
+                    arrowhead: 3,
                     arrowsize: 2,
                     arrowwidth: 2,
                     arrowcolor: 'lime'
@@ -199,7 +232,34 @@ export default function Home() {
             <h1>Upload your TSV file</h1>
             <input type="file" onChange={handleFileUpload} />
 
-            {plotData1 && plotData2 && (
+            {filenameOrder.length > 0 && (
+                <div>
+                    <table id="orderTable">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filenameOrder.map((item, index) => (
+                                <tr
+                                    key={item.sample}
+                                    className="draggable"
+                                    draggable="true"
+                                    onDragStart={(event) => handleDragStart(event, index)}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(event) => handleDrop(event, index)}
+                                >
+                                    <td>{item.filename}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <button onClick={handleUpdateOrder}>Update Order</button>
+                </div>
+            )}
+
+{plotData1 && plotData2 && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     <div>
                         {createHeatmapPlot(createHeatmapData(plotData1, 'cn', 'copy number'), 'CN Heatmap', coolwarmColorscale, 2)}
