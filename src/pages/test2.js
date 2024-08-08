@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
+import styles from '../styles/Home.module.css';
+
+const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
 export default function Home() {
-    const [plotData, setPlotData] = useState(null);
+    const [plotData1, setPlotData1] = useState(null);
+    const [plotData2, setPlotData2] = useState(null);
+    const [uniqueSamples, setUniqueSamples] = useState([]);
+    const [uniqueArms, setUniqueArms] = useState([]);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -26,7 +33,7 @@ export default function Home() {
             return;
         }
 
-        const calculateResponse = await fetch('/api/calculate', {
+        const calculateResponse = await fetch('/api/multicalc', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -40,188 +47,111 @@ export default function Home() {
         }
 
         const result = await calculateResponse.json();
-        console.log('API result:', result); // Debugging line
+        console.log('API result:', result);
 
-        const vafData = result.vafData;
-        const coverageData = result.coverageData;
+        const { plotData1, plotData2, uniqueSamples, uniqueArms } = result;
 
-        if (!vafData || !coverageData) {
-            console.error('Invalid data structure from API');
-            return;
-        }
+        setPlotData1(plotData1);
+        setPlotData2(plotData2);
+        setUniqueSamples(uniqueSamples);
+        setUniqueArms(uniqueArms);
+    };
 
-        const concatenatePositions = (data) => {
-            let globalPositions = [];
-            let startPositions = {};
-            let currentPosition = 0;
+    const coolwarmColorscale = [
+        [0, 'blue'],
+        [0.5, 'white'],
+        [1, 'red']
+    ];
 
-            const chromosomes = [...new Set(data.map(d => d.arm))];
+    const coolColorscale = [
+        [0, 'blue'],
+        [1, 'yellow']
+    ];
 
-            chromosomes.forEach(chrom => {
-                const chromData = data.filter(d => d.arm === chrom);
-                chromData.forEach(d => {
-                    globalPositions.push({
-                        arm: chrom,
-                        Pos: currentPosition + d.Pos,
-                        value: d.v || d.lcv
-                    });
-                });
-                startPositions[chrom] = currentPosition;
-                currentPosition += chromData.length;
+    const createHeatmapData = (plotData, valueKey, valueLabel) => {
+        const x = uniqueArms;
+        const y = [];
+        const z = [];
+        const hoverText = [];
+        const annotations = [];
+
+        uniqueSamples.forEach((sample, sampleIndex) => {
+            const sampleData = plotData.filter(d => d.sample === sample);
+            const zRow = [];
+            const hoverTextRow = [];
+            uniqueArms.forEach((arm) => {
+                const dataPoint = sampleData.find(d => d.arm === arm);
+                if (dataPoint) {
+                    zRow.push(dataPoint[valueKey]);
+                    hoverTextRow.push(`arm: ${arm}<br>sample: ${sample}<br>${valueLabel}: ${dataPoint[valueKey]}`);
+                } else {
+                    zRow.push(null);
+                    hoverTextRow.push(`arm: ${arm}<br>sample: ${sample}<br>${valueLabel}: N/A`);
+                }
             });
-
-            return { globalPositions, startPositions, chromosomes };
-        };
-
-        const vafProcessedData = concatenatePositions(vafData);
-        const coverageProcessedData = concatenatePositions(coverageData);
-
-        // VAF Plot
-        const vafPlot = {
-            x: vafProcessedData.globalPositions.map(d => d.Pos),
-            y: vafProcessedData.globalPositions.map(d => d.value),
-            type: 'scatter',
-            mode: 'markers',
-            marker: { size: 2 },
-            name: 'VAF'
-        };
-
-        // Coverage Plot
-        const coveragePlot = {
-            x: coverageProcessedData.globalPositions.map(d => d.Pos),
-            y: coverageProcessedData.globalPositions.map(d => d.value),
-            type: 'scatter',
-            mode: 'markers',
-            marker: { size: 2 },
-            name: 'Coverage'
-        };
-
-        const vafLayout = {
-            title: 'VAF Scores vs Position',
-            showlegend: false,
-            width: 1200,
-            height: 600,
-            margin: {
-                l: 40,
-                r: 40,
-                b: 60,
-                t: 40,
-                pad: 0
-            },
-            font: {
-                size: 10
-            },
-            xaxis: {
-                title: 'Position',
-                showticklabels: true
-            },
-            yaxis: {
-                title: 'VAF Score',
-                showticklabels: true
-            },
-            shapes: vafProcessedData.chromosomes.map(chrom => ({
-                type: 'line',
-                x0: vafProcessedData.startPositions[chrom],
-                y0: 0,
-                x1: vafProcessedData.startPositions[chrom],
-                y1: 1,
-                line: {
-                    color: 'grey',
-                    width: 1,
-                    dash: 'dot'
+            z.push(zRow);
+            hoverText.push(hoverTextRow);
+            annotations.push({
+                xref: 'paper',
+                yref: 'y',
+                x: -0.1,
+                y: sampleIndex,
+                text: sample,
+                showarrow: false,
+                font: {
+                    size: 10
                 }
-            })),
-            annotations: vafProcessedData.chromosomes.map(chrom => ({
-                x: vafProcessedData.startPositions[chrom],
-                y: 1.05,
-                xref: 'x',
-                yref: 'paper',
-                text: chrom,
-                showarrow: false
-            }))
-        };
+            });
+            y.push(sampleIndex);
+        });
 
-        const coverageLayout = {
-            title: 'Coverage Scores vs Position',
-            showlegend: false,
-            width: 1200,
-            height: 600,
-            margin: {
-                l: 40,
-                r: 40,
-                b: 60,
-                t: 40,
-                pad: 0
-            },
-            font: {
-                size: 10
-            },
-            xaxis: {
-                title: 'Position',
-                showticklabels: true
-            },
-            yaxis: {
-                title: 'Coverage Score',
-                showticklabels: true
-            },
-            shapes: coverageProcessedData.chromosomes.map(chrom => ({
-                type: 'line',
-                x0: coverageProcessedData.startPositions[chrom],
-                y0: 0,
-                x1: coverageProcessedData.startPositions[chrom],
-                y1: 1,
-                line: {
-                    color: 'grey',
-                    width: 1,
-                    dash: 'dot'
-                }
-            })),
-            annotations: coverageProcessedData.chromosomes.map(chrom => ({
-                x: coverageProcessedData.startPositions[chrom],
-                y: 1.05,
-                xref: 'x',
-                yref: 'paper',
-                text: chrom,
-                showarrow: false
-            }))
-        };
+        return { x, y, z, hoverText, annotations };
+    };
 
-        setPlotData({ vafPlot, vafLayout, coveragePlot, coverageLayout });
+    const createHeatmapPlot = (data, title, colorscale, zmid = null) => {
+        const rowHeight = 70; // Set a fixed row height for each sample
+        const height = 50 + uniqueSamples.length * rowHeight; // Calculate the total height based on the number of samples
+        return (
+            <Plot
+                data={[
+                    {
+                        x: data.x,
+                        y: data.y,
+                        z: data.z,
+                        type: 'heatmap',
+                        colorscale: colorscale,
+                        zmid: zmid,
+                        showscale: true,
+                        text: data.hoverText,
+                        hoverinfo: 'text',
+                    },
+                ]}
+                layout={{
+                    title: title,
+                    xaxis: { title: 'Arm' },
+                    yaxis: { title: 'Sample', tickvals: data.y, ticktext: uniqueSamples, tickmode: 'array' },
+                    annotations: data.annotations,
+                    height: height,
+                }}
+            />
+        );
     };
 
     return (
         <div>
             <h1>Upload your TSV file</h1>
             <input type="file" onChange={handleFileUpload} />
-            {plotData && (
-                <div>
-                    <DynamicPlot 
-                        vafPlot={plotData.vafPlot} 
-                        vafLayout={plotData.vafLayout} 
-                        coveragePlot={plotData.coveragePlot} 
-                        coverageLayout={plotData.coverageLayout} 
-                    />
+
+            {plotData1 && plotData2 && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div>
+                        {createHeatmapPlot(createHeatmapData(plotData1, 'cn', 'copy number'), 'CN Heatmap', coolwarmColorscale, 2)}
+                    </div>
+                    <div>
+                        {createHeatmapPlot(createHeatmapData(plotData2, 'ai', 'AI'), 'AI Heatmap', coolColorscale)}
+                    </div>
                 </div>
             )}
         </div>
     );
 }
-
-const DynamicPlot = ({ vafPlot, vafLayout, coveragePlot, coverageLayout }) => {
-    const [Plot, setPlot] = useState(null);
-
-    React.useEffect(() => {
-        import('react-plotly.js').then((Plotly) => {
-            setPlot(() => Plotly.default);
-        });
-    }, []);
-
-    if (!Plot) return null;
-
-    return (
-        <>
-            <Plot data={[vafPlot]} layout={vafLayout} config={{ responsive: true }} />
-            <Plot data={[coveragePlot]} layout={coverageLayout} config={{ responsive: true }} />
-        </>
-    );
-};
