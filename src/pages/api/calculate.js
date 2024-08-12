@@ -131,6 +131,18 @@ export default async function handler(req, res) {
             }
             return acc;
         }, {});
+        
+        console.log(plotData1)
+        console.log(uniqueArm1Values)
+        console.log('mValues:', mValues);
+        console.log('arm6Values:', arm6Values);
+        console.log('cloneMapping:', cloneMapping);
+        console.log('Y3Mapping:', Y3Mapping);
+        console.log('X3Mapping:', X3Mapping);
+        console.log('mMapping:', mMapping);
+        console.log('dmMapping:', dmMapping);
+        console.log('dcnMapping:', dcnMapping);
+
 
         res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping });
     } catch (error) {

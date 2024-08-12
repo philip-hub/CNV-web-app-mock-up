@@ -20,6 +20,7 @@ export default function Home() {
     const [dmMapping, setDmMapping] = useState({}); // State to hold dmMapping
     const [dcnMapping, setDcnMapping] = useState({}); // State to hold dcnMapping
     const [clickedArmData, setClickedArmData] = useState({}); // State to hold clicked arm data
+    const [PlotCombined, setPlotCombined] = useState(null);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -173,9 +174,15 @@ export default function Home() {
             y: coloredPlotData1.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 4, color: coloredPlotData1.map(d => d.color) },
+            marker: { size: 2, color: coloredPlotData1.map(d => d.color) },
             name: 'Coverage Plot',
-            customdata: coloredPlotData1.map(d => d.customdata) // Add customdata to plot
+            customdata: coloredPlotData1.map(d => d.customdata), // Add customdata to plot
+            line: {
+                color: 'transparent',  // Make the border transparent
+                width: 1  // Or adjust the width if you want a thin border of a different color
+            },
+            // xaxis: 'x1',
+            // yaxis: 'y1'
         };
 
         const layout1 = {
@@ -220,9 +227,15 @@ export default function Home() {
             y: coloredPlotData2.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 4, color: coloredPlotData2.map(d => d.color) },
+            marker: { size: 2, color: coloredPlotData2.map(d => d.color) },
             name: 'Vaf Plot',
-            customdata: coloredPlotData2.map(d => d.customdata) // Add customdata to plot
+            customdata: coloredPlotData2.map(d => d.customdata), // Add customdata to plot
+            line: {
+                color: 'transparent',  // Make the border transparent
+                width: 1  // Or adjust the width if you want a thin border of a different color
+            },
+            // xaxis: 'x2',
+            // yaxis: 'y2'
         };
 
         const layout2 = {
@@ -234,7 +247,7 @@ export default function Home() {
                 l: 40,
                 r: 40,
                 b: 120,
-                t: 40,
+                t: 20,
                 pad: 0
             },
             xaxis: {
@@ -260,6 +273,60 @@ export default function Home() {
             shapes: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).shapes,
             annotations: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).annotations
         };
+        
+        const plot_1_2_data = [scatterPlot1, scatterPlot2];
+
+        const layout_combined = {
+            grid: {rows: 2, columns: 1, pattern: 'independent'}, // 2 rows, 1 column layout
+            width: 1400,  // Width of the combined plot
+            height: 450,  // Combined height for both plots
+            margin: {
+                l: 40,
+                r: 40,
+                b: 120,
+                t: 40,
+                pad: 0
+            },
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white',
+            xaxis: {
+                title: '',
+                showticklabels: false,  // Hide x-axis labels in the first plot
+                tickangle: 90,
+                tickfont: {
+                    size: 10
+                },
+                domain: [0, 1],  // Full width for both plots
+                anchor: 'y1'
+            },
+            xaxis2: {
+                title: '',
+                showticklabels: false,  // Hide x-axis labels in the second plot as well
+                tickangle: 90,
+                tickfont: {
+                    size: 10
+                },
+                domain: [0, 1],
+                anchor: 'y2'
+            },
+            yaxis: {
+                title: 'log2(median/ref)',
+                showticklabels: true,
+                tickfont: {
+                    size: 10
+                }
+            },
+            yaxis2: {
+                title: 'Vaf Score',
+                showticklabels: true,
+                tickfont: {
+                    size: 10
+                }
+            },
+            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, arm6Values)),
+            annotations: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).annotations.concat(createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).annotations)
+        };
+        
 
         // Plot data for the third plot
         const scatterPlot3 = {
@@ -392,6 +459,7 @@ export default function Home() {
         setPlotData3({ scatterPlot: scatterPlot3, layout: layout3 });
         setPlotData4({ scatterPlot: scatterPlot4, layout: layout4 });
         setPlotData5({ scatterPlot: scatterPlot5, layout: layout5 });
+        setPlotCombined({scatterPlot: plot_1_2_data, layout: layout_combined});
     };
 
     const handlePlotClick = (event) => {
