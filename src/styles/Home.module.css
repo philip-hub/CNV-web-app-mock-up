@@ -1,61 +1,128 @@
 /* src/styles/Home.module.css */
-.container {
-    min-height: 100vh;
-    padding: 0 0.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .main {
-    padding: 5rem 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .title {
-    margin: 0;
-    font-size: 4rem;
-  }
-  
-  .description {
-    margin: 4rem 0;
-    font-size: 1.5rem;
-  }
-  
-  .code {
-    background: #eaeaea;
-    border-radius: 5px;
-    padding: 0.75rem;
-    font-size: 1.1rem;
-  }
-  
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 400px; /* Set a max width to prevent stretching */
-    margin-left: 0; /* Align to the left */
+.chromosomeSelection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
+
+.chromosomeArm {
+  display: flex;
+  flex-direction: column;
+  width: calc(25% - 10px); /* Four items per row with some gap */
+  margin-bottom: 10px;
+}
+
+.chromosomeArm label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.chromosomeArm select {
+  padding: 5px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
+
+
+.container {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.controlBar {
+  width: 0; /* Start with the control bar collapsed */
+  transition: width 0.3s ease; /* Smooth transition when opening/closing */
+  background-color: #000000;
+  overflow-x: hidden; /* Hide any overflowing content when collapsed */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  color: white;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  z-index: 1; /* Make sure the control bar is on top of other content */
+}
+
+.controlBar.open {
+  width: 20%; /* Expand the control bar to 25% of the screen */
+}
+
+.content {
+  flex-grow: 1;
+  transition: transform 0.3s ease, margin-left 0.3s ease;
+  padding: 20px;
+  box-sizing: border-box; /* Ensure padding is included in width calculations */
+  width: 100%; /* Default to full width */
+  transform-origin: left; /* Scale from the left side */
+  position: relative;
+  left: 0;
+}
+
+.content.shifted {
+  transform: scale(0.8); /* Scale down the content to fit within 75% of the screen */
+  margin-left: -12.5%; /* Move content left by 12.5% to keep it visible */
+  left: 35%; /* Ensure it is moved to the right by 25% to accommodate the control bar */
+}
+
+.toggleButton {
+  position: fixed; /* Changed from absolute to fixed to keep it visible */
+  top: 20px;
+  left: 20px;
+  background-color: #333;
+  color: white;
+  padding: 10px 15px;
+  cursor: pointer;
+  border: none;
+  z-index: 2; /* Make sure the toggle button is above other content */
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+  justify-content: center;
+  padding: 20px;
+}
+
+.file-upload {
+  margin-top: 20px;
+}
+
+.info {
+  margin-top: 10px;
+  text-align: center; /* Center the text */
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr); /* Adjust based on number of items */
+  gap: 5px;
+  background-color: #fff;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  margin: 20px auto; /* Center the grid and add some space */
+}
+
 .gridItem {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    border-radius: 5px;
-    color: #fff;
-    font-weight: bold;
-    min-width: 100px; /* Ensure a minimum width for items */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px; /* Reduce padding inside each grid item */
+  border-radius: 3px; /* Adjust border-radius for smaller size */
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.75rem; /* Reduce font size */
+  min-width: 50px; /* Reduce minimum width for items */
+  white-space: nowrap; /* Prevent text wrapping */
 }
+
+/* Color classes for legend */
 .LOSS { background-color: #1f77b4; } /* tab:blue */
 .LDIP { background-color: #17becf; } /* tab:cyan */
 .DIP { background-color: #2ca02c; } /* tab:green */
@@ -64,4 +131,3 @@
 .HDUP { background-color: #bcbd22; } /* tab:olive */
 .LOH { background-color: #8c564b; } /* tab:brown */
 .GAIN { background-color: #d62728; } /* tab:red */
-.GAINPLUS { background-color: #9467bd; } /* tab:purple */

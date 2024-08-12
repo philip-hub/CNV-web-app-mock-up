@@ -4,7 +4,15 @@ import styles from '../styles/Home.module.css';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
+
+
+
 export default function Home() {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const toggleControlBar = () => {
+        setIsOpen(!isOpen);}
+    
     const [plotData1, setPlotData1] = useState(null);
     const [plotData2, setPlotData2] = useState(null);
     const [plotData3, setPlotData3] = useState(null);
@@ -520,46 +528,78 @@ export default function Home() {
     ];
 
     return (
-        <div>
-            <h1>Upload your TSV file</h1>
-            <input type="file" onChange={handleFileUpload} />
+        <div className={styles.container}>
+            <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
+                <h2>Control Panel</h2>
+                <p>Add things here</p>
 
-            {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
-                    <div>
-                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData3, plotData3).scatterPlot} layout={plotData3.layout} onClick={handlePlotClick} />
-                    </div>
-                    <div>
-                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData1, plotData1).scatterPlot} layout={plotData1.layout} onClick={handlePlotClick} />
-                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData2, plotData2).scatterPlot} layout={plotData2.layout} onClick={handlePlotClick} />
-                    </div>
-                    <div style={{ gridColumn: 'span 1' }}>
-                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData4, plotData4).scatterPlot} layout={plotData4.layout} onClick={handlePlotClick} />
-                    </div>
-                    <div style={{ gridColumn: 'span 1' }}>
-                        <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData5, plotData5).scatterPlot} layout={plotData5.layout} onClick={handlePlotClick} />
-                    </div>
-                </div>
-            )}
-            {clickedArm && <h1>Clicked Arm: {clickedArm}</h1>} {/* Render the clicked arm name */}
-            {clickedArmData && (
-                <div>
-                    <p>CN: {clickedArmData.CN}</p>
+                <h4>For now these are here</h4>
+                <div className={styles.info}>
+                <p>CN: {clickedArmData.CN}</p>
                     <p>AI: {clickedArmData.AI}</p>
                     <p>M: {clickedArmData.M}</p>
                     <p>dm: {clickedArmData.dm}</p>
                     <p>dcn: {clickedArmData.dcn}</p>
-                </div>
-            )}
-            <div className={styles.grid}>
-                {colors.map((color, index) => (
-                    <div key={index} className={`${styles.gridItem} ${color.className}`}>
-                        {color.label}
                     </div>
-                ))}
+
+                    <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
+
+
+                <h2>Control Bar</h2>
+                <p>Some controls and settings go here.</p>
+                <div className={styles.chromosomeSelection}>
+                    {Object.keys(cloneMapping).map((arm, index) => (
+                        <div key={index} className={styles.chromosomeArm}>
+                            <label htmlFor={`chromosome-arm-${index}`}>
+                                {arm.toUpperCase()}
+                            </label>
+                            <select id={`chromosome-arm-${index}`} name={`chromosome-arm-${index}`}>
+                                <option value="DIP" selected={cloneMapping[arm] === 'DIP'}>DIP</option>
+                                <option value="Not DIP" selected={cloneMapping[arm] !== 'DIP'}>Not DIP</option>
+                            </select>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            </div>
+
+            <div className={`${styles.content} ${isOpen ? styles.shifted : ''}`}>
+                <button className={styles.toggleButton} onClick={toggleControlBar}>
+                    {isOpen ? 'Close' : 'Open'} Control Panel
+                </button>
+                
+                <div className={styles.header}>
+                    <h1>Upload your TSV file</h1>
+                    <input type="file" className={styles.fileUpload} onChange={handleFileUpload} />
+                    <div className={styles.grid}>
+                        {colors.map((color, index) => (
+                            <div key={index} className={`${styles.gridItem} ${color.className}`}>
+                                {color.label}
+                            </div>
+                        ))}
+                    </div>
+
+                </div>
+
+                {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
+                            <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData1, plotData1).scatterPlot} layout={plotData1.layout} onClick={handlePlotClick} />
+                            <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData2, plotData2).scatterPlot} layout={plotData2.layout} onClick={handlePlotClick} />
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                            <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData3, plotData3).scatterPlot} layout={plotData3.layout} onClick={handlePlotClick} />
+                            <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData4, plotData4).scatterPlot} layout={plotData4.layout} onClick={handlePlotClick} />
+                            <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData5, plotData5).scatterPlot} layout={plotData5.layout} onClick={handlePlotClick} />
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
+
 }
 
 const DynamicPlot = ({ scatterPlot, layout, onClick }) => {
