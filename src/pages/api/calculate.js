@@ -21,6 +21,7 @@ export default async function handler(req, res) {
 
         const jsonData = JSON.parse(fileContent);
 
+        // Generate plot data from JSON
         const plotData1 = jsonData.map(group => ({
             x: parseFloat(group.X1),
             y: parseFloat(group.Y1),
@@ -124,6 +125,7 @@ export default async function handler(req, res) {
             return acc;
         }, {});
 
+        // Send the response with all calculated values
         res.status(200).json({
             plotData1, uniqueArm1Values,
             plotData2, uniqueArm2Values,
