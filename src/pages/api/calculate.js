@@ -84,20 +84,20 @@ export default async function handler(req, res) {
         };
 
         // Generate and log all plot data
-        const plot3Data = generatePlot3Data(jsonData, lcv0);
-        console.log('plot3Data:', plot3Data);
+        const plotData3 = generatePlot3Data(jsonData, lcv0);
+        //console.log('plot3Data:', plot3Data);
 
-        const plot2Data = generatePlotData(jsonData, 'v', 'posv');
-        console.log('plot2Data:', plot2Data);
+        const plotData2 = generatePlotData(jsonData, 'v', 'posv');
+        //console.log('plot2Data:', plot2Data);
 
-        const plot1Data = generatePlotData(jsonData, 'lcv', 'poslcv', (lcv) => Math.log2(lcv / lcv0));
-        console.log('plot1Data:', plot1Data);
+        const plotData1 = generatePlotData(jsonData, 'lcv', 'poslcv', (lcv) => Math.log2(lcv / lcv0));
+        //console.log('plot1Data:', plot1Data);
 
-        const plot4Data = generatePlotData(jsonData, 'vq', 'vq', x => x);
-        console.log('plot4Data:', plot4Data);
+        const plotData4 = generatePlotData(jsonData, 'vq', 'vq', x => x);
+        //console.log('plot4Data:', plot4Data);
 
-        const plot5Data = generatePlotData(jsonData, 'lcvq', 'lcvq', x => x);
-        console.log('plot5Data:', plot5Data);
+        const plotData5 = generatePlotData(jsonData, 'lcvq', 'lcvq', x => x);
+        //console.log('plot5Data:', plot5Data);
 
         const mValues = jsonData.map(group => group.m ? parseFloat(group.m) : null);
         const arm6Values = jsonData.map(group => group.arm);
