@@ -135,7 +135,13 @@ export default async function handler(req, res) {
         console.log(plotData1)
         console.log(uniqueArm1Values)
 
-        
+        console.log('Unique Arm 1 Values:', uniqueArm1Values);
+        console.log('Unique Arm 2 Values:', uniqueArm2Values);
+        console.log('Unique Arm 3 Values:', uniqueArm3Values);
+        console.log('Unique Arm 4 Values:', uniqueArm4Values);
+        console.log('Unique Arm 5 Values:', uniqueArm5Values);
+        console.log('arm7ColorMapping:', arm7ColorMapping);
+
         res.status(200).json({ plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping });
     } catch (error) {
         console.error('Error processing file:', error);
