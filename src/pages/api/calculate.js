@@ -54,52 +54,90 @@ export default async function handler(req, res) {
         const lcv0 = calculatelcv0(jsonData);
         console.log('Average m value (lcv0):', lcv0);
 
-        // Generate plot data functions
-        const generatePlot3Data = (data, lcv0) => {
-          return data.map(group => ({
-            x: group.ai,
-            y: (2 * group.m) / lcv0,
+        const plotData3 = jsonData.map(group => ({
+            x: (2 * group.m) / lcv0,
+            y: group.ai,
             arm: group.arm
           }));
-        };
-
-        const generatePlotData = (data, xKey, yKey, transformX = x => x) => {
-          const plotData = [];
-          data.forEach(group => {
-            const xArray = group[xKey];
-            const yArray = group[yKey];
-            if (Array.isArray(xArray) && Array.isArray(yArray) && xArray.length === yArray.length) {
-              for (let i = 0; i < xArray.length; i++) {
-                plotData.push({
-                  x: transformX(xArray[i], lcv0),
-                  y: yArray[i],
-                  arm: group.arm
-                });
-              }
-            } else {
-              console.error(`Mismatched lengths in group with arm ${group.arm}`);
+    
+    
+          console.log('plot3Data:', plotData3);
+    
+          const plotData2 = [];
+    
+          console.log()
+    
+          jsonData.forEach(group => {
+            const { v, posv, arm } = group;
+          if (Array.isArray(v) && Array.isArray(posv) && v.length === posv.length) {
+            for (let i = 0; i < v.length; i++) {
+              plotData2.push({
+                x: posv[i],
+                y: v[i],
+                arm: arm
+              });
             }
-          });
-          return plotData;
-        };
+          } else {
+            console.error(`Mismatched lengths in group with arm ${arm}`);
+          }
+        });
+    
+          console.log('plot2Data:', plotData2);
+    
+    
+          const plotData1 = [];
+    
+    
+          jsonData.forEach(group => {
+            const { lcv, poslcv, arm } = group;
+          if (Array.isArray(lcv) && Array.isArray(poslcv) && lcv.length === poslcv.length) {
+            for (let i = 0; i < lcv.length; i++) {
+              plotData1.push({
+                x: poslcv[i],
+                y: Math.log2(lcv[i]/lcv0),
+                arm: arm
+              });
+            }
+          } else {
+            console.error(`Mismatched lengths in group with arm ${arm}`);
+          }
+        });
+          console.log('plot1Data:', plotData1);
+    
+        
+          const plotData4 = [];
+    
+          jsonData.forEach(group => {
+            const { vq, arm } = group;
+            for (let i = 0; i < vq.length; i++) {
+              plotData4.push({
+                x: vq[i],
+                y: i,
+                arm: arm
+              });
+            }
+        });
+    
+          console.log('plot4Data:', plotData4);
+    
+    
+          const plotData5 = [];
+    
+          jsonData.forEach(group => {
+            const { lcvq, arm } = group;
+            for (let i = 0; i < lcvq.length; i++) {
+              plotData5.push({
+                x: lcvq[i],
+                y: i,
+                arm: arm
+              });
+            }
+        });
+    
+          console.log('plot5Data:', plotData5);
+    
 
-        // Generate and log all plot data
-        const plotData3 = generatePlot3Data(jsonData, lcv0);
-        //console.log('plot3Data:', plot3Data);
-
-        const plotData2 = generatePlotData(jsonData, 'v', 'posv');
-        //console.log('plot2Data:', plot2Data);
-
-        const plotData1 = generatePlotData(jsonData, 'lcv', 'poslcv', (lcv) => Math.log2(lcv / lcv0));
-        //console.log('plot1Data:', plot1Data);
-
-        const plotData4 = generatePlotData(jsonData, 'vq', 'vq', x => x);
-        //console.log('plot4Data:', plot4Data);
-
-        const plotData5 = generatePlotData(jsonData, 'lcvq', 'lcvq', x => x);
-        //console.log('plot5Data:', plot5Data);
-
-        const mValues = jsonData.map(group => group.m ? parseFloat(group.m) : null);
+        const mValues = jsonData.map(group => group.m ? parseFloat(group.m-lcv0) : null);
         const arm6Values = jsonData.map(group => group.arm);
 
         // Creating mappings
