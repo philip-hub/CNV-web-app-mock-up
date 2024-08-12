@@ -211,7 +211,7 @@ export default function Home() {
                     xaxis: { title: 'CN' },
                     yaxis: { 
                         title: 'AI',
-                        range: [-0.9, 3.1],
+                        range: [-0.9, 3.1], // Setting the minimum fixed size range
                         autorange: false 
                     },
                     annotations: annotations,
