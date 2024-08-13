@@ -51,11 +51,6 @@ export default async function handler(req, res) {
           return mValues.reduce((acc, value) => acc + value, 0) / mValues.length;
         };
 
-
-        //problem add m0
-
-        
-
         const lcv0 = calculatelcv0(jsonData);
         console.log('Average m value (lcv0):', lcv0);
 
@@ -69,7 +64,7 @@ export default async function handler(req, res) {
 
 
         const plotData3 = jsonData.map(group => ({
-            x: group.m,
+            x: (2 * group.m) / lcv0,
             y: group.ai,
             arm: group.arm
           }));
@@ -108,7 +103,7 @@ export default async function handler(req, res) {
             for (let i = 0; i < lcv.length; i++) {
               plotData1.push({
                 x: poslcv[i],
-                y: lcv[i],
+                y: Math.log2(lcv[i]/lcv0),
                 arm: arm
               });
             }
@@ -151,9 +146,8 @@ export default async function handler(req, res) {
           console.log('plot5Data:', plotData5);
     
 
-        const mValues = jsonData.map(group => group.m ? parseFloat(group.m) : null);
+        const mValues = jsonData.map(group => group.m ? parseFloat(group.m-lcv0) : null);
         const arm6Values = jsonData.map(group => group.arm);
-        const mValues_std = jsonData.map(group => group.m ? parseFloat(group.m-lcv0) : null);
 
         // Creating mappings
         const cloneMapping = jsonData.reduce((acc, group) => {
@@ -199,7 +193,7 @@ export default async function handler(req, res) {
         }
         
         // Calculate the standard deviation for all m values
-        const stdDevM = standardDeviation(mValues_std);
+        const stdDevM = standardDeviation(mValues);
         console.log('Standard Deviation of all m values:', stdDevM);
         
         const dcnMapping = jsonData.reduce((acc, group) => {
@@ -245,7 +239,6 @@ export default async function handler(req, res) {
         console.log('Unique Arm 5 Values:', uniqueArm5Values);
         console.log('Unique Arm 6 Values:', uniqueArm6Values);
         console.log('Unique Arm 7 Values:', uniqueArm7Values);
-        console.log("Lcv",lcv0)
         
         // Send the response with all calculated values
         res.status(200).json({
@@ -257,7 +250,7 @@ export default async function handler(req, res) {
             mValues, arm6Values,
             arm7ColorMapping, cloneMapping,
             Y3Mapping, X3Mapping,
-            mMapping, dmMapping, dcnMapping, lcv0
+            mMapping, dmMapping, dcnMapping
         });
 
     } catch (error) {
