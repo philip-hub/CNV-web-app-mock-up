@@ -67,7 +67,7 @@
 .content.shifted {
   transform: scale(0.8); /* Scale down the content to fit within 75% of the screen */
   margin-left: -12.5%; /* Move content left by 12.5% to keep it visible */
-  left: 27.5%; /* Ensure it is moved to the right by 25% to accommodate the control bar */
+  left: 24%; /* Ensure it is moved to the right by 25% to accommodate the control bar */
 }
 
 .toggleButton {
