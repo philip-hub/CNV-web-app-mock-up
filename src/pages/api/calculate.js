@@ -54,6 +54,15 @@ export default async function handler(req, res) {
         const lcv0 = calculatelcv0(jsonData);
         console.log('Average m value (lcv0):', lcv0);
 
+        //plot1data
+        //plot3data
+        //m values
+        //Y3 mapping
+        //X3 mapping
+        //DCN mapping
+        
+
+
         const plotData3 = jsonData.map(group => ({
             x: (2 * group.m) / lcv0,
             y: group.ai,
