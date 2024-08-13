@@ -550,30 +550,59 @@ export default function Home() {
     };
 
 
+
+    const calculateLcv0ForCheckedArms = (checkedArms) => {
+        const filteredData = checkedArms
+            .map(arm => ({
+                clone: cloneMapping[arm],
+                lcv: lcvMapping[arm]
+            }))
+            .filter(group => group.clone === 'DIP' && group.lcv !== undefined);
+    
+        const totalSum = filteredData
+            .map(group => group.lcv.reduce((acc, value) => acc + value, 0)) 
+            .reduce((acc, sum) => acc + sum, 0); 
+    
+        const totalLength = filteredData
+            .map(group => group.lcv.length) 
+            .reduce((acc, length) => acc + length, 0);
+    
+        return totalSum / totalLength; 
+
+    }
+
+
     const handleUpdateRef = () => {
         const checkedArms = Object.keys(cloneMapping).filter(arm => cloneMapping[arm] === 'DIP');
         
-        let oldLcv0 = lcv0
-        let oldMavg = mavg
-
+        let oldLcv0 = lcv0;
+        let oldMavg = mavg;
+    
         if (checkedArms.length === 0) {
             console.error('Cannot divide by zero fwen');
             return;
         }
-    
-        const mValuesForCheckedArms = checkedArms.map(arm => mMapping[arm]).filter(mValue => mValue !== undefined);
-        
 
+        const newLcv0 = calculateLcv0ForCheckedArms(checkedArms);
+   
+        const mValuesForCheckedArms = checkedArms
+            .map(arm => mMapping[arm])
+            .filter(mValue => mValue !== undefined);
+    
         if (mValuesForCheckedArms.length === 0) {
-            console.error('no m values found for checked arms check rAI or calculate.js');
+            console.error('No m values found for checked arms. Check rAI or calculate.js');
             return;
         }
     
-        const mavg = mValuesForCheckedArms.reduce((sum, mValue) => sum + mValue, 0) / mValuesForCheckedArms.length;
-        setLCV0(mavg);
+        const newMavg = mValuesForCheckedArms.reduce((sum, mValue) => sum + mValue, 0) / mValuesForCheckedArms.length;
+    
+        setMAvg(newMavg);
+        setLCV0(newLcv0);
+    
+        console.log(`Updated M0: ${newMavg}`);
         console.log(`Updated lcv0: ${newLcv0}`);
-
-        if(oldMavg!=mavg){
+    
+        if (oldMavg !== newMavg) {
 
 
         // const updatedShapesPlot1 = createAnnotationsAndShapes(plotData1.scatterPlot, uniqueArm1Values).shapes.concat(createLines(mMapping, arm6Values));
@@ -596,33 +625,36 @@ export default function Home() {
             ...plotData3,
             scatterPlot: {
                 ...plotData3.scatterPlot,
-                x: plotData3.scatterPlot.x.map((x) => (2 * x) / mavg) // use m problem
+                x: plotData3.scatterPlot.x.map((x) => (2 * x) / newMavg)
             }
         };
-        
-        // update state to and re-render
+    
         setPlotData1(updatedPlotData1);
         setPlotData3(updatedPlotData3);
 
-    }
+        }
     };
     
+
+    const handleCheckAll = () => {
+        const updatedMapping = Object.keys(cloneMapping).reduce((acc, arm) => {
+            acc[arm] = 'DIP';
+            return acc;
+        }, {});
+        setCloneMapping(updatedMapping);
+    };
+
+    const handleUncheckAll = () => {
+        const updatedMapping = Object.keys(cloneMapping).reduce((acc, arm) => {
+            acc[arm] = 'Not REF';
+            return acc;
+        }, {});
+        setCloneMapping(updatedMapping);
+    };
 
 
     return (
         <div className={styles.container}>
-            {/* <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
-                <h2>Control Panel</h2>
-                <p>Add things here</p>
-
-                <h4>For now these are here</h4>
-                <div className={styles.info}>
-                <p>CN: {clickedArmData.CN}</p>
-                    <p>AI: {clickedArmData.AI}</p>
-                    <p>M: {clickedArmData.M}</p>
-                    <p>dm: {clickedArmData.dm}</p>
-                    <p>dcn: {clickedArmData.dcn}</p>
-                    </div> */}
 
 <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
     <h2>Control Bar</h2>
@@ -648,11 +680,18 @@ export default function Home() {
                                 checked={cloneMapping[arm] === 'DIP'}
                                 onChange={() => handleCheckboxChange(arm)}
                             />
-                            <span>{cloneMapping[arm] === 'DIP' ? 'REF' : 'Not REF'}</span>
+                            {/* <span>{cloneMapping[arm] === 'DIP' ? 'REF' : 'Not REF'}</span> */}
                         </div>
                     ))}
                     </div>
-                    <button className={styles.updateButton} onClick={handleUpdateRef}>
+                    <button className={styles.updateButton} onClick={handleCheckAll}>
+                    Check All
+                </button>
+                <button className={styles.updateButton} onClick={handleUncheckAll}>
+                    Uncheck All
+                </button>
+
+                <button className={styles.updateButton} onClick={handleUpdateRef}>
                     Update Ref
                 </button>
                 </div>
