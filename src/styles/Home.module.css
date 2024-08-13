@@ -124,6 +124,13 @@
   white-space: nowrap; /* Prevent text wrapping */
 }
 
+.plotContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+
 /* Color classes for legend */
 .LOSS { background-color: #1f77b4; } /* tab:blue */
 .LDIP { background-color: #17becf; } /* tab:cyan */

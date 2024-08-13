@@ -602,8 +602,13 @@ export default function Home() {
                 {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
+                        <div className={styles.plotContainer}>
                             <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData1, plotData1).scatterPlot} layout={plotData1.layout} onClick={handlePlotClick} />
+                        </div>
+                        <div className={styles.plotContainer}>
                             <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData2, plotData2).scatterPlot} layout={plotData2.layout} onClick={handlePlotClick} />
+                        </div>
+
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
