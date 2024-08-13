@@ -509,7 +509,7 @@ export default function Home() {
                         arm === highlightedArm ? 'gold' : arm7ColorMapping[arm]
                     ),
                     size: plotData.scatterPlot.customdata.map(arm =>
-                        arm === highlightedArm ? 9 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 3 : (plotDataRef === plotData1 || plotDataRef === plotData2 ? .5 : (plotDataRef === plotData3 ? 5 : 2)))
+                        arm === highlightedArm ? 9 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 3 : (plotDataRef === plotData1 || plotDataRef === plotData2 ? .5 : (plotDataRef === plotData3 ? 10 : 2)))
                     ),
                     opacity: plotData.scatterPlot.customdata.map(arm =>
                         arm === highlightedArm ? 1 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 0.1 : 1)
