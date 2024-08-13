@@ -8,23 +8,25 @@
 
 .chromosomeArm {
   display: flex;
-  flex-direction: column;
-  width: calc(25% - 10px); /* Four items per row with some gap */
+  align-items: center;
+  width: calc(50% - 10px); /* Adjust width to fit more items per row */
   margin-bottom: 10px;
 }
 
 .chromosomeArm label {
-  margin-bottom: 5px;
+  margin-right: 10px;
   font-weight: bold;
   color: #fff;
 }
 
-.chromosomeArm select {
-  padding: 5px;
-  border-radius: 3px;
-  border: 1px solid #ccc;
+.chromosomeArm input {
+  margin-right: 5px;
 }
 
+.chromosomeArm span {
+  color: #fff;
+  font-weight: normal;
+}
 
 .container {
   display: flex;
@@ -48,7 +50,7 @@
 }
 
 .controlBar.open {
-  width: 20%; /* Expand the control bar to 25% of the screen */
+  width: 15%; /* Expand the control bar to 25% of the screen */
 }
 
 .content {
@@ -65,7 +67,7 @@
 .content.shifted {
   transform: scale(0.8); /* Scale down the content to fit within 75% of the screen */
   margin-left: -12.5%; /* Move content left by 12.5% to keep it visible */
-  left: 35%; /* Ensure it is moved to the right by 25% to accommodate the control bar */
+  left: 27.5%; /* Ensure it is moved to the right by 25% to accommodate the control bar */
 }
 
 .toggleButton {

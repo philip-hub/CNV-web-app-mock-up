@@ -76,6 +76,9 @@ export default function Home() {
             return;
         }
 
+
+    
+
         setArm7ColorMapping(arm7ColorMapping); // Set arm7ColorMapping state
         setCloneMapping(cloneMapping); // Set cloneMapping state
         setY3Mapping(Y3Mapping);       // Set Y3Mapping state
@@ -182,12 +185,12 @@ export default function Home() {
             y: coloredPlotData1.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 2, color: coloredPlotData1.map(d => d.color) },
+            marker: { size: 1, color: coloredPlotData1.map(d => d.color) },
             name: 'Coverage Plot',
             customdata: coloredPlotData1.map(d => d.customdata), // Add customdata to plot
             line: {
                 color: 'transparent',  // Make the border transparent
-                width: 1  // Or adjust the width if you want a thin border of a different color
+                width: .5  // Or adjust the width if you want a thin border of a different color
             },
             // xaxis: 'x1',
             // yaxis: 'y1'
@@ -196,13 +199,13 @@ export default function Home() {
         const layout1 = {
             title: 'Coverage Plot',
             showlegend: false,
-            width: 1400,  // Decrease width
-            height: 200,  // Decrease height
+            width: 1800,  // Decrease width
+            height: 150,  // Decrease height
             margin: {
                 l: 40,
                 r: 40,
-                b: 120,
-                t: 40,
+                b: 45,
+                t: 30,
                 pad: 0
             },
             xaxis: {
@@ -211,7 +214,8 @@ export default function Home() {
                 tickangle: 90,
                 tickfont: {
                     size: 10
-                }
+                },
+                range: [Math.min(...coloredPlotData1.map(d => d.x)), Math.max(...coloredPlotData1.map(d => d.x))] // Set range to the min and max of the data
             },
             yaxis: {
                 title: 'log2(median/ref)',
@@ -235,7 +239,7 @@ export default function Home() {
             y: coloredPlotData2.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 2, color: coloredPlotData2.map(d => d.color) },
+            marker: { size: 1, color: coloredPlotData2.map(d => d.color) },
             name: 'Vaf Plot',
             customdata: coloredPlotData2.map(d => d.customdata), // Add customdata to plot
             line: {
@@ -249,13 +253,13 @@ export default function Home() {
         const layout2 = {
             title: 'Vaf Plot',
             showlegend: false,
-            width: 1400,  // Decrease width
-            height: 200,  // Decrease height
+            width: 1800,  // Decrease width
+            height: 150,  // Decrease height
             margin: {
                 l: 40,
                 r: 40,
-                b: 120,
-                t: 20,
+                b: 45,
+                t: 30,
                 pad: 0
             },
             xaxis: {
@@ -264,7 +268,8 @@ export default function Home() {
                 tickangle: 90,
                 tickfont: {
                     size: 10
-                }
+                },
+                range: [Math.min(...coloredPlotData2.map(d => d.x)), Math.max(...coloredPlotData2.map(d => d.x))] 
             },
             yaxis: {
                 title: 'Vaf Score',
@@ -286,12 +291,12 @@ export default function Home() {
 
         const layout_combined = {
             grid: {rows: 2, columns: 1, pattern: 'independent'}, // 2 rows, 1 column layout
-            width: 1400,  // Width of the combined plot
-            height: 450,  // Combined height for both plots
+            width: 1600,  // Width of the combined plot
+            height: 500,  // Combined height for both plots
             margin: {
                 l: 40,
                 r: 40,
-                b: 120,
+                b: 40,
                 t: 40,
                 pad: 0
             },
@@ -504,7 +509,7 @@ export default function Home() {
                         arm === highlightedArm ? 'gold' : arm7ColorMapping[arm]
                     ),
                     size: plotData.scatterPlot.customdata.map(arm =>
-                        arm === highlightedArm ? 9 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 3 : (plotDataRef === plotData1 || plotDataRef === plotData2 ? 4 : 10))
+                        arm === highlightedArm ? 9 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 3 : (plotDataRef === plotData1 || plotDataRef === plotData2 ? .5 : (plotDataRef === plotData3 ? 5 : 2)))
                     ),
                     opacity: plotData.scatterPlot.customdata.map(arm =>
                         arm === highlightedArm ? 1 : (plotDataRef === plotData4 || plotDataRef === plotData5 ? 0.1 : 1)
@@ -527,6 +532,16 @@ export default function Home() {
         { label: 'GAIN+', className: styles.GAINPLUS },
     ];
 
+
+
+    const handleCheckboxChange = (arm) => {
+        setCloneMapping((prevMapping) => ({
+            ...prevMapping,
+            [arm]: prevMapping[arm] === 'DIP' ? 'Not REF' : 'DIP',
+        }));
+    };
+
+
     return (
         <div className={styles.container}>
             <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
@@ -543,24 +558,26 @@ export default function Home() {
                     </div>
 
                     <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
-
-
-                <h2>Control Bar</h2>
-                <p>Some controls and settings go here.</p>
-                <div className={styles.chromosomeSelection}>
+    <h2>Control Bar</h2>
+    <p>Some controls and settings go here.</p>
+    <div className={styles.chromosomeSelection}>
                     {Object.keys(cloneMapping).map((arm, index) => (
                         <div key={index} className={styles.chromosomeArm}>
                             <label htmlFor={`chromosome-arm-${index}`}>
                                 {arm.toUpperCase()}
                             </label>
-                            <select id={`chromosome-arm-${index}`} name={`chromosome-arm-${index}`}>
-                                <option value="DIP" selected={cloneMapping[arm] === 'DIP'}>DIP</option>
-                                <option value="Not DIP" selected={cloneMapping[arm] !== 'DIP'}>Not DIP</option>
-                            </select>
+                            <input
+                                type="checkbox"
+                                id={`chromosome-arm-${index}`}
+                                name={`chromosome-arm-${index}`}
+                                checked={cloneMapping[arm] === 'DIP'}
+                                onChange={() => handleCheckboxChange(arm)}
+                            />
+                            <span>{cloneMapping[arm] === 'DIP' ? 'REF' : 'Not REF'}</span>
                         </div>
                     ))}
                 </div>
-            </div>
+</div>
 
             </div>
 
