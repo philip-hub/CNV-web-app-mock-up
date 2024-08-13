@@ -29,6 +29,7 @@ export default function Home() {
     const [dcnMapping, setDcnMapping] = useState({}); // State to hold dcnMapping
     const [clickedArmData, setClickedArmData] = useState({}); // State to hold clicked arm data
     const [PlotCombined, setPlotCombined] = useState(null);
+    const [lcv0, setLCV0] = useState(null);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -69,7 +70,7 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping, lcv0 } = result;
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
@@ -86,6 +87,8 @@ export default function Home() {
         setMMapping(mMapping);         // Set mMapping state
         setDmMapping(dmMapping);       // Set dmMapping state
         setDcnMapping(dcnMapping);     // Set dcnMapping state
+        setLCV0(lcv0)
+        console.log(lcv0)
 
         const applyColorMapping = (plotData) => {
             return plotData.map(d => ({
@@ -164,9 +167,9 @@ export default function Home() {
                     lines.push({
                         type: 'line',
                         x0: x0,
-                        y0: m,
+                        y0: m-lcv0,
                         x1: x1,
-                        y1: m,
+                        y1: m-lcv0,
                         xref: 'x',
                         yref: 'y',
                         line: {
@@ -182,7 +185,7 @@ export default function Home() {
         // Plot data for the first plot
         const scatterPlot1 = {
             x: coloredPlotData1.map(d => d.x),
-            y: coloredPlotData1.map(d => d.y),
+            y: coloredPlotData1.map(d => (Math.log2(d.y/(lcv0)))),
             type: 'scatter',
             mode: 'markers',
             marker: { size: 1, color: coloredPlotData1.map(d => d.color) },
@@ -343,7 +346,7 @@ export default function Home() {
 
         // Plot data for the third plot
         const scatterPlot3 = {
-            x: coloredPlotData3.map(d => d.x),
+            x: coloredPlotData3.map(d => ((2*d.x)/lcv0)),
             y: coloredPlotData3.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
@@ -542,9 +545,66 @@ export default function Home() {
     };
 
 
+    const handleUpdateRef = () => {
+        const checkedArms = Object.keys(cloneMapping).filter(arm => cloneMapping[arm] === 'DIP');
+        
+        let oldLcv0 = lcv0
+
+        if (checkedArms.length === 0) {
+            console.error('Cannot divide by zero fwen');
+            return;
+        }
+    
+        const mValuesForCheckedArms = checkedArms.map(arm => mMapping[arm]).filter(mValue => mValue !== undefined);
+    
+        if (mValuesForCheckedArms.length === 0) {
+            console.error('no m values found for checked arms check rAI or calculate.js');
+            return;
+        }
+    
+        const newLcv0 = mValuesForCheckedArms.reduce((sum, mValue) => sum + mValue, 0) / mValuesForCheckedArms.length;
+        setLCV0(newLcv0);
+        console.log(`Updated lcv0: ${newLcv0}`);
+
+        if(newLcv0!=lcv0){
+
+
+        // const updatedShapesPlot1 = createAnnotationsAndShapes(plotData1.scatterPlot, uniqueArm1Values).shapes.concat(createLines(mMapping, arm6Values));
+
+        const updatedLayout1 = {
+                ...plotData1.layout,
+                // shapes: updatedShapesPlot1
+            };
+
+        const updatedPlotData1 = {
+                ...plotData1,
+                scatterPlot: {
+                    ...plotData1.scatterPlot,
+                    y: plotData1.scatterPlot.x.map((x, index) => Math.log2(plotData1.scatterPlot.y[index] / newLcv0))
+                },
+                layout: updatedLayout1
+            };
+        
+        const updatedPlotData3 = {
+            ...plotData3,
+            scatterPlot: {
+                ...plotData3.scatterPlot,
+                x: plotData3.scatterPlot.x.map((x) => (2 * x) / newLcv0) // use m problem
+            }
+        };
+        
+        // update state to and re-render
+        setPlotData1(updatedPlotData1);
+        setPlotData3(updatedPlotData3);
+
+    }
+    };
+    
+
+
     return (
         <div className={styles.container}>
-            <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
+            {/* <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
                 <h2>Control Panel</h2>
                 <p>Add things here</p>
 
@@ -555,11 +615,19 @@ export default function Home() {
                     <p>M: {clickedArmData.M}</p>
                     <p>dm: {clickedArmData.dm}</p>
                     <p>dcn: {clickedArmData.dcn}</p>
-                    </div>
+                    </div> */}
 
-                    <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
+<div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
     <h2>Control Bar</h2>
     <p>Some controls and settings go here.</p>
+    <h4>For now these are here</h4>
+                {/* <div className={styles.info}>
+                <p>CN: {clickedArmData.CN}</p>
+                    <p>AI: {clickedArmData.AI}</p>
+                    <p>M: {clickedArmData.M}</p>
+                    <p>dm: {clickedArmData.dm}</p>
+                    <p>dcn: {clickedArmData.dcn}</p>
+                    </div> */}
     <div className={styles.chromosomeSelection}>
                     {Object.keys(cloneMapping).map((arm, index) => (
                         <div key={index} className={styles.chromosomeArm}>
@@ -576,10 +644,14 @@ export default function Home() {
                             <span>{cloneMapping[arm] === 'DIP' ? 'REF' : 'Not REF'}</span>
                         </div>
                     ))}
+                    </div>
+                    <button className={styles.updateButton} onClick={handleUpdateRef}>
+                    Update Ref
+                </button>
                 </div>
-</div>
 
-            </div>
+
+            {/* </div> */}
 
             <div className={`${styles.content} ${isOpen ? styles.shifted : ''}`}>
                 <button className={styles.toggleButton} onClick={toggleControlBar}>
