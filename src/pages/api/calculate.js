@@ -55,20 +55,25 @@ export default async function handler(req, res) {
         };
 
         const calculatelcv0 = (data) => {
-          const mValues = data
-            .filter(group => group.clone === 'DIP')
-            .map(group => group.lcv.reduce((acc, value) => acc + value, 0)); // Sum up the lcv list for each group
+          const filteredData = data.filter(group => group.clone === 'DIP');
+          
+          const totalSum = filteredData
+            .map(group => group.lcv.reduce((acc, value) => acc + value, 0)) // Sum up the lcv list for each group
+            .reduce((acc, sum) => acc + sum, 0); // Sum of all summed lcv values
+          
+          const totalLength = filteredData
+            .map(group => group.lcv.length) // Get the length of each lcv list
+            .reduce((acc, length) => acc + length, 0); // Sum of all lengths
         
-          return mValues.reduce((acc, value) => acc + value, 0) / mValues.length; // Average of the summed lcv values
+          return totalSum / totalLength; // Divide the total sum by the total length
         };
-        
 
         //problem add m0
 
 
 
         const lcv0 = calculatelcv0(jsonData);
-        const m0 = calculateM0(jsonData);
+        const mavg = calculateM0(jsonData);
         console.log('Average m value (lcv0):', lcv0);
 
         //plot1data
@@ -196,6 +201,13 @@ export default async function handler(req, res) {
           return acc;
         }, {});
 
+        const lcvMapping = jsonData.reduce((acc, group) => {
+          if (group.arm) {
+            acc[group.arm] = group.lcv;
+          }
+          return acc;
+        }, {});
+
         const dmMapping = jsonData.reduce((acc, group) => {
           if (group.arm) {
             acc[group.arm] = parseFloat(group.dm);
@@ -258,6 +270,7 @@ export default async function handler(req, res) {
         console.log('Unique Arm 6 Values:', uniqueArm6Values);
         console.log('Unique Arm 7 Values:', uniqueArm7Values);
         console.log("Lcv",lcv0)
+        console.log("Mavg",mavg)
         
         // Send the response with all calculated values
         res.status(200).json({
@@ -269,7 +282,7 @@ export default async function handler(req, res) {
             mValues, arm6Values,
             arm7ColorMapping, cloneMapping,
             Y3Mapping, X3Mapping,
-            mMapping, dmMapping, dcnMapping, lcv0, m0
+            mMapping, dmMapping, dcnMapping, lcv0, mavg, lcvMapping
         });
 
     } catch (error) {

@@ -30,6 +30,8 @@ export default function Home() {
     const [clickedArmData, setClickedArmData] = useState({}); // State to hold clicked arm data
     const [PlotCombined, setPlotCombined] = useState(null);
     const [lcv0, setLCV0] = useState(null);
+    const [mavg, setMAvg] = useState(null);
+    const [lcvMapping, setLcvMapping] = useState(null);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -70,7 +72,7 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping, lcv0 } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping, lcv0, mavg, lcvMapping } = result;
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
@@ -88,7 +90,10 @@ export default function Home() {
         setDmMapping(dmMapping);       // Set dmMapping state
         setDcnMapping(dcnMapping);     // Set dcnMapping state
         setLCV0(lcv0)
+        setMAvg(mavg)
+        setLcvMapping(lcvMapping)
         console.log(lcv0)
+        console.log(mavg)
 
         const applyColorMapping = (plotData) => {
             return plotData.map(d => ({
@@ -346,7 +351,7 @@ export default function Home() {
 
         // Plot data for the third plot
         const scatterPlot3 = {
-            x: coloredPlotData3.map(d => ((2*d.x)/lcv0)),
+            x: coloredPlotData3.map(d => ((2*d.x)/mavg)),
             y: coloredPlotData3.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
@@ -549,6 +554,7 @@ export default function Home() {
         const checkedArms = Object.keys(cloneMapping).filter(arm => cloneMapping[arm] === 'DIP');
         
         let oldLcv0 = lcv0
+        let oldMavg = mavg
 
         if (checkedArms.length === 0) {
             console.error('Cannot divide by zero fwen');
@@ -556,17 +562,18 @@ export default function Home() {
         }
     
         const mValuesForCheckedArms = checkedArms.map(arm => mMapping[arm]).filter(mValue => mValue !== undefined);
-    
+        
+
         if (mValuesForCheckedArms.length === 0) {
             console.error('no m values found for checked arms check rAI or calculate.js');
             return;
         }
     
-        const newLcv0 = mValuesForCheckedArms.reduce((sum, mValue) => sum + mValue, 0) / mValuesForCheckedArms.length;
-        setLCV0(newLcv0);
+        const mavg = mValuesForCheckedArms.reduce((sum, mValue) => sum + mValue, 0) / mValuesForCheckedArms.length;
+        setLCV0(mavg);
         console.log(`Updated lcv0: ${newLcv0}`);
 
-        if(newLcv0!=lcv0){
+        if(oldMavg!=mavg){
 
 
         // const updatedShapesPlot1 = createAnnotationsAndShapes(plotData1.scatterPlot, uniqueArm1Values).shapes.concat(createLines(mMapping, arm6Values));
@@ -589,7 +596,7 @@ export default function Home() {
             ...plotData3,
             scatterPlot: {
                 ...plotData3.scatterPlot,
-                x: plotData3.scatterPlot.x.map((x) => (2 * x) / newLcv0) // use m problem
+                x: plotData3.scatterPlot.x.map((x) => (2 * x) / mavg) // use m problem
             }
         };
         
