@@ -46,17 +46,29 @@ export default async function handler(req, res) {
         console.log('Array of arm names:', armNames);
 
         // Calculate lcv0 for DIP clones
-        const calculatelcv0 = (data) => {
+ 
+
+
+        const calculateM0 = (data) => {
           const mValues = data.filter(group => group.clone === 'DIP').map(group => group.m);
           return mValues.reduce((acc, value) => acc + value, 0) / mValues.length;
         };
 
+        const calculatelcv0 = (data) => {
+          const mValues = data
+            .filter(group => group.clone === 'DIP')
+            .map(group => group.lcv.reduce((acc, value) => acc + value, 0)); // Sum up the lcv list for each group
+        
+          return mValues.reduce((acc, value) => acc + value, 0) / mValues.length; // Average of the summed lcv values
+        };
+        
 
         //problem add m0
 
-        
+
 
         const lcv0 = calculatelcv0(jsonData);
+        const m0 = calculateM0(jsonData);
         console.log('Average m value (lcv0):', lcv0);
 
         //plot1data
@@ -257,7 +269,7 @@ export default async function handler(req, res) {
             mValues, arm6Values,
             arm7ColorMapping, cloneMapping,
             Y3Mapping, X3Mapping,
-            mMapping, dmMapping, dcnMapping, lcv0
+            mMapping, dmMapping, dcnMapping, lcv0, m0
         });
 
     } catch (error) {
