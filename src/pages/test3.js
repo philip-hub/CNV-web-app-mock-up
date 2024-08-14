@@ -759,7 +759,7 @@ export default function Home() {
                 </button>
     
                 <div className={styles.header}>
-                    <h1>Upload your TSV file</h1>
+                    <h1>Upload your JSON file</h1>
                     <input type="file" className={styles.fileUpload} onChange={handleFileUpload} />
                     <div className={styles.grid}>
                         {colors.map((color, index) => (
