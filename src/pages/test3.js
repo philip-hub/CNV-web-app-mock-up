@@ -32,6 +32,8 @@ export default function Home() {
     const [lcv0, setLCV0] = useState(null);
     const [mavg, setMAvg] = useState(null);
     const [lcvMapping, setLcvMapping] = useState(null);
+    const [coloredPlotData1, setColoredPlotData1] = useState(null);
+    const [coloredPlotData3, setColoredPlotData3] = useState(null);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -80,6 +82,14 @@ export default function Home() {
         }
 
 
+        const applyColorMapping = (plotData) => {
+            return plotData.map(d => ({
+                ...d,
+                color: arm7ColorMapping[d.arm],
+                customdata: d.arm  // Add arm to customdata
+            }));
+        };
+
     
 
         setArm7ColorMapping(arm7ColorMapping); // Set arm7ColorMapping state
@@ -95,19 +105,14 @@ export default function Home() {
         console.log(lcv0)
         console.log(mavg)
 
-        const applyColorMapping = (plotData) => {
-            return plotData.map(d => ({
-                ...d,
-                color: arm7ColorMapping[d.arm],
-                customdata: d.arm  // Add arm to customdata
-            }));
-        };
-
         const coloredPlotData1 = applyColorMapping(plotData1);
         const coloredPlotData2 = applyColorMapping(plotData2);
         const coloredPlotData3 = applyColorMapping(plotData3);
         const coloredPlotData4 = applyColorMapping(plotData4);
         const coloredPlotData5 = applyColorMapping(plotData5);
+
+        setColoredPlotData1(coloredPlotData1);
+        setColoredPlotData3(coloredPlotData3);
 
         const createAnnotationsAndShapes = (plotData, uniqueArmValues) => {
             const armPositions = {};
@@ -572,12 +577,24 @@ export default function Home() {
     }
 
 
+
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+    
+
+    const originalPlotData1 = deepCopy(plotData1);
+    const originalPlotData3 = deepCopy(plotData3);
+
+    //console.log('Deep Copy 1',originalPlotData1)
+    //console.log('Deep Copy 3',originalPlotData3)
+
     const handleUpdateRef = () => {
         const checkedArms = Object.keys(cloneMapping).filter(arm => cloneMapping[arm] === 'DIP');
         
         let oldLcv0 = lcv0;
         let oldMavg = mavg;
-    
+
         if (checkedArms.length === 0) {
             console.error('Cannot divide by zero fwen');
             return;
@@ -608,32 +625,41 @@ export default function Home() {
         // const updatedShapesPlot1 = createAnnotationsAndShapes(plotData1.scatterPlot, uniqueArm1Values).shapes.concat(createLines(mMapping, arm6Values));
 
         const updatedLayout1 = {
-                ...plotData1.layout,
+                ...originalPlotData1.layout,
                 // shapes: updatedShapesPlot1
             };
 
         const updatedPlotData1 = {
-                ...plotData1,
+                ...originalPlotData1,
                 scatterPlot: {
-                    ...plotData1.scatterPlot,
-                    y: plotData1.scatterPlot.x.map((x, index) => Math.log2(plotData1.scatterPlot.y[index] / newLcv0))
+                    ...originalPlotData1.scatterPlot,
+                    y: coloredPlotData1.map(d => (Math.log2(d.y/(newLcv0))))//originalPlotData1.scatterPlot.y.map((y) => Math.log2((y) / newLcv0))
                 },
                 layout: updatedLayout1
-            };
-        
-        const updatedPlotData3 = {
-            ...plotData3,
-            scatterPlot: {
-                ...plotData3.scatterPlot,
-                x: plotData3.scatterPlot.x.map((x) => (2 * x) / newMavg)
-            }
         };
-    
+            
+            
+        const updatedPlotData3 = {
+                ...plotData3,
+                scatterPlot: {
+                    ...plotData3.scatterPlot,
+                    x: coloredPlotData3.map(d => ((2*d.x)/newMavg))
+                }
+        };
+            
+        // Log the transformed values
+        console.log("Original Plot1:",originalPlotData1.scatterPlot.y);
+        console.log("Updated Plot1:",updatedPlotData1.scatterPlot.y);
+        console.log("Original Plot3:",plotData3.scatterPlot.x)
+        console.log("Updated Plot3:",updatedPlotData3.scatterPlot.x);
+            
+        // Set the state with the updated copies
         setPlotData1(updatedPlotData1);
         setPlotData3(updatedPlotData3);
 
         }
-    };
+
+    }
     
 
     const handleCheckAll = () => {
@@ -671,7 +697,7 @@ export default function Home() {
                     {Object.keys(cloneMapping).map((arm, index) => (
                         <div key={index} className={styles.chromosomeArm}>
                             <label htmlFor={`chromosome-arm-${index}`}>
-                                {arm.toUpperCase()}
+                                {arm.toUpperCase().replace('CHR', '')}
                             </label>
                             <input
                                 type="checkbox"
