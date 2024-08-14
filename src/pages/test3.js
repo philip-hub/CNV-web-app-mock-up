@@ -34,6 +34,13 @@ export default function Home() {
     const [lcvMapping, setLcvMapping] = useState(null);
     const [coloredPlotData1, setColoredPlotData1] = useState(null);
     const [coloredPlotData3, setColoredPlotData3] = useState(null);
+    const [s0Mapping, setS0Mapping] = useState(null);
+    const [startMMapping, setStartMMapping] = useState(null);
+    const [ middleMMapping, setMiddleMMapping] = useState(null);
+    const [endMMapping, setEndMMapping] = useState(null);
+
+
+    //startMMapping, middleMMapping, endMMapping
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -74,7 +81,7 @@ export default function Home() {
         const result = await calculateResponse.json();
         console.log('API result:', result); // Debugging line
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping, lcv0, mavg, lcvMapping } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping, lcv0, mavg, lcvMapping, s0Mapping, startMMapping, middleMMapping, endMMapping } = result;
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
@@ -102,6 +109,14 @@ export default function Home() {
         setLCV0(lcv0)
         setMAvg(mavg)
         setLcvMapping(lcvMapping)
+        setS0Mapping(s0Mapping)
+        setStartMMapping(startMMapping)
+        setMiddleMMapping(middleMMapping)
+        setEndMMapping(endMMapping)
+        
+        console.log('startMMapping:', startMMapping);
+        console.log('endMMapping:', endMMapping)
+
         console.log(lcv0)
         console.log(mavg)
 
@@ -166,20 +181,39 @@ export default function Home() {
             return { annotations, shapes };
         };
 
-        const createLines = (mValues, arm6Values) => {
+        const createLines = (mValues, startMMapping, endMMapping) => {
             const lines = [];
-            mValues.forEach((m, index) => {
-                const arm = arm6Values[index];
-                const xValues = plotData1.filter(d => d.arm === arm).map(d => d.x);
-                if (xValues.length > 10) {
-                    const x0 = Math.min(...xValues);
-                    const x1 = Math.max(...xValues);
+            console.log('createLines called'); // Debugging line to check function calls
+            
+            // Ensure mappings are defined before proceeding
+            if (!startMMapping || !endMMapping) {
+                console.error('startMMapping or endMMapping is undefined or null');
+                return lines; // Return an empty array if mappings are not defined
+            }
+        
+            Object.keys(startMMapping).forEach((arm, index) => {
+          
+                const m = mValues[index];
+                const x0 = startMMapping[arm];
+                const x1 = endMMapping[arm];
+
+                console.log(`Arm: ${arm} X0:${x0} X1:${x1} m ${m}`);
+        
+        
+                if (x0 === undefined) {
+                    console.error(`startMMapping is missing a value for arm: ${arm}`);
+                }
+                if (x1 === undefined) {
+                    console.error(`endMMapping is missing a value for arm: ${arm}`);
+                }
+        
+                if (x0 !== undefined && x1 !== undefined && m !== undefined) {
                     lines.push({
                         type: 'line',
                         x0: x0,
-                        y0: m-lcv0,
+                        y0: m - mavg,
                         x1: x1,
-                        y1: m-lcv0,
+                        y1: m - mavg,
                         xref: 'x',
                         yref: 'y',
                         line: {
@@ -191,6 +225,11 @@ export default function Home() {
             });
             return lines;
         };
+        
+        
+        
+        
+        
 
         // Plot data for the first plot
         const scatterPlot1 = {
@@ -242,7 +281,7 @@ export default function Home() {
             grid: {
                 color: 'lightgray'
             },
-            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, arm6Values)),
+            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, startMMapping,endMMapping)),
             annotations: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).annotations
         };
 
@@ -349,7 +388,7 @@ export default function Home() {
                     size: 10
                 }
             },
-            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, arm6Values)),
+            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, startMMapping,endMMapping)),
             annotations: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).annotations.concat(createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).annotations)
         };
         
@@ -681,23 +720,16 @@ export default function Home() {
 
     return (
         <div className={styles.container}>
-
-<div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
-    <h2>Control Bar</h2>
-    <p>Some controls and settings go here.</p>
-    <h4>For now these are here</h4>
-                {/* <div className={styles.info}>
-                <p>CN: {clickedArmData.CN}</p>
-                    <p>AI: {clickedArmData.AI}</p>
-                    <p>M: {clickedArmData.M}</p>
-                    <p>dm: {clickedArmData.dm}</p>
-                    <p>dcn: {clickedArmData.dcn}</p>
-                    </div> */}
-    <div className={styles.chromosomeSelection}>
+    
+            <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
+                <h2>Control Bar</h2>
+                <p>Some controls and settings go here.</p>
+                <h4>For now these are here</h4>
+                <div className={styles.chromosomeSelection}>
                     {Object.keys(cloneMapping).map((arm, index) => (
                         <div key={index} className={styles.chromosomeArm}>
                             <label htmlFor={`chromosome-arm-${index}`}>
-                                {arm.toUpperCase().replace('CHR', '')}
+                                {arm.toUpperCase().replace('CHR', '')} S:{s0Mapping[arm] || 'N/A'}
                             </label>
                             <input
                                 type="checkbox"
@@ -706,30 +738,26 @@ export default function Home() {
                                 checked={cloneMapping[arm] === 'DIP'}
                                 onChange={() => handleCheckboxChange(arm)}
                             />
-                            {/* <span>{cloneMapping[arm] === 'DIP' ? 'REF' : 'Not REF'}</span> */}
                         </div>
                     ))}
-                    </div>
-                    <button className={styles.updateButton} onClick={handleCheckAll}>
+                </div>
+                <button className={styles.updateButton} onClick={handleCheckAll}>
                     Check All
                 </button>
                 <button className={styles.updateButton} onClick={handleUncheckAll}>
                     Uncheck All
                 </button>
-
+    
                 <button className={styles.updateButton} onClick={handleUpdateRef}>
                     Update Ref
                 </button>
-                </div>
-
-
-            {/* </div> */}
-
+            </div>
+    
             <div className={`${styles.content} ${isOpen ? styles.shifted : ''}`}>
                 <button className={styles.toggleButton} onClick={toggleControlBar}>
                     {isOpen ? 'Close' : 'Open'} Control Panel
                 </button>
-                
+    
                 <div className={styles.header}>
                     <h1>Upload your TSV file</h1>
                     <input type="file" className={styles.fileUpload} onChange={handleFileUpload} />
@@ -740,21 +768,19 @@ export default function Home() {
                             </div>
                         ))}
                     </div>
-
                 </div>
-
+    
                 {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
-                        <div className={styles.plotContainer}>
-                            <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData1, plotData1).scatterPlot} layout={plotData1.layout} onClick={handlePlotClick} />
+                            <div className={styles.plotContainer}>
+                                <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData1, plotData1).scatterPlot} layout={plotData1.layout} onClick={handlePlotClick} />
+                            </div>
+                            <div className={styles.plotContainer}>
+                                <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData2, plotData2).scatterPlot} layout={plotData2.layout} onClick={handlePlotClick} />
+                            </div>
                         </div>
-                        <div className={styles.plotContainer}>
-                            <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData2, plotData2).scatterPlot} layout={plotData2.layout} onClick={handlePlotClick} />
-                        </div>
-
-                        </div>
-
+    
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
                             <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData3, plotData3).scatterPlot} layout={plotData3.layout} onClick={handlePlotClick} />
                             <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData4, plotData4).scatterPlot} layout={plotData4.layout} onClick={handlePlotClick} />
@@ -765,6 +791,7 @@ export default function Home() {
             </div>
         </div>
     );
+    
 
 }
 
