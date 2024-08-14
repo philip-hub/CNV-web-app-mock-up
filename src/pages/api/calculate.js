@@ -201,6 +201,37 @@ export default async function handler(req, res) {
           return acc;
         }, {});
 
+
+        const s0Mapping = jsonData.reduce((acc, group) => {
+          if (group.arm) {
+            acc[group.arm] = parseFloat(group.s0);
+          }
+          return acc;
+        }, {});
+
+
+        const startMMapping = jsonData.reduce((acc, group) => {
+          if (group.arm) {
+            acc[group.arm] = parseFloat(group.start);
+          }
+          return acc;
+        }, {});
+
+        const middleMMapping = jsonData.reduce((acc, group) => {
+          if (group.arm) {
+            acc[group.arm] = parseFloat(group.middle);
+          }
+          return acc;
+        }, {});
+
+        const endMMapping = jsonData.reduce((acc, group) => {
+          if (group.arm) {
+            acc[group.arm] = parseFloat(group.end);
+          }
+          return acc;
+        }, {});
+
+
         const lcvMapping = jsonData.reduce((acc, group) => {
           if (group.arm) {
             acc[group.arm] = group.lcv;
@@ -271,6 +302,10 @@ export default async function handler(req, res) {
         console.log('Unique Arm 7 Values:', uniqueArm7Values);
         console.log("Lcv",lcv0)
         console.log("Mavg",mavg)
+        console.log("S0:",s0Mapping)
+        console.log("M start:", startMMapping)
+        console.log("M middle:", middleMMapping)
+        console.log("M end",endMMapping)
         
         // Send the response with all calculated values
         res.status(200).json({
@@ -282,7 +317,9 @@ export default async function handler(req, res) {
             mValues, arm6Values,
             arm7ColorMapping, cloneMapping,
             Y3Mapping, X3Mapping,
-            mMapping, dmMapping, dcnMapping, lcv0, mavg, lcvMapping
+            mMapping, dmMapping, dcnMapping, 
+            lcv0, mavg, lcvMapping, s0Mapping, 
+            startMMapping, middleMMapping, endMMapping
         });
 
     } catch (error) {
