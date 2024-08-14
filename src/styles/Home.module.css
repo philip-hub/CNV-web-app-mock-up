@@ -44,7 +44,7 @@
   left: 0;
   height: 100%;
   color: white;
-  padding: 20px;
+  padding: 0px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
   z-index: 1; /* Make sure the control bar is on top of other content */
 }
@@ -65,7 +65,7 @@
 }
 
 .content.shifted {
-  transform: scale(0.8); /* Scale down the content to fit within 75% of the screen */
+  transform: scale(0.82); /* Scale down the content to fit within 75% of the screen */
   margin-left: -12.5%; /* Move content left by 12.5% to keep it visible */
   left: 24%; /* Ensure it is moved to the right by 25% to accommodate the control bar */
 }
