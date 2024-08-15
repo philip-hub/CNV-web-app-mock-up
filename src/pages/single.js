@@ -1086,7 +1086,15 @@ export default function Home() {
                         </div>
                     </div>
                 )}
-            
+              <br />
+            <label className={styles.toggleButton}>
+      <p><a href='/'>Home</a></p>
+      </ label>
+                <br />
+      <label className={styles.toggleButton}>
+      <p><a href='multi'>Multi File Analysis</a></p>
+      </ label>
+
         </div>
     );
     
