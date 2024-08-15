@@ -39,8 +39,8 @@ next-env.d.ts
 *.tsv
 
 #Avoid Uploading Favicons
-*.ico
+.ico
 *.svg
-*.png
+.png
 
 /uploads

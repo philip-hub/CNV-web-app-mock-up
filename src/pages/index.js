@@ -30,32 +30,33 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
+        <center>
         <h1 className={styles.title}>
-           Copy Number Analysis
+           Interactive Copy Number Analysis
         </h1>
-        <p className={styles.description}>
-          Upload the files and select analysis options
-        </p>
-        <FileUpload onUpload={handleFileUpload} />
-        <div style={{ marginTop: '20px' }}>
-          <select value={selectedOption} onChange={handleSelectionChange}>
-            <option value="" disabled>Select Analysis Type</option>
-            <option value="single">Single Sample Analysis</option>
-            <option value="multi">Multifile Sample Analysis</option>
-            <option value="timeseries">Timeseries Analysis</option>
-            <option value="test">View Plot Test</option>
-          </select>
-        </div>
-        {results && (
-          <div>
-            <h2>Results:</h2>
-            <pre>{JSON.stringify(results, null, 2)}</pre>
-          </div>
-        )}
-      </main>
+        <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmRkZWE1NmFrbXZ0ZmV5d2lrZzIxN2R6YmVlbWlnM3g5ZnAzMXV1cSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26tndRwnXg6AR50fS/giphy.webp"/>
+      <br />
+      <label className={styles.toggleButton}>
+      <p><a href='single'>Single File CNV Analysis</a></p>
+      </ label>
+
+      <br />
+
+      <br />
+
+
+      <label className={styles.toggleButton}>
+      <p><a href='single'>Multi File CNV Analysis</a></p>
+      </ label>
+
+      </center>
 
       <footer className={styles.footer}>
+        <a href='https://github.com/philip-hub/CNV-web-app-mock-up' target='_blank'>Open Source Code ✨</a>
       </footer>
+      </main>
+
+
     </div>
   );
 }

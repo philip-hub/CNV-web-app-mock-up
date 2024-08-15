@@ -33,6 +33,12 @@
   width: 100%;
   min-height: 100vh;
 }
+.footer{
+  background-color: #000; /* Pure black background */
+  color: #fff; /* Pure white text */
+  padding: 1em;
+  text-align: center;
+}
 
 .controlBar {
   width: 0; /* Start with the control bar collapsed */

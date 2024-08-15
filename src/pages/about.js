@@ -10,7 +10,7 @@ export default function About() {
           About Page
         </h1>
         <p className={styles.description}>
-          This is the about page.
+          Made by Philip Pounds with extensive help from Dr. Karol Szlatcha and Dr. Gang Wu At St Jude Childrens Research Hospital in Memphis TN.
         </p>
         <Link href="/">
           <a>Go back to home</a>
