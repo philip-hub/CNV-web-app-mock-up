@@ -904,7 +904,7 @@ export default function Home() {
                     {Object.keys(cloneMapping).map((arm, index) => (
                         <div key={index} className={styles.chromosomeArm}>
                             <label htmlFor={`chromosome-arm-${index}`}>
-                                {arm.toUpperCase().replace('CHR', '')} S0 : {s0Mapping[arm] || 'N/A'}
+                                {arm.toUpperCase().replace('CHR', '')} S0 : {s0Mapping[arm].toFixed(3) || 'N/A'}
                             </label>
                             <input
                                 type="checkbox"
