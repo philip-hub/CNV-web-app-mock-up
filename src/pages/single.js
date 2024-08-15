@@ -867,19 +867,6 @@ export default function Home() {
         setMAvg(newMavg);
         setLCV0(newLcv0);
 
-        // const newDCNMapping = jsonData.reduce((acc, group) => {
-        //     if (group.arm && group.dm !== undefined && lcv0 !== undefined) {
-        //       acc[group.arm] = (2 * group.dm) / newLcv0 + (2 * group.m * stdDevM) / (newLcv0 ** 2);
-        //       console.log(`Calculated dcn for arm ${group.arm}: ${acc[group.arm]}`);
-        //     } else {
-        //       console.warn(`Missing values for arm ${group.arm} - dm: ${group.dm}, lcv0: ${lcv0}`);
-        //     }
-        //     return acc;
-        //   }, {});
-
-          
-        setDcnMapping(newDCNMapping)
-
     
         console.log(`Updated M0: ${newMavg}`);
         console.log(`Updated lcv0: ${newLcv0}`);
@@ -972,13 +959,19 @@ export default function Home() {
                 <button className={styles.toggleButton} onClick={handleCheckAll}>
                     Check All
                 </button>
+
+                <br />
                 <button className={styles.toggleButton} onClick={handleUncheckAll}>
                     Uncheck All
                 </button>
-    
+                    
+                <br />
+
                 <button className={styles.toggleButton} onClick={handleUpdateRef}>
                     Update Ref
                 </button>
+
+
             </div>
 
             <div className={styles.header}>
