@@ -169,6 +169,7 @@ export default async function handler(req, res) {
     
 
         const mValues = jsonData.map(group => group.m ? parseFloat(group.m) : null);
+        const aiValues = jsonData.map(group => group.ai ? parseFloat(group.ai) : null);
         const arm6Values = jsonData.map(group => group.arm);
         const mValues_std = jsonData.map(group => group.m ? parseFloat(group.m-lcv0) : null);
 
@@ -313,7 +314,7 @@ export default async function handler(req, res) {
             plotData2, uniqueArm2Values,
             plotData3, uniqueArm3Values,
             plotData4, uniqueArm4Values,
-            plotData5, uniqueArm5Values,
+            plotData5, uniqueArm5Values, aiValues,
             mValues, arm6Values,
             arm7ColorMapping, cloneMapping,
             Y3Mapping, X3Mapping,

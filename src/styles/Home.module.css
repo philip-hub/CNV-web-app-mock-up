@@ -124,6 +124,16 @@
   white-space: nowrap; /* Prevent text wrapping */
 }
 
+
+.legendText {
+  grid-column: 1 / -1; /* Span across all columns */
+  display: flex;
+  justify-content: center; /* Center the text horizontally */
+  align-items: flex-end; /* Align the text at the bottom */
+  padding-top: 10px; /* Add space above if needed */
+}
+
+
 .plotContainer {
   display: flex;
   justify-content: center;
@@ -140,3 +150,6 @@
 .HDUP { background-color: #bcbd22; } /* tab:olive */
 .LOH { background-color: #8c564b; } /* tab:brown */
 .GAIN { background-color: #d62728; } /* tab:red */
+.GAINPLUS { background-color: #aa00ff; } /* tab:red */
+
+
