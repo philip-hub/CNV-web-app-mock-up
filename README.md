@@ -1,5 +1,10 @@
 # CNV-web-app-mock-up
 
+## About
+
+The CNV Web Application is a powerful tool designed for analyzing Copy Number Variation (CNV) data across multiple genomic samples. It allows users to upload Json files from rAI, process the data, and visualize the results through interactive scatter plots or heatamps for simple multi sample analysis. Built with React and Next.js, this application provides a user-friendly interface for exploring complex genomic data, making it easier for researchers and bioinformaticians to identify and interpret CNV patterns.
+
+
 # Setup
 
 CNV Web Application Setup Guide
