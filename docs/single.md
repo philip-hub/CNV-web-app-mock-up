@@ -252,3 +252,129 @@ Conclusion
 ----------
 
 The \`single.js\` file is a comprehensive React component designed to manage the entire workflow of single-file CNV analysis. It includes functionality for file uploads, data processing, plotting, and user interaction. The file makes extensive use of React hooks for state management and Next.js for dynamic imports and API interactions.
+
+#Plot Info
+
+
+Scatter Plot and Layout Documentation
+=====================================
+
+Plot 1: Coverage Plot
+---------------------
+
+### Scatter Plot
+
+The `scatterPlot1` object represents the coverage plot. It visualizes the log2 of the median coverage divided by the reference coverage for each arm.
+
+*   **X-Axis:** Chromosomal positions.
+*   **Y-Axis:** Log2 of the median coverage divided by the reference coverage (`log2(med/ref)`).
+*   **Markers:** The markers are colored based on the chromosomal arm using `arm7ColorMapping`.
+*   **Custom Data:** Stores arm data for each marker to be used for tooltips and interactions.
+
+### Layout
+
+The `layout1` object defines the appearance and configuration of the coverage plot.
+
+*   **Title:** "Coverage Plot/Vaf Plot".
+*   **Size:** Width of 1800px and height of 150px.
+*   **X-Axis:** No tick labels, tick angle is 90 degrees.
+*   **Y-Axis:** Shows tick labels with the title "log2(med/ref)".
+*   **Shapes and Annotations:** Adds vertical lines and labels for chromosomal arms.
+
+Plot 2: Vaf Plot
+----------------
+
+### Scatter Plot
+
+The `scatterPlot2` object represents the Variant Allele Frequency (Vaf) plot.
+
+*   **X-Axis:** Chromosomal positions.
+*   **Y-Axis:** Vaf score for each arm.
+*   **Markers:** The markers are colored based on the chromosomal arm using `arm7ColorMapping`.
+*   **Custom Data:** Stores arm data for each marker to be used for tooltips and interactions.
+
+### Layout
+
+The `layout2` object defines the appearance and configuration of the Vaf plot.
+
+*   **Size:** Width of 1800px and height of 170px.
+*   **X-Axis:** No tick labels, tick angle is 90 degrees.
+*   **Y-Axis:** Shows tick labels with the title "Vaf Score".
+*   **Shapes and Annotations:** Adds vertical lines and labels for chromosomal arms, as well as lines representing Vaf intervals.
+
+Combined Layout for Plot 1 and Plot 2
+-------------------------------------
+
+### Layout
+
+The `layout_combined` object combines Plot 1 and Plot 2 into a single layout with independent axes.
+
+*   **Grid Layout:** 2 rows and 1 column.
+*   **Size:** Width of 1600px and height of 500px.
+*   **X-Axis:** Configured separately for each plot, with no tick labels.
+*   **Y-Axis:** The first plot shows "log2(median/ref)" and the second plot shows "Vaf Score".
+*   **Shapes and Annotations:** Combines shapes and annotations from both plots.
+
+Plot 3: AI vs CN Scatter Plot
+-----------------------------
+
+### Scatter Plot
+
+The `scatterPlot3` object represents the scatter plot of Allele Imbalance (AI) versus Copy Number (CN).
+
+*   **X-Axis:** Scaled CN values.
+*   **Y-Axis:** AI values for each arm.
+*   **Markers:** The markers are colored based on the chromosomal arm using `arm7ColorMapping`.
+*   **Custom Data:** Stores arm data for each marker to be used for tooltips and interactions.
+
+### Layout
+
+The `layout3` object defines the appearance and configuration of the AI vs CN scatter plot.
+
+*   **Title:** "Scatter Plot of AI vs CN".
+*   **Size:** Width and height of 500px (square layout).
+*   **X-Axis:** Shows tick labels with the title "CN".
+*   **Y-Axis:** Shows tick labels with the title "AI".
+*   **Shapes and Annotations:** Adds function lines and annotations to visualize mathematical relationships.
+
+Plot 4: Vaf CDF
+---------------
+
+### Scatter Plot
+
+The `scatterPlot4` object represents the Cumulative Distribution Function (CDF) of Vaf scores.
+
+*   **X-Axis:** Vaf score values.
+*   **Y-Axis:** CDF values for each arm.
+*   **Markers:** The markers are colored based on the chromosomal arm using `arm7ColorMapping`.
+*   **Custom Data:** Stores arm data for each marker to be used for tooltips and interactions.
+
+### Layout
+
+The `layout4` object defines the appearance and configuration of the Vaf CDF plot.
+
+*   **Title:** "Vaf Score CDF".
+*   **Size:** Width and height of 500px (square layout).
+*   **X-Axis:** Shows tick labels with the title "X4".
+*   **Y-Axis:** Shows tick labels with the title "Y4".
+
+Plot 5: Coverage CDF
+--------------------
+
+### Scatter Plot
+
+The `scatterPlot5` object represents the Cumulative Distribution Function (CDF) of coverage scores.
+
+*   **X-Axis:** Coverage score values.
+*   **Y-Axis:** CDF values for each arm.
+*   **Markers:** The markers are colored based on the chromosomal arm using `arm7ColorMapping`.
+*   **Custom Data:** Stores arm data for each marker to be used for tooltips and interactions.
+
+### Layout
+
+The `layout5` object defines the appearance and configuration of the Coverage CDF plot.
+
+*   **Title:** "Coverage Score CDF".
+*   **Size:** Width and height of 500px (square layout).
+*   **X-Axis:** Shows tick labels with the title "X5".
+*   **Y-Axis:** Shows tick labels with the title "Y5".
