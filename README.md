@@ -1,4 +1,6 @@
-# CNV-web-app-mock-up
+# CNV Interactive Viewer for rAI
+
+<img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGZ3cWh5Z2Vrd2dpYmxrMTB6dmFwNTNiMzVzaG85bTM4cTdpNmRoYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o85xGrC7nPVbA2y3K/giphy.webp">
 
 ## About
 
@@ -149,6 +151,9 @@ Restart Google Chrome
 ## Other Speed Techniques:
 
 Use a wired fiber optic ethernet if possible
+
+# Contact
+Contact Philip Pounds poundspb@rose-hulman.edu
 
 # Credits
 
