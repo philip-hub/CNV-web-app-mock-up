@@ -136,6 +136,8 @@ export default async function handler(req, res) {
           console.log('plot1Data:', plotData1);
     
         
+          
+          
           const plotData4 = [];
     
           jsonData.forEach(group => {
@@ -148,6 +150,30 @@ export default async function handler(req, res) {
               });
             }
         });
+
+
+        jsonData.forEach(group => {
+          const { q, arm } = group;
+          if (Array.isArray(q)) {
+            for (let i = 0; i < q.length; i++) {
+              plotData4.push({
+                x: q[i],
+                y: i,
+                arm: arm
+              });
+            }
+          } else{
+            const { vq, arm } = group;
+            for (let i = 0; i < vq.length; i++) {
+              plotData4.push({
+                x: vq[i],
+                y: i,
+                arm: arm
+              });
+            }
+          }
+        });
+        
     
           console.log('plot4Data:', plotData4);
     

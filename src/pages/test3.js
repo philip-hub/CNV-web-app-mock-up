@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import styles from '../styles/Home.module.css';
 import React, { useState, useEffect } from 'react';
 
+let loadMessage =""
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
@@ -37,10 +38,17 @@ export default function Home() {
     const [startMMapping, setStartMMapping] = useState(null);
     const [ middleMMapping, setMiddleMMapping] = useState(null);
     const [endMMapping, setEndMMapping] = useState(null);
+    const [selectedFileName, setSelectedFileName] = useState('');
 
 
     const handleFileUpload = async (event) => {
+
+        
+
         const file = event.target.files[0];
+        if (file) {
+            setSelectedFileName(file.name);
+        }
         const formData = new FormData();
         formData.append('file', file);
 
@@ -85,6 +93,7 @@ export default function Home() {
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
+            loadMessage = 'Invalid data structure'
             return;
         }
 
@@ -163,6 +172,8 @@ export default function Home() {
             const shapes = uniqueArmValues.map(arm => {
                 if (!armPositions[arm]) {
                     console.error(`No position found for arm: ${arm}`);
+
+                    loadMessage = `No position found for arm: ${arm}`
                     return null;
                 }
                 return {
@@ -199,7 +210,7 @@ export default function Home() {
                 const x1 = endMMapping[arm];
 
                 console.log(`Arm: ${arm} X0:${x0} X1:${x1} m ${m}`);
-        
+                loadMessage =`Arm: ${arm} X0:${x0} X1:${x1} m ${m}`
         
                 if (x0 === undefined) {
                     console.error(`startMMapping is missing a value for arm: ${arm}`);
@@ -411,7 +422,7 @@ export default function Home() {
             name: 'Coverage Plot',
             text: coloredPlotData1.map(d => {
                 const arm = d.customdata;
-                return `arm: ${arm}<br>log2(median/ref): ${Math.log2(d.y/(lcv0))}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}`;
+                return `arm: ${arm}<br>log2(med/ref): ${Math.log2(d.y/(lcv0))}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}`;
             }),
             customdata: coloredPlotData1.map(d => d.customdata), 
             line: {
@@ -422,15 +433,15 @@ export default function Home() {
         };
 
         const layout1 = {
-            title: 'Coverage Plot',
+            title: 'Coverage Plot/Vaf Plot',
             showlegend: false,
             width: 1800, 
-            height: 200,  
+            height: 150,  
             margin: {
                 l: 40,
                 r: 40,
-                b: 45,
-                t: 30,
+                b: 0,
+                t: 40,
                 pad: 0
             },
             xaxis: {
@@ -443,7 +454,7 @@ export default function Home() {
                 range: [Math.min(...coloredPlotData1.map(d => d.x)), Math.max(...coloredPlotData1.map(d => d.x))]
             },
             yaxis: {
-                title: 'log2(median/ref)',
+                title: 'log2(med/ref)',
                 showticklabels: true,
                 tickfont: {
                     size: 10
@@ -480,15 +491,15 @@ export default function Home() {
         console.log("X3Mapping before plot attempt",X3Mapping)
         
         const layout2 = {
-            title: 'Vaf Plot',
+            title: '',
             showlegend: false,
             width: 1800,  
-            height: 200, 
+            height: 170, 
             margin: {
                 l: 40,
                 r: 40,
-                b: 45,
-                t: 30,
+                b: 50,
+                t: 5,
                 pad: 0
             },
             xaxis: {
@@ -740,7 +751,9 @@ export default function Home() {
                 AI: Y3Mapping[clickedArm] || 'N/A',
                 M: mMapping[clickedArm] || 'N/A',
                 dm: dmMapping[clickedArm] || 'N/A',
-                dcn: dcnMapping[clickedArm] || 'N/A'
+                dcn: dcnMapping[clickedArm] || 'N/A',
+                clone: cloneMapping[clickedArm] || 'N/A',
+                arm: clickedArm
             });
         }
     };
@@ -809,11 +822,29 @@ export default function Home() {
 
     }
 
+
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj)); // Ensure full deep copy including nested objects
+    }
+
+
+    function standardDeviation(values) {
+        const mean = values.reduce((acc, value) => acc + value, 0) / values.length;
+        const variance = values.reduce((acc, value) => acc + ((value - mean) ** 2), 0) / (values.length - 1); // Sample std dev
+        return Math.sqrt(variance);
+      }
+    
+    const originalPlotData1 = deepCopy(plotData1);
+    const originalPlotData3 = deepCopy(plotData3);
+    const orginalDCNMapping = deepCopy(dcnMapping);
+    //const stdDevM = standardDeviation(mValues);
+
     const handleUpdateRef = () => {
         const checkedArms = Object.keys(cloneMapping).filter(arm => cloneMapping[arm] === 'DIP');
         
         let oldLcv0 = lcv0;
         let oldMavg = mavg;
+    
 
         if (checkedArms.length === 0) {
             console.error('Cannot divide by zero fwen');
@@ -835,6 +866,20 @@ export default function Home() {
     
         setMAvg(newMavg);
         setLCV0(newLcv0);
+
+        // const newDCNMapping = jsonData.reduce((acc, group) => {
+        //     if (group.arm && group.dm !== undefined && lcv0 !== undefined) {
+        //       acc[group.arm] = (2 * group.dm) / newLcv0 + (2 * group.m * stdDevM) / (newLcv0 ** 2);
+        //       console.log(`Calculated dcn for arm ${group.arm}: ${acc[group.arm]}`);
+        //     } else {
+        //       console.warn(`Missing values for arm ${group.arm} - dm: ${group.dm}, lcv0: ${lcv0}`);
+        //     }
+        //     return acc;
+        //   }, {});
+
+          
+        setDcnMapping(newDCNMapping)
+
     
         console.log(`Updated M0: ${newMavg}`);
         console.log(`Updated lcv0: ${newLcv0}`);
@@ -857,9 +902,9 @@ export default function Home() {
             
             
         const updatedPlotData3 = {
-                ...plotData3,
+                ...originalPlotData3,
                 scatterPlot: {
-                    ...plotData3.scatterPlot,
+                    ...originalPlotData3.scatterPlot,
                     x: coloredPlotData3.map(d => ((2*d.x)/newMavg))
                 }
         };
@@ -898,14 +943,15 @@ export default function Home() {
         <div className={styles.container}>
     
             <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
-                <h2>Control Panel</h2>
+                <h1>Control Panel</h1>
                 <h4>Update Ref</h4>
                 <div className={styles.chromosomeSelection}>
                     {Object.keys(cloneMapping).map((arm, index) => (
                         <div key={index} className={styles.chromosomeArm}>
                             <label htmlFor={`chromosome-arm-${index}`}>
-                                {arm.toUpperCase().replace('CHR', '')} S0 : {s0Mapping[arm].toFixed(3) || 'N/A'}
+                                {arm.toUpperCase().replace('CHR', '')} S0 : {s0Mapping[arm] != null ? s0Mapping[arm].toFixed(3) : 'N'}
                             </label>
+        
                             <input
                                 type="checkbox"
                                 id={`chromosome-arm-${index}`}
@@ -916,57 +962,76 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
-                <button className={styles.updateButton} onClick={handleCheckAll}>
+                <button className={styles.toggleButton} onClick={handleCheckAll}>
                     Check All
                 </button>
-                <button className={styles.updateButton} onClick={handleUncheckAll}>
+                <button className={styles.toggleButton} onClick={handleUncheckAll}>
                     Uncheck All
                 </button>
     
-                <button className={styles.updateButton} onClick={handleUpdateRef}>
+                <button className={styles.toggleButton} onClick={handleUpdateRef}>
                     Update Ref
                 </button>
             </div>
-    
-            <div className={`${styles.content} ${isOpen ? styles.shifted : ''}`}>
+
+            <div className={styles.header}>
+            <div className={styles.uploadAndLegend}>
+                
+                {/* <div className={styles.fileUploadSection}> */}
+                    {/* <h2>Upload JSON File </h2> */}
+                    <label className={styles.customFileUpload}>
+                        <img src="folder.png" alt="Upload" className={styles.uploadIcon} />
+                        Upload JSON File: {selectedFileName}
+                        <input type="file" className={styles.fileInput} onChange={handleFileUpload} />
+                    </label>
+                    <br />
+                    {selectedFileName && (
+                        <p className={styles.fileName}>
+                            
+                            
+                        </p>
+                    )}
+                {/* </div> */}
+                
+                <div className={styles.legendSection}>
+
+
+
+                    
+
+                </div>
+                {selectedFileName && (
                 <button className={styles.toggleButton} onClick={toggleControlBar}>
+                    <img src="/filter.png" className={styles.uploadIcon} />
                     {isOpen ? 'Close' : 'Open'} Control Panel
                 </button>
-    
-                <div className={styles.header}>
-                    <h1>Upload your JSON file</h1>
-                    <input type="file" className={styles.fileUpload} onChange={handleFileUpload} />
-                    <div className={styles.grid}>
-                        {colors.map((color, index) => (
-                            <div key={index} className={`${styles.gridItem} ${color.className}`}>
-                                {color.label}
-                            </div>
-                        ))}
+            )}
+            
+                <br />
 
-                            <div className={styles.legendText}>
-                                <p>
-                                    <b>LVC0: {lcv0 ? lcv0.toFixed(3) : 'Not Uploaded'}   
-                                    m0: {mavg ? mavg.toFixed(3) : 'Not Uploaded'} Clicked :   
+                    {/* <div className={styles.legendText}>
+                            
+                            <p>
+                                <b>LVC0: {lcv0 ? lcv0.toFixed(3) : 'No Upload'} m0: {mavg ? mavg.toFixed(3) : 'No Upload '}
                                     {clickedArmData ? (
                                         <>
-                CN: {typeof clickedArmData.CN === 'number' ? clickedArmData.CN.toFixed(3) : 'N/A'} 
-                AI: {typeof clickedArmData.AI === 'number' ? clickedArmData.AI.toFixed(3) : 'N/A'} 
-                M: {typeof clickedArmData.M === 'number' ? clickedArmData.M.toFixed(3) : 'N/A'} 
-                dm: {typeof clickedArmData.dm === 'number' ? clickedArmData.dm.toFixed(3) : 'N/A'} 
-                dcn: {typeof clickedArmData.dcn === 'number' ? clickedArmData.dcn.toFixed(3) : 'N/A'}
-                                        </> 
+                                            Selection: 
+                                            {clickedArmData.arm ? clickedArmData.arm : ''} CN: {typeof clickedArmData.CN === 'number' ? clickedArmData.CN.toFixed(3) : ''} AI: {typeof clickedArmData.AI === 'number' ? clickedArmData.AI.toFixed(3) : ''} M: {typeof clickedArmData.M === 'number' ? clickedArmData.M.toFixed(3) : ''} dm: {typeof clickedArmData.dm === 'number' ? clickedArmData.dm.toFixed(3) : ''} dcn: {typeof clickedArmData.dcn === 'number' ? clickedArmData.dcn.toFixed(3) : ''} Clone: {clickedArmData.clone || ''}
+                                        </>
                                     ) : (
                                         'No selection'
                                     )}
-                                    </b>
-                                </p>
-                            </div>
-                    </div>
-                </div>
+                                </b>
+                            </p>
+                        </div> */}<br />
+            {/* <p>{loadMessage ? loadMessage : ''}</p> */}
+            </div>
+
+        </div>
     
                 {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0px', alignItems: 'center' }}>
                             <div className={styles.plotContainer}>
                                 <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData1, plotData1).scatterPlot} layout={plotData1.layout} onClick={handlePlotClick} />
                             </div>
@@ -974,15 +1039,47 @@ export default function Home() {
                                 <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData2, plotData2).scatterPlot} layout={plotData2.layout} onClick={handlePlotClick} />
                             </div>
                         </div>
+
+                        <div className={styles.header}>
+                        <div className={styles.uploadAndLegend}>
+                        <div className={styles.grid}>
+                            {colors.map((color, index) => (
+                            <div key={index} className={`${styles.gridItem} ${color.className}`}>
+                                {color.label}
+                            </div>
+                            ))}
+                                
+                        </div>
+                        <br />
+                        <p>
+                            
+                                <b>LVC0: {lcv0 ? lcv0.toFixed(3) : 'No Upload'} m0: {mavg ? mavg.toFixed(3) : 'No Upload '}
+                                    {clickedArmData ? (
+                                        <>
+                                            Selection: 
+                                            {clickedArmData.arm ? clickedArmData.arm : ''} CN: {typeof clickedArmData.CN === 'number' ? clickedArmData.CN.toFixed(3) : ''} AI: {typeof clickedArmData.AI === 'number' ? clickedArmData.AI.toFixed(3) : ''} M: {typeof clickedArmData.M === 'number' ? clickedArmData.M.toFixed(3) : ''} dm: {typeof clickedArmData.dm === 'number' ? clickedArmData.dm.toFixed(3) : ''} dcn: {typeof clickedArmData.dcn === 'number' ? clickedArmData.dcn.toFixed(3) : ''} Clone: {clickedArmData.clone || ''}
+                                        </>
+                                    ) : (
+                                        'No selection'
+                                    )}
+                                </b>
+                            </p>
+                        </div>
+                        </div>
+
+
+                            
+
+                
     
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
                             <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData3, plotData3).scatterPlot} layout={plotData3.layout} onClick={handlePlotClick} />
                             <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData4, plotData4).scatterPlot} layout={plotData4.layout} onClick={handlePlotClick} />
                             <DynamicPlot scatterPlot={updatePlotDataWithHighlight(plotData5, plotData5).scatterPlot} layout={plotData5.layout} onClick={handlePlotClick} />
                         </div>
                     </div>
                 )}
-            </div>
+            
         </div>
     );
     

@@ -37,16 +37,17 @@
 .controlBar {
   width: 0; /* Start with the control bar collapsed */
   transition: width 0.3s ease; /* Smooth transition when opening/closing */
-  background-color: #000000;
+  background-color: rgba(18, 17, 17, 0.8);
   overflow-x: hidden; /* Hide any overflowing content when collapsed */
   position: fixed;
   top: 0;
   left: 0;
   height: 100%;
-  color: white;
+  color: #f0f0f0;
   padding: 0px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
   z-index: 1; /* Make sure the control bar is on top of other content */
+  font-size: .75em;
 }
 
 .controlBar.open {
@@ -71,15 +72,15 @@
 }
 
 .toggleButton {
-  position: fixed; /* Changed from absolute to fixed to keep it visible */
-  top: 20px;
-  left: 20px;
-  background-color: #333;
-  color: white;
-  padding: 10px 15px;
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
-  border: none;
-  z-index: 2; /* Make sure the toggle button is above other content */
+  padding: 5px 10px; /* Reduced padding to make the button smaller */
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px; /* Reduced font size */
+  color: #333;
 }
 
 .header {
@@ -87,7 +88,7 @@
   flex-direction: column;
   align-items: center; /* Center items horizontally */
   justify-content: center;
-  padding: 20px;
+  padding: 5px;
 }
 
 .file-upload {
@@ -140,6 +141,11 @@
   width: 100%;
 }
 
+.selection_text{
+  color:yellow;
+
+}
+
 
 /* Color classes for legend */
 .LOSS { background-color: #1f77b4; } /* tab:blue */
@@ -151,5 +157,109 @@
 .LOH { background-color: #8c564b; } /* tab:brown */
 .GAIN { background-color: #d62728; } /* tab:red */
 .GAINPLUS { background-color: #aa00ff; } /* tab:red */
+
+
+
+.customFileUpload {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px 10px; /* Reduced padding to make the button smaller */
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px; /* Reduced font size */
+  color: #333;
+}
+
+.uploadIcon {
+  margin-right: 5px; /* Reduced margin */
+  width: 20px; /* Set a smaller width for the icon */
+  height: 20px; /* Set a smaller height for the icon */
+}
+
+.fileInput {
+  display: none; /* Hides the actual file input */
+}
+
+
+.fileName {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+}
+
+
+.uploadAndLegend {
+  display: flex;
+  justify-content: space-between; /* Space between left and right sections */
+  align-items: center;
+  background-color: #fff;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 0 auto; /* Center the section horizontally */
+  width: 100%; /* Ensure the container spans the full width of the content area */
+}
+
+
+.fileUploadSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align the upload section to the left */
+  flex: 1; /* Take up available space */
+}
+
+
+.legendSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align the legend to the left */
+  flex: 1; /* Take up more space than the upload section */
+  margin-right: 20px; /* Add some space between the legend and the upload section */
+}
+
+.grid {
+  margin-top: 10px;
+}
+
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Align items at the top */
+  height: 100vh; /* Make sure the container takes the full height of the viewport */
+  padding-top: 20px; /* Add some padding at the top */
+}
+
+
+.fileUploadSection {
+  display: flex;
+  /* flex-direction: column; */
+  /* align-items: flex-end; Align the upload section to the right */
+  flex: 1; /* Take up available space */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
