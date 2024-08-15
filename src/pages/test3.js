@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+
 import dynamic from 'next/dynamic';
 import styles from '../styles/Home.module.css';
+import React, { useState, useEffect } from 'react';
+
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
-
-
-
 
 export default function Home() {
     const [isOpen, setIsOpen] = useState(false);
@@ -18,16 +17,16 @@ export default function Home() {
     const [plotData3, setPlotData3] = useState(null);
     const [plotData4, setPlotData4] = useState(null);
     const [plotData5, setPlotData5] = useState(null);
-    const [clickedArm, setClickedArm] = useState(null); // State to hold the clicked arm name
-    const [highlightedArm, setHighlightedArm] = useState(null); // State to hold the highlighted arm for coloring
-    const [arm7ColorMapping, setArm7ColorMapping] = useState({}); // State to hold arm7ColorMapping
-    const [cloneMapping, setCloneMapping] = useState({}); // State to hold cloneMapping
-    const [Y3Mapping, setY3Mapping] = useState({}); // State to hold Y3Mapping
-    const [X3Mapping, setX3Mapping] = useState({}); // State to hold X3Mapping
-    const [mMapping, setMMapping] = useState({});   // State to hold mMapping
-    const [dmMapping, setDmMapping] = useState({}); // State to hold dmMapping
-    const [dcnMapping, setDcnMapping] = useState({}); // State to hold dcnMapping
-    const [clickedArmData, setClickedArmData] = useState({}); // State to hold clicked arm data
+    const [clickedArm, setClickedArm] = useState(null); 
+    const [highlightedArm, setHighlightedArm] = useState(null); 
+    const [arm7ColorMapping, setArm7ColorMapping] = useState({}); 
+    const [cloneMapping, setCloneMapping] = useState({});
+    const [Y3Mapping, setY3Mapping] = useState({}); 
+    const [X3Mapping, setX3Mapping] = useState({});
+    const [mMapping, setMMapping] = useState({});  
+    const [dmMapping, setDmMapping] = useState({}); 
+    const [dcnMapping, setDcnMapping] = useState({}); 
+    const [clickedArmData, setClickedArmData] = useState({}); 
     const [PlotCombined, setPlotCombined] = useState(null);
     const [lcv0, setLCV0] = useState(null);
     const [mavg, setMAvg] = useState(null);
@@ -39,8 +38,6 @@ export default function Home() {
     const [ middleMMapping, setMiddleMMapping] = useState(null);
     const [endMMapping, setEndMMapping] = useState(null);
 
-
-    //startMMapping, middleMMapping, endMMapping
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -79,9 +76,12 @@ export default function Home() {
         }
 
         const result = await calculateResponse.json();
-        console.log('API result:', result); // Debugging line
+        console.log('API result:', result); 
 
-        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping, lcv0, mavg, lcvMapping, s0Mapping, startMMapping, middleMMapping, endMMapping } = result;
+        const { plotData1, uniqueArm1Values, plotData2, uniqueArm2Values, plotData3, uniqueArm3Values, plotData4, uniqueArm4Values, plotData5, uniqueArm5Values, aiValues, mValues, arm6Values, arm7ColorMapping, cloneMapping, Y3Mapping, X3Mapping, mMapping, dmMapping, dcnMapping, lcv0, mavg, lcvMapping, s0Mapping, startMMapping, middleMMapping, endMMapping } = result;
+
+        console.log('X3Mapping:', X3Mapping);
+        console.log('Y3Mapping:', Y3Mapping);
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
@@ -93,19 +93,25 @@ export default function Home() {
             return plotData.map(d => ({
                 ...d,
                 color: arm7ColorMapping[d.arm],
-                customdata: d.arm  // Add arm to customdata
+                customdata: d.arm  
             }));
         };
 
+
+        const coloredPlotData1 = applyColorMapping(plotData1);
+        const coloredPlotData2 = applyColorMapping(plotData2);
+        const coloredPlotData3 = applyColorMapping(plotData3);
+        const coloredPlotData4 = applyColorMapping(plotData4);
+        const coloredPlotData5 = applyColorMapping(plotData5);
     
 
-        setArm7ColorMapping(arm7ColorMapping); // Set arm7ColorMapping state
-        setCloneMapping(cloneMapping); // Set cloneMapping state
-        setY3Mapping(Y3Mapping);       // Set Y3Mapping state
-        setX3Mapping(X3Mapping);       // Set X3Mapping state
-        setMMapping(mMapping);         // Set mMapping state
-        setDmMapping(dmMapping);       // Set dmMapping state
-        setDcnMapping(dcnMapping);     // Set dcnMapping state
+        setArm7ColorMapping(arm7ColorMapping); 
+        setCloneMapping(cloneMapping); 
+        setY3Mapping(Y3Mapping);     
+        setX3Mapping(X3Mapping);      
+        setMMapping(mMapping);         
+        setDmMapping(dmMapping);      
+        setDcnMapping(dcnMapping);     
         setLCV0(lcv0)
         setMAvg(mavg)
         setLcvMapping(lcvMapping)
@@ -113,38 +119,26 @@ export default function Home() {
         setStartMMapping(startMMapping)
         setMiddleMMapping(middleMMapping)
         setEndMMapping(endMMapping)
-        
+        setColoredPlotData1(coloredPlotData1);
+        setColoredPlotData3(coloredPlotData3);
+
+
         console.log('startMMapping:', startMMapping);
         console.log('endMMapping:', endMMapping)
 
         console.log(lcv0)
         console.log(mavg)
 
-        const coloredPlotData1 = applyColorMapping(plotData1);
-        const coloredPlotData2 = applyColorMapping(plotData2);
-        const coloredPlotData3 = applyColorMapping(plotData3);
-        const coloredPlotData4 = applyColorMapping(plotData4);
-        const coloredPlotData5 = applyColorMapping(plotData5);
-
-        setColoredPlotData1(coloredPlotData1);
-        setColoredPlotData3(coloredPlotData3);
-
         const createAnnotationsAndShapes = (plotData, uniqueArmValues) => {
-            const armPositions = {};
-            plotData.forEach(d => {
-                if (!armPositions[d.arm] || d.x < armPositions[d.arm].x) {
-                    armPositions[d.arm] = { x: d.x, y: d.y };
-                }
-            });
+            let annotations = [];
 
-            const annotations = uniqueArmValues.map(arm => {
-                if (!armPositions[arm]) {
-                    console.error(`No position found for arm: ${arm}`);
-                    return null;
-                }
-                return {
-                    x: armPositions[arm].x,
-                    y: -0.1,  // Place closer to the axis
+            for (let arm of uniqueArm1Values) {
+                let middleX = middleMMapping[arm];  
+                
+                // label settings for how the arm labels are veiw
+                annotations.push({
+                    x: middleX,
+                    y: -0.1,  
                     xref: 'x',
                     yref: 'paper',
                     text: arm,
@@ -154,9 +148,17 @@ export default function Home() {
                     font: {
                         size: 10
                     },
-                    textangle: 270  // Rotate the text 180 degrees
-                };
-            }).filter(annotation => annotation !== null);
+                    textangle: 270  // Rotate the text 180 degrees for readability
+                });
+            }
+
+
+            const armPositions = {};
+            plotData.forEach(d => {
+                if (!armPositions[d.arm] || d.x < armPositions[d.arm].x) {
+                    armPositions[d.arm] = { x: d.x, y: d.y };
+                }
+            });
 
             const shapes = uniqueArmValues.map(arm => {
                 if (!armPositions[arm]) {
@@ -181,18 +183,17 @@ export default function Home() {
             return { annotations, shapes };
         };
 
-        const createLines = (mValues, startMMapping, endMMapping) => {
+        const createCoverageLines = (mValues, startMMapping, endMMapping) => {
             const lines = [];
-            console.log('createLines called'); // Debugging line to check function calls
+            console.log('createCoverageLines called'); 
             
-            // Ensure mappings are defined before proceeding
             if (!startMMapping || !endMMapping) {
                 console.error('startMMapping or endMMapping is undefined or null');
-                return lines; // Return an empty array if mappings are not defined
+                return lines; 
             }
         
             Object.keys(startMMapping).forEach((arm, index) => {
-          
+                
                 const m = mValues[index];
                 const x0 = startMMapping[arm];
                 const x1 = endMMapping[arm];
@@ -225,13 +226,182 @@ export default function Home() {
             });
             return lines;
         };
+
+
+
+        const createVafLines = (aiValues, startMMapping, endMMapping) => {
+            
+            const lines = [];
+            console.log('createVafLines called'); 
+            
+            if (!startMMapping || !endMMapping) {
+                console.error('startMMapping or endMMapping is undefined or null');
+                return lines; 
+            }
         
+            Object.keys(startMMapping).forEach((arm, index) => {
+                
+                const ai = aiValues[index];
+                const x0 = startMMapping[arm];
+                const x1 = endMMapping[arm];
         
+                console.log(`Lines for VAF: Arm: ${arm} X0:${x0} X1:${x1} ai ${ai}`);
+            
+                if (x0 === undefined) {
+                    console.error(`startMMapping is missing a value for arm: ${arm}`);
+                }
+                if (x1 === undefined) {
+                    console.error(`endMMapping is missing a value for arm: ${arm}`);
+                }
+            
+                if (x0 !== undefined && x1 !== undefined && ai !== undefined) {
+                    // First line: y0 = 0.5 - ai, y1 = 0.5 - ai
+                    lines.push({
+                        type: 'line',
+                        x0: x0,
+                        y0: 0.5 - ai,
+                        x1: x1,
+                        y1: 0.5 - ai,
+                        xref: 'x',
+                        yref: 'y',
+                        line: {
+                            color: 'blue',
+                            width: 2
+                        }
+                    });
         
+                    // Second line: y0 = 0.5 + ai, y1 = 0.5 + ai
+                    lines.push({
+                        type: 'line',
+                        x0: x0,
+                        y0: 0.5 + ai,
+                        x1: x1,
+                        y1: 0.5 + ai,
+                        xref: 'x',
+                        yref: 'y',
+                        line: {
+                            color: 'blue',
+                            width: 2
+                        }
+                    });
+                }
+            });
+            return lines;
+        };
+
+
+        const createMathFunctionLines = (kValues) => {
+            const lines = [];
+            const annotations = [];
         
+            const f1 = kValues.map(v => (1 - v / 2) * 2);
+            const g1 = kValues.map(v => v / (2 * (2 - v)));
+        
+            const f2 = kValues.map(v => (1 + v / 2) * 2);
+            const g2 = kValues.map(v => v / (2 * (2 + v)));
+        
+            const f3 = kValues.map(() => 2);
+            const g3 = kValues.map(v => v / 2);
+        
+            // Add first function lines with annotation
+            for (let i = 0; i < kValues.length - 1; i++) {
+                lines.push({
+                    type: 'line',
+                    x0: f1[i],
+                    y0: g1[i],
+                    x1: f1[i + 1],
+                    y1: g1[i + 1],
+                    xref: 'x',
+                    yref: 'y',
+                    line: {
+                        color: 'blue',
+                        width: 2,
+                        dash: 'dot'
+                    }
+                });
+            }
+            annotations.push({
+                x: f1[f1.length - 1],
+                y: g1[g1.length - 1],
+                xref: 'x',
+                yref: 'y',
+                text: 'A',
+                showarrow: false,
+                ax: 0,
+                ay: -10,
+                font: {
+                    color: 'blue'
+                }
+            });
+        
+            // Add second function lines with annotation
+            for (let i = 0; i < kValues.length - 1; i++) {
+                lines.push({
+                    type: 'line',
+                    x0: f2[i],
+                    y0: g2[i],
+                    x1: f2[i + 1],
+                    y1: g2[i + 1],
+                    xref: 'x',
+                    yref: 'y',
+                    line: {
+                        color: 'red',
+                        width: 2,
+                        dash: 'dot'
+                    }
+                });
+            }
+            annotations.push({
+                x: f2[f2.length - 1],
+                y: g2[g2.length - 1],
+                xref: 'x',
+                yref: 'y',
+                text: 'AAB',
+                showarrow: false,
+                ax: 0,
+                ay: -10,
+                font: {
+                    color: 'red'
+                }
+            });
+        
+            // Add third function lines with annotation
+            for (let i = 0; i < kValues.length - 1; i++) {
+                lines.push({
+                    type: 'line',
+                    x0: f3[i],
+                    y0: g3[i],
+                    x1: f3[i + 1],
+                    y1: g3[i + 1],
+                    xref: 'x',
+                    yref: 'y',
+                    line: {
+                        color: 'black',
+                        width: 2,
+                        dash: 'dot'
+                    }
+                });
+            }
+            annotations.push({
+                x: f3[f3.length - 1],
+                y: g3[g3.length - 1],
+                xref: 'x',
+                yref: 'y',
+                text: 'AA',
+                showarrow: false,
+                ax: 0,
+                ay: -10,
+                font: {
+                    color: 'black'
+                }
+            });
+        
+            return { lines, annotations };
+        };
         
 
-        // Plot data for the first plot
+
+        // plot 1 coverage
         const scatterPlot1 = {
             x: coloredPlotData1.map(d => d.x),
             y: coloredPlotData1.map(d => (Math.log2(d.y/(lcv0)))),
@@ -239,20 +409,23 @@ export default function Home() {
             mode: 'markers',
             marker: { size: 1, color: coloredPlotData1.map(d => d.color) },
             name: 'Coverage Plot',
-            customdata: coloredPlotData1.map(d => d.customdata), // Add customdata to plot
+            text: coloredPlotData1.map(d => {
+                const arm = d.customdata;
+                return `arm: ${arm}<br>log2(median/ref): ${Math.log2(d.y/(lcv0))}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}`;
+            }),
+            customdata: coloredPlotData1.map(d => d.customdata), 
             line: {
-                color: 'transparent',  // Make the border transparent
-                width: .5  // Or adjust the width if you want a thin border of a different color
+                color: 'transparent',  
+                width: .5 
             },
-            // xaxis: 'x1',
-            // yaxis: 'y1'
+
         };
 
         const layout1 = {
             title: 'Coverage Plot',
             showlegend: false,
-            width: 1800,  // Decrease width
-            height: 150,  // Decrease height
+            width: 1800, 
+            height: 200,  
             margin: {
                 l: 40,
                 r: 40,
@@ -262,12 +435,12 @@ export default function Home() {
             },
             xaxis: {
                 title: '',
-                showticklabels: false,  // Show x-axis numbers
+                showticklabels: false,
                 tickangle: 90,
                 tickfont: {
                     size: 10
                 },
-                range: [Math.min(...coloredPlotData1.map(d => d.x)), Math.max(...coloredPlotData1.map(d => d.x))] // Set range to the min and max of the data
+                range: [Math.min(...coloredPlotData1.map(d => d.x)), Math.max(...coloredPlotData1.map(d => d.x))]
             },
             yaxis: {
                 title: 'log2(median/ref)',
@@ -281,11 +454,11 @@ export default function Home() {
             grid: {
                 color: 'lightgray'
             },
-            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, startMMapping,endMMapping)),
+            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createCoverageLines(mValues, startMMapping,endMMapping)),
             annotations: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).annotations
         };
 
-        // Plot data for the second plot
+        // plot 2 vaf
         const scatterPlot2 = {
             x: coloredPlotData2.map(d => d.x),
             y: coloredPlotData2.map(d => d.y),
@@ -293,20 +466,24 @@ export default function Home() {
             mode: 'markers',
             marker: { size: 1, color: coloredPlotData2.map(d => d.color) },
             name: 'Vaf Plot',
-            customdata: coloredPlotData2.map(d => d.customdata), // Add customdata to plot
+            customdata: coloredPlotData2.map(d => d.customdata), 
+            text: coloredPlotData2.map(d => {
+                const arm = d.customdata;
+                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
+            }),
             line: {
-                color: 'transparent',  // Make the border transparent
-                width: 1  // Or adjust the width if you want a thin border of a different color
+                color: 'transparent',  
+                width: 1 
             },
-            // xaxis: 'x2',
-            // yaxis: 'y2'
         };
 
+        console.log("X3Mapping before plot attempt",X3Mapping)
+        
         const layout2 = {
             title: 'Vaf Plot',
             showlegend: false,
-            width: 1800,  // Decrease width
-            height: 150,  // Decrease height
+            width: 1800,  
+            height: 200, 
             margin: {
                 l: 40,
                 r: 40,
@@ -316,7 +493,7 @@ export default function Home() {
             },
             xaxis: {
                 title: '',
-                showticklabels: false,  // Show x-axis numbers
+                showticklabels: false,  
                 tickangle: 90,
                 tickfont: {
                     size: 10
@@ -335,7 +512,7 @@ export default function Home() {
             grid: {
                 color: 'lightgray'
             },
-            shapes: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).shapes,
+            shapes: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).shapes.concat(createVafLines(aiValues, startMMapping,endMMapping)),
             annotations: createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).annotations
         };
         
@@ -343,8 +520,8 @@ export default function Home() {
 
         const layout_combined = {
             grid: {rows: 2, columns: 1, pattern: 'independent'}, // 2 rows, 1 column layout
-            width: 1600,  // Width of the combined plot
-            height: 500,  // Combined height for both plots
+            width: 1600,  
+            height: 500,  
             margin: {
                 l: 40,
                 r: 40,
@@ -356,17 +533,17 @@ export default function Home() {
             paper_bgcolor: 'white',
             xaxis: {
                 title: '',
-                showticklabels: false,  // Hide x-axis labels in the first plot
+                showticklabels: false,  
                 tickangle: 90,
                 tickfont: {
                     size: 10
                 },
-                domain: [0, 1],  // Full width for both plots
+                domain: [0, 1],  
                 anchor: 'y1'
             },
             xaxis2: {
                 title: '',
-                showticklabels: false,  // Hide x-axis labels in the second plot as well
+                showticklabels: false,  
                 tickangle: 90,
                 tickfont: {
                     size: 10
@@ -388,12 +565,11 @@ export default function Home() {
                     size: 10
                 }
             },
-            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createLines(mValues, startMMapping,endMMapping)),
+            shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createCoverageLines(mValues, startMMapping,endMMapping)),
             annotations: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).annotations.concat(createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).annotations)
         };
-        
 
-        // Plot data for the third plot
+        //plot 3 cn vs ai
         const scatterPlot3 = {
             x: coloredPlotData3.map(d => ((2*d.x)/mavg)),
             y: coloredPlotData3.map(d => d.y),
@@ -401,8 +577,17 @@ export default function Home() {
             mode: 'markers',
             marker: { size: 8, color: coloredPlotData3.map(d => d.color) },
             name: 'AI vs CN',
-            customdata: coloredPlotData3.map(d => d.customdata) // Add customdata to plot
-        };
+            customdata: coloredPlotData3.map(d => d.customdata), 
+            text: coloredPlotData3.map(d => {
+                const arm = d.customdata;
+                return `AI: ${X3Mapping[arm] || 'N/A'} CN: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
+            }), 
+        }
+
+
+        const k = Array.from({ length: 20 }, (_, i) => i / 19);  // Generate 20 points from 0 to 1
+        const { lines: functionLines, annotations: functionAnnotations } = createMathFunctionLines(k);
+
 
         const layout3 = {
             title: 'Scatter Plot of AI vs CN',
@@ -432,10 +617,12 @@ export default function Home() {
             paper_bgcolor: 'white',
             grid: {
                 color: 'lightgray'
-            }
+            },
+            shapes: functionLines,  // Add the generated lines to the layout
+            annotations: functionAnnotations
         };
 
-        // Plot data for the fourth plot
+        // plot 4 vaf cdf
         const scatterPlot4 = {
             x: coloredPlotData4.map(d => d.x),
             y: coloredPlotData4.map(d => d.y),
@@ -443,14 +630,18 @@ export default function Home() {
             mode: 'markers',
             marker: { size: 3, color: coloredPlotData4.map(d => d.color), opacity: 1 },
             name: 'Vaf Score CDF',
-            customdata: coloredPlotData4.map(d => d.customdata) // Add customdata to plot
+            customdata: coloredPlotData4.map(d => d.customdata),
+            text: coloredPlotData4.map(d => {
+                const arm = d.customdata;
+                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
+            }),
         };
 
         const layout4 = {
             title: 'Vaf Score CDF',
             showlegend: false,
             width: 500,
-            height: 500,  // Make it square
+            height: 500, 
             margin: {
                 l: 50,
                 r: 50,
@@ -477,7 +668,7 @@ export default function Home() {
             }
         };
 
-        // Plot data for the fifth plot
+        //plot 5 coverage cdf
         const scatterPlot5 = {
             x: coloredPlotData5.map(d => d.x),
             y: coloredPlotData5.map(d => d.y),
@@ -485,7 +676,11 @@ export default function Home() {
             mode: 'markers',
             marker: { size: 3, color: coloredPlotData5.map(d => d.color), opacity: 1 },
             name: 'Coverage Score CDF',
-            customdata: coloredPlotData5.map(d => d.customdata) // Add customdata to plot
+            customdata: coloredPlotData5.map(d => d.customdata),
+            text: coloredPlotData5.map(d => {
+                const arm = d.customdata;
+                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
+            }),
         };
 
         const layout5 = {
@@ -525,18 +720,21 @@ export default function Home() {
         setPlotData4({ scatterPlot: scatterPlot4, layout: layout4 });
         setPlotData5({ scatterPlot: scatterPlot5, layout: layout5 });
         setPlotCombined({scatterPlot: plot_1_2_data, layout: layout_combined});
+   
     };
+
+
 
     const handlePlotClick = (event) => {
         if (event.points && event.points.length > 0) {
             const clickedPoint = event.points[0];
             const clickedArm = clickedPoint.customdata;
-            const cloneName = cloneMapping[clickedArm] || 'Unknown clone'; // Get the clone name
-            console.log(clickedArm); // Log the clicked arm name to the console
-            setClickedArm(`${clickedArm} ${cloneName}`); // Set the clicked arm name and clone name
-            setHighlightedArm(clickedArm); // Set the highlighted arm for coloring
+            const cloneName = cloneMapping[clickedArm] || 'Unknown clone';
+            console.log(clickedArm); 
+            setClickedArm(`${clickedArm} ${cloneName}`);
+            setHighlightedArm(clickedArm); //highlights it yellow
 
-            // Set the clicked arm data for displaying CN, AI, M, dm, and dcn values
+            //look at the clicked values
             setClickedArmData({
                 CN: X3Mapping[clickedArm] || 'N/A',
                 AI: Y3Mapping[clickedArm] || 'N/A',
@@ -584,16 +782,12 @@ export default function Home() {
         { label: 'GAIN+', className: styles.GAINPLUS },
     ];
 
-
-
     const handleCheckboxChange = (arm) => {
         setCloneMapping((prevMapping) => ({
             ...prevMapping,
             [arm]: prevMapping[arm] === 'DIP' ? 'Not REF' : 'DIP',
         }));
     };
-
-
 
     const calculateLcv0ForCheckedArms = (checkedArms) => {
         const filteredData = checkedArms
@@ -614,19 +808,6 @@ export default function Home() {
         return totalSum / totalLength; 
 
     }
-
-
-
-    function deepCopy(obj) {
-        return JSON.parse(JSON.stringify(obj));
-    }
-    
-
-    const originalPlotData1 = deepCopy(plotData1);
-    const originalPlotData3 = deepCopy(plotData3);
-
-    //console.log('Deep Copy 1',originalPlotData1)
-    //console.log('Deep Copy 3',originalPlotData3)
 
     const handleUpdateRef = () => {
         const checkedArms = Object.keys(cloneMapping).filter(arm => cloneMapping[arm] === 'DIP');
@@ -660,9 +841,6 @@ export default function Home() {
     
         if (oldMavg !== newMavg) {
 
-
-        // const updatedShapesPlot1 = createAnnotationsAndShapes(plotData1.scatterPlot, uniqueArm1Values).shapes.concat(createLines(mMapping, arm6Values));
-
         const updatedLayout1 = {
                 ...originalPlotData1.layout,
                 // shapes: updatedShapesPlot1
@@ -672,7 +850,7 @@ export default function Home() {
                 ...originalPlotData1,
                 scatterPlot: {
                     ...originalPlotData1.scatterPlot,
-                    y: coloredPlotData1.map(d => (Math.log2(d.y/(newLcv0))))//originalPlotData1.scatterPlot.y.map((y) => Math.log2((y) / newLcv0))
+                    y: coloredPlotData1.map(d => (Math.log2(d.y/(newLcv0))))
                 },
                 layout: updatedLayout1
         };
@@ -686,13 +864,12 @@ export default function Home() {
                 }
         };
             
-        // Log the transformed values
+     
         console.log("Original Plot1:",originalPlotData1.scatterPlot.y);
         console.log("Updated Plot1:",updatedPlotData1.scatterPlot.y);
         console.log("Original Plot3:",plotData3.scatterPlot.x)
         console.log("Updated Plot3:",updatedPlotData3.scatterPlot.x);
             
-        // Set the state with the updated copies
         setPlotData1(updatedPlotData1);
         setPlotData3(updatedPlotData3);
 
@@ -700,7 +877,6 @@ export default function Home() {
 
     }
     
-
     const handleCheckAll = () => {
         const updatedMapping = Object.keys(cloneMapping).reduce((acc, arm) => {
             acc[arm] = 'DIP';
@@ -722,14 +898,13 @@ export default function Home() {
         <div className={styles.container}>
     
             <div className={`${styles.controlBar} ${isOpen ? styles.open : ''}`}>
-                <h2>Control Bar</h2>
-                <p>Some controls and settings go here.</p>
-                <h4>For now these are here</h4>
+                <h2>Control Panel</h2>
+                <h4>Update Ref</h4>
                 <div className={styles.chromosomeSelection}>
                     {Object.keys(cloneMapping).map((arm, index) => (
                         <div key={index} className={styles.chromosomeArm}>
                             <label htmlFor={`chromosome-arm-${index}`}>
-                                {arm.toUpperCase().replace('CHR', '')} S:{s0Mapping[arm] || 'N/A'}
+                                {arm.toUpperCase().replace('CHR', '')} S0 : {s0Mapping[arm] || 'N/A'}
                             </label>
                             <input
                                 type="checkbox"
@@ -759,7 +934,7 @@ export default function Home() {
                 </button>
     
                 <div className={styles.header}>
-                    <h1>Upload your TSV file</h1>
+                    <h1>Upload your JSON file</h1>
                     <input type="file" className={styles.fileUpload} onChange={handleFileUpload} />
                     <div className={styles.grid}>
                         {colors.map((color, index) => (
@@ -767,6 +942,25 @@ export default function Home() {
                                 {color.label}
                             </div>
                         ))}
+
+                            <div className={styles.legendText}>
+                                <p>
+                                    <b>LVC0: {lcv0 ? lcv0.toFixed(3) : 'Not Uploaded'}   
+                                    m0: {mavg ? mavg.toFixed(3) : 'Not Uploaded'} Clicked :   
+                                    {clickedArmData ? (
+                                        <>
+                CN: {typeof clickedArmData.CN === 'number' ? clickedArmData.CN.toFixed(3) : 'N/A'} 
+                AI: {typeof clickedArmData.AI === 'number' ? clickedArmData.AI.toFixed(3) : 'N/A'} 
+                M: {typeof clickedArmData.M === 'number' ? clickedArmData.M.toFixed(3) : 'N/A'} 
+                dm: {typeof clickedArmData.dm === 'number' ? clickedArmData.dm.toFixed(3) : 'N/A'} 
+                dcn: {typeof clickedArmData.dcn === 'number' ? clickedArmData.dcn.toFixed(3) : 'N/A'}
+                                        </> 
+                                    ) : (
+                                        'No selection'
+                                    )}
+                                    </b>
+                                </p>
+                            </div>
                     </div>
                 </div>
     
@@ -810,3 +1004,4 @@ const DynamicPlot = ({ scatterPlot, layout, onClick }) => {
         <Plot data={[scatterPlot]} layout={layout} config={{ responsive: true }} onClick={onClick} />
     );
 };
+                  
