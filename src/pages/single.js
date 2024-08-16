@@ -2,8 +2,11 @@ import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import styles from '../styles/Home.module.css';
 import React, { useState, useEffect } from 'react';
+import Progressbar from "../components/progress_bar";
 
 let loadMessage =""
+
+let progress =0;
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
@@ -90,6 +93,8 @@ export default function Home() {
 
         console.log('X3Mapping:', X3Mapping);
         console.log('Y3Mapping:', Y3Mapping);
+
+      
 
         if (!plotData1 || !plotData2 || !plotData3 || !plotData4 || !plotData5) {
             console.error('Invalid data structure from API');
@@ -195,6 +200,7 @@ export default function Home() {
         };
 
         const createCoverageLines = (mValues, startMMapping, endMMapping) => {
+            progress = 30;
             const lines = [];
             console.log('createCoverageLines called'); 
             
@@ -241,7 +247,7 @@ export default function Home() {
 
 
         const createVafLines = (aiValues, startMMapping, endMMapping) => {
-            
+            progress = 50;
             const lines = [];
             console.log('createVafLines called'); 
             
@@ -589,7 +595,7 @@ export default function Home() {
         
 
         const boxPlotSize = screenWidth * 0.275;
-
+        progress = 70;
         //plot 3 cn vs ai
         const scatterPlot3 = {
             x: coloredPlotData3.map(d => ((2*d.x)/mavg)),
@@ -642,7 +648,7 @@ export default function Home() {
             shapes: functionLines,  // Add the generated lines to the layout
             annotations: functionAnnotations
         };
-
+        progress = 60;
         // plot 4 vaf cdf
         const scatterPlot4 = {
             x: coloredPlotData4.map(d => d.x),
@@ -690,7 +696,7 @@ export default function Home() {
                 color: 'lightgray'
             }
         };
-
+        progress = 70;
         //plot 5 coverage cdf
         const scatterPlot5 = {
             x: coloredPlotData5.map(d => d.x),
@@ -743,7 +749,7 @@ export default function Home() {
         setPlotData4({ scatterPlot: scatterPlot4, layout: layout4 });
         setPlotData5({ scatterPlot: scatterPlot5, layout: layout5 });
         setPlotCombined({scatterPlot: plot_1_2_data, layout: layout_combined});
-   
+        progress = 100;
     };
 
 
@@ -1009,7 +1015,7 @@ export default function Home() {
 
 
 
-                    
+              
 
                 </div>
                 {selectedFileName && (
@@ -1020,10 +1026,12 @@ export default function Home() {
             )}
             
                 <br />
-                
+
             </div>
 
         </div>
+
+
     
                 {plotData1 && plotData2 && plotData3 && plotData4 && plotData5 && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
@@ -1076,6 +1084,13 @@ export default function Home() {
                     </div>
                 )}
               <br />
+
+              <Progressbar
+                bgcolor="lightcyan"
+                progress={progress}
+                height={30}
+            />
+
             <label className={styles.toggleButton}>
       <p><a href='/'>Home</a></p>
       </ label>
@@ -1090,19 +1105,27 @@ export default function Home() {
 
 }
 
+
+
 const DynamicPlot = ({ scatterPlot, layout, onClick }) => {
     const [Plot, setPlot] = useState(null);
-
+    
     React.useEffect(() => {
+        
         import('react-plotly.js').then((Plotly) => {
             setPlot(() => Plotly.default);
         });
     }, []);
 
+    
     if (!Plot) return null;
-
+    
     return (
         <Plot data={[scatterPlot]} layout={layout} config={{ responsive: true }} onClick={onClick} />
     );
+
+    
+
+    
 };
                   
