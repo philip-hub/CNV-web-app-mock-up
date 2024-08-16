@@ -45,9 +45,9 @@ export default function Home() {
       <br />
 
 
-      <label className={styles.toggleButton}>
+      {/* <label className={styles.toggleButton}>
       <p><a href='single'>Multi File CNV Analysis</a></p>
-      </ label>
+      </ label> */}
 
       </center>
 
