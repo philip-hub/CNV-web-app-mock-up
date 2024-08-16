@@ -422,13 +422,15 @@ export default function Home() {
             name: 'Coverage Plot',
             text: coloredPlotData1.map(d => {
                 const arm = d.customdata;
-                return `arm: ${arm}<br>log2(med/ref): ${Math.log2(d.y/(lcv0))}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}`;
+                return `arm: ${arm}<br>log2(med/ref): ${Math.log2(d.y/(lcv0))}<br>CN: ${Y3Mapping[arm] || 'N/A'}<br>AI: ${X3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}`;
             }),
             customdata: coloredPlotData1.map(d => d.customdata), 
             line: {
                 color: 'transparent',  
                 width: .5 
             },
+
+            //hoverinfo: 'none',
 
         };
 
@@ -480,12 +482,13 @@ export default function Home() {
             customdata: coloredPlotData2.map(d => d.customdata), 
             text: coloredPlotData2.map(d => {
                 const arm = d.customdata;
-                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
+                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${Y3Mapping[arm] || 'N/A'}<br>AI: ${X3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
             }),
             line: {
                 color: 'transparent',  
                 width: 1 
             },
+            //hoverinfo: 'none',
         };
 
         console.log("X3Mapping before plot attempt",X3Mapping)
@@ -644,10 +647,12 @@ export default function Home() {
             customdata: coloredPlotData4.map(d => d.customdata),
             text: coloredPlotData4.map(d => {
                 const arm = d.customdata;
-                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
+                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${Y3Mapping[arm] || 'N/A'}<br>AI:  ${X3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
             }),
         };
 
+
+    
         const layout4 = {
             title: 'Vaf CDF',
             showlegend: false,
@@ -690,7 +695,7 @@ export default function Home() {
             customdata: coloredPlotData5.map(d => d.customdata),
             text: coloredPlotData5.map(d => {
                 const arm = d.customdata;
-                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
+                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${Y3Mapping[arm] || 'N/A'}<br>AI: ${X3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
             }),
         };
 
@@ -1057,7 +1062,7 @@ export default function Home() {
                                     {clickedArmData ? (
                                         <>
                                             Selection: 
-                                            {clickedArmData.arm ? clickedArmData.arm : ''} CN: {typeof clickedArmData.CN === 'number' ? clickedArmData.CN.toFixed(3) : 'None'} AI: {typeof clickedArmData.AI === 'number' ? clickedArmData.AI.toFixed(3) : 'None'} M: {typeof clickedArmData.M === 'number' ? clickedArmData.M.toFixed(3) : 'None'} dm: {typeof clickedArmData.dm === 'number' ? clickedArmData.dm.toFixed(3) : 'None'} dcn: {typeof clickedArmData.dcn === 'number' ? clickedArmData.dcn.toFixed(3) : 'None'} Clone: {clickedArmData.clone || ''}
+                                            {clickedArmData.arm ? clickedArmData.arm : ''} CN: {typeof clickedArmData.AI === 'number' ? clickedArmData.AI.toFixed(3) : 'None'}  AI:  {typeof clickedArmData.CN === 'number' ? clickedArmData.CN.toFixed(3) : 'None'} M: {typeof clickedArmData.M === 'number' ? clickedArmData.M.toFixed(3) : 'None'} dm: {typeof clickedArmData.dm === 'number' ? clickedArmData.dm.toFixed(3) : 'None'} dcn: {typeof clickedArmData.dcn === 'number' ? clickedArmData.dcn.toFixed(3) : 'None'} Clone: {clickedArmData.clone || ''}
                                         </>
                                     ) : (
                                         'No selection'
