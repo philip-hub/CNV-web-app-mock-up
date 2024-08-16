@@ -23,7 +23,7 @@ This document provides a detailed explanation of the `single.js` file, which is 
      - **Plot 3:** AI vs CN scatter plot.
      - **Plot 4:** VAF CDF (Cumulative Distribution Function).
      - **Plot 5:** Coverage CDF.
-   - **Combined Plot:** Plots 1 and 2 are combined into a single layout for easier comparison.
+   - **Combined Plot:** While Plots 1 and 2 look like they into a single layout for easier comparison, they actually are not. This has no impact on the code and can be deleted.
 
 ### 4. **Interaction with Plots**
    - Users can interact with the plots, selecting different chromosomal arms. When a user clicks on a plot, the `handlePlotClick` function captures the event, identifies the clicked arm, and updates the relevant state variables (`clickedArm`, `clickedArmData`).
@@ -36,7 +36,7 @@ This document provides a detailed explanation of the `single.js` file, which is 
    - **Annotations and Shapes:** The function `createAnnotationsAndShapes` generates labels and lines on the plots to help users identify and compare chromosomal arms.
 
 ### 7. **Mathematical Calculations and Updates**
-   - **Standard Deviation and Averaging:** Functions like `calculateLcv0ForCheckedArms` and `standardDeviation` perform statistical calculations needed for accurate plotting.
+   - **Standard Deviation and Averaging:** `calculateLcv0ForCheckedArms`  perform average lcv0 calculations needed for accurate plotting. `standardDeviation` is not yet implemented as it is needed for dcn updates which is not implemented yet.
    - **Dynamic Updates:** The plots and calculations can be dynamically updated based on user interaction, specifically through the `handleUpdateRef` function.
 
 ### 8. **Rendering and Layout**

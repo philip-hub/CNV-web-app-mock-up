@@ -75,7 +75,7 @@ The project uses **React** and **Next.js** along with other dependencies listed 
     
     This command reads the `package.json` file and installs all necessary packages.
     
-    _Alternatively_, if you prefer using **Yarn**, you can run:
+    _Alternatively_, if you prefer using **Yarn**, you can run: (First time Node Users it is reccomended to use npm)
     
         yarn
     

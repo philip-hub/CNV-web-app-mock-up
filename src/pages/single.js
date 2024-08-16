@@ -411,6 +411,10 @@ export default function Home() {
         };
         
 
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const plotWidth = screenWidth * .99;
+        const plotHeight = screenHeight * 0.15;
 
         // plot 1 coverage
         const scatterPlot1 = {
@@ -422,7 +426,7 @@ export default function Home() {
             name: 'Coverage Plot',
             text: coloredPlotData1.map(d => {
                 const arm = d.customdata;
-                return `arm: ${arm}<br>log2(med/ref): ${Math.log2(d.y/(lcv0))}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}`;
+                return `arm: ${arm}<br>log2(med/ref): ${Math.log2(d.y/(lcv0))}<br>CN: ${Y3Mapping[arm] || 'N/A'}<br>AI: ${X3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}`;
             }),
             customdata: coloredPlotData1.map(d => d.customdata), 
             line: {
@@ -430,13 +434,15 @@ export default function Home() {
                 width: .5 
             },
 
+            //hoverinfo: 'none',
+
         };
 
         const layout1 = {
-            title: 'Coverage Plot/Vaf Plot',
+            title: 'Top: Coverage | Bottum: Plot Vaf Plot',
             showlegend: false,
-            width: 1800, 
-            height: 150,  
+            width:  plotWidth, 
+            height: plotHeight,  
             margin: {
                 l: 40,
                 r: 40,
@@ -480,12 +486,13 @@ export default function Home() {
             customdata: coloredPlotData2.map(d => d.customdata), 
             text: coloredPlotData2.map(d => {
                 const arm = d.customdata;
-                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
+                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${Y3Mapping[arm] || 'N/A'}<br>AI: ${X3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
             }),
             line: {
                 color: 'transparent',  
                 width: 1 
             },
+            //hoverinfo: 'none',
         };
 
         console.log("X3Mapping before plot attempt",X3Mapping)
@@ -493,8 +500,8 @@ export default function Home() {
         const layout2 = {
             title: '',
             showlegend: false,
-            width: 1800,  
-            height: 170, 
+            width:  plotWidth, 
+            height: plotHeight+20,
             margin: {
                 l: 40,
                 r: 40,
@@ -579,6 +586,9 @@ export default function Home() {
             shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createCoverageLines(mValues, startMMapping,endMMapping)),
             annotations: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).annotations.concat(createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).annotations)
         };
+        
+
+        const boxPlotSize = screenWidth * 0.275;
 
         //plot 3 cn vs ai
         const scatterPlot3 = {
@@ -603,8 +613,8 @@ export default function Home() {
         const layout3 = {
             title: 'Scatter Plot of AI vs CN',
             showlegend: false,
-            width: 500,
-            height: 500,  // Make it square
+            width: boxPlotSize,
+            height: boxPlotSize,  // Make it square
             margin: {
                 l: 50,
                 r: 50,
@@ -640,19 +650,21 @@ export default function Home() {
             type: 'scatter',
             mode: 'markers',
             marker: { size: 3, color: coloredPlotData4.map(d => d.color), opacity: 1 },
-            name: 'Vaf Score CDF',
+            name: 'Vaf CDF',
             customdata: coloredPlotData4.map(d => d.customdata),
             text: coloredPlotData4.map(d => {
                 const arm = d.customdata;
-                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
+                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${Y3Mapping[arm] || 'N/A'}<br>AI:  ${X3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
             }),
         };
 
+
+    
         const layout4 = {
-            title: 'Vaf Score CDF',
+            title: 'Vaf CDF',
             showlegend: false,
-            width: 500,
-            height: 500, 
+            width: boxPlotSize,
+            height: boxPlotSize,
             margin: {
                 l: 50,
                 r: 50,
@@ -661,13 +673,13 @@ export default function Home() {
                 pad: 0
             },
             xaxis: {
-                title: 'X4',
+                title: 'Vaf',
                 tickfont: {
                     size: 10
                 }
             },
             yaxis: {
-                title: 'Y4',
+                title: 'CDF',
                 tickfont: {
                     size: 10
                 }
@@ -686,19 +698,19 @@ export default function Home() {
             type: 'scatter',
             mode: 'markers',
             marker: { size: 3, color: coloredPlotData5.map(d => d.color), opacity: 1 },
-            name: 'Coverage Score CDF',
+            name: 'Coverage CDF',
             customdata: coloredPlotData5.map(d => d.customdata),
             text: coloredPlotData5.map(d => {
                 const arm = d.customdata;
-                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${X3Mapping[arm] || 'N/A'}<br>AI: ${Y3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
+                return `arm: ${arm}<br>X: ${d.x}<br>Y: ${d.y}<br>CN: ${Y3Mapping[arm] || 'N/A'}<br>AI: ${X3Mapping[arm] || 'N/A'}<br>M: ${mMapping[arm] || 'N/A'}<br>dm: ${dmMapping[arm] || 'N/A'}<br>dcn: ${dcnMapping[arm] || 'N/A'}<br>S0: ${s0Mapping[arm] || 'N/A'}`;
             }),
         };
 
         const layout5 = {
-            title: 'Coverage Score CDF',
+            title: 'Coverage CDF',
             showlegend: false,
-            width: 500,
-            height: 500,  // Make it square
+            width: boxPlotSize,
+            height: boxPlotSize,
             margin: {
                 l: 50,
                 r: 50,
@@ -707,13 +719,13 @@ export default function Home() {
                 pad: 0
             },
             xaxis: {
-                title: 'X5',
+                title: 'lcv',
                 tickfont: {
                     size: 10
                 }
             },
             yaxis: {
-                title: 'Y5',
+                title: 'CDF',
                 tickfont: {
                     size: 10
                 }
@@ -1057,7 +1069,7 @@ export default function Home() {
                                     {clickedArmData ? (
                                         <>
                                             Selection: 
-                                            {clickedArmData.arm ? clickedArmData.arm : ''} CN: {typeof clickedArmData.CN === 'number' ? clickedArmData.CN.toFixed(3) : ''} AI: {typeof clickedArmData.AI === 'number' ? clickedArmData.AI.toFixed(3) : ''} M: {typeof clickedArmData.M === 'number' ? clickedArmData.M.toFixed(3) : ''} dm: {typeof clickedArmData.dm === 'number' ? clickedArmData.dm.toFixed(3) : ''} dcn: {typeof clickedArmData.dcn === 'number' ? clickedArmData.dcn.toFixed(3) : ''} Clone: {clickedArmData.clone || ''}
+                                            {clickedArmData.arm ? clickedArmData.arm : ''} CN: {typeof clickedArmData.AI === 'number' ? clickedArmData.AI.toFixed(3) : 'None'}  AI:  {typeof clickedArmData.CN === 'number' ? clickedArmData.CN.toFixed(3) : 'None'} M: {typeof clickedArmData.M === 'number' ? clickedArmData.M.toFixed(3) : 'None'} dm: {typeof clickedArmData.dm === 'number' ? clickedArmData.dm.toFixed(3) : 'None'} dcn: {typeof clickedArmData.dcn === 'number' ? clickedArmData.dcn.toFixed(3) : 'None'} Clone: {clickedArmData.clone || ''}
                                         </>
                                     ) : (
                                         'No selection'
