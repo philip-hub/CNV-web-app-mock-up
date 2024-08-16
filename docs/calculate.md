@@ -93,7 +93,7 @@ Several mappings are created to associate arms with their respective values:
     
         const cloneMapping = jsonData.reduce((acc, group) => { ... });
     
-*   **Y3 Mapping**: Maps arms to the scaled `m` values.
+*   **Y3 Mapping**: Maps arms to the scaled `CN` values.
     
         const Y3Mapping = jsonData.reduce((acc, group) => { ... });
     
@@ -124,7 +124,7 @@ Several mappings are created to associate arms with their respective values:
 
 *   **Purpose**: Sends the processed data back to the client.
 *   **Data Included**:
-    *   `plotData1` to `plotData5`: Data for the various plots.
+    *   `plotData1` to `plotData5`: Data for coverage, vaf, cn vs ai, vaf cdf, and coverage cdf.
     *   `aiValues`, `mValues`: Calculated `AI` and `m` values.
     *   `arm7ColorMapping`: Mapping of arms to their corresponding colors based on the clone type.
     *   `cloneMapping`, `Y3Mapping`, `X3Mapping`: Various mappings for the plots.
