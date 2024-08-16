@@ -1020,23 +1020,7 @@ export default function Home() {
             )}
             
                 <br />
-
-                    {/* <div className={styles.legendText}>
-                            
-                            <p>
-                                <b>LVC0: {lcv0 ? lcv0.toFixed(3) : 'No Upload'} m0: {mavg ? mavg.toFixed(3) : 'No Upload '}
-                                    {clickedArmData ? (
-                                        <>
-                                            Selection: 
-                                            {clickedArmData.arm ? clickedArmData.arm : ''} CN: {typeof clickedArmData.CN === 'number' ? clickedArmData.CN.toFixed(3) : ''} AI: {typeof clickedArmData.AI === 'number' ? clickedArmData.AI.toFixed(3) : ''} M: {typeof clickedArmData.M === 'number' ? clickedArmData.M.toFixed(3) : ''} dm: {typeof clickedArmData.dm === 'number' ? clickedArmData.dm.toFixed(3) : ''} dcn: {typeof clickedArmData.dcn === 'number' ? clickedArmData.dcn.toFixed(3) : ''} Clone: {clickedArmData.clone || ''}
-                                        </>
-                                    ) : (
-                                        'No selection'
-                                    )}
-                                </b>
-                            </p>
-                        </div> */}<br />
-            {/* <p>{loadMessage ? loadMessage : ''}</p> */}
+                
             </div>
 
         </div>
@@ -1096,9 +1080,9 @@ export default function Home() {
       <p><a href='/'>Home</a></p>
       </ label>
                 <br />
-      <label className={styles.toggleButton}>
+      {/* <label className={styles.toggleButton}>
       <p><a href='multi'>Multi File Analysis</a></p>
-      </ label>
+      </ label> */}
 
         </div>
     );
