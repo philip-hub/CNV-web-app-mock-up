@@ -413,7 +413,7 @@ export default function Home() {
 
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
-        const plotWidth = screenWidth * 0.975;
+        const plotWidth = screenWidth * .99;
         const plotHeight = screenHeight * 0.15;
 
         // plot 1 coverage
@@ -588,7 +588,7 @@ export default function Home() {
         };
         
 
-        const boxPlotSize = screenWidth * 0.3;
+        const boxPlotSize = screenWidth * 0.275;
 
         //plot 3 cn vs ai
         const scatterPlot3 = {
