@@ -138,9 +138,19 @@ export default async function handler(req, res) {
         
           
           
-          const plotData4 = [];
-    
-          jsonData.forEach(group => {
+        const plotData4 = [];
+
+        jsonData.forEach(group => {
+          const { vcdf, arm } = group;
+          if (Array.isArray(vcdf)) {
+            for (let i = 0; i < vcdf.length; i++) {
+              plotData4.push({
+                x: vcdf[i],
+                y: i,
+                arm: arm
+              });
+            }
+          } else{
             const { vq, arm } = group;
             for (let i = 0; i < vq.length; i++) {
               plotData4.push({
@@ -149,30 +159,8 @@ export default async function handler(req, res) {
                 arm: arm
               });
             }
+          }
         });
-
-
-        // jsonData.forEach(group => {
-        //   const { vcdf, arm } = group;
-        //   if (Array.isArray(vcdf)) {
-        //     for (let i = 0; i < q.length; i++) {
-        //       plotData4.push({
-        //         x: vcdf[i],
-        //         y: i,
-        //         arm: arm
-        //       });
-        //     }
-        //   } else{
-        //     const { vq, arm } = group;
-        //     for (let i = 0; i < vq.length; i++) {
-        //       plotData4.push({
-        //         x: vq[i],
-        //         y: i,
-        //         arm: arm
-        //       });
-        //     }
-        //   }
-        // });
         
     
           console.log('plot4Data:', plotData4);
