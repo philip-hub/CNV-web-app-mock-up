@@ -411,6 +411,10 @@ export default function Home() {
         };
         
 
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const plotWidth = screenWidth * 0.975;
+        const plotHeight = screenHeight * 0.15;
 
         // plot 1 coverage
         const scatterPlot1 = {
@@ -437,8 +441,8 @@ export default function Home() {
         const layout1 = {
             title: 'Top: Coverage | Bottum: Plot Vaf Plot',
             showlegend: false,
-            width: 1800, 
-            height: 150,  
+            width:  plotWidth, 
+            height: plotHeight,  
             margin: {
                 l: 40,
                 r: 40,
@@ -496,8 +500,8 @@ export default function Home() {
         const layout2 = {
             title: '',
             showlegend: false,
-            width: 1800,  
-            height: 170, 
+            width:  plotWidth, 
+            height: plotHeight+20,
             margin: {
                 l: 40,
                 r: 40,
@@ -582,6 +586,9 @@ export default function Home() {
             shapes: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).shapes.concat(createCoverageLines(mValues, startMMapping,endMMapping)),
             annotations: createAnnotationsAndShapes(coloredPlotData1, uniqueArm1Values).annotations.concat(createAnnotationsAndShapes(coloredPlotData2, uniqueArm2Values).annotations)
         };
+        
+
+        const boxPlotSize = screenWidth * 0.3;
 
         //plot 3 cn vs ai
         const scatterPlot3 = {
@@ -606,8 +613,8 @@ export default function Home() {
         const layout3 = {
             title: 'Scatter Plot of AI vs CN',
             showlegend: false,
-            width: 500,
-            height: 500,  // Make it square
+            width: boxPlotSize,
+            height: boxPlotSize,  // Make it square
             margin: {
                 l: 50,
                 r: 50,
@@ -656,8 +663,8 @@ export default function Home() {
         const layout4 = {
             title: 'Vaf CDF',
             showlegend: false,
-            width: 500,
-            height: 500, 
+            width: boxPlotSize,
+            height: boxPlotSize,
             margin: {
                 l: 50,
                 r: 50,
@@ -702,8 +709,8 @@ export default function Home() {
         const layout5 = {
             title: 'Coverage CDF',
             showlegend: false,
-            width: 500,
-            height: 500,  // Make it square
+            width: boxPlotSize,
+            height: boxPlotSize,
             margin: {
                 l: 50,
                 r: 50,
