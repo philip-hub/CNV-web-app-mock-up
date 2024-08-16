@@ -10,6 +10,7 @@ let progress =0;
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
+
 export default function Home() {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -146,7 +147,7 @@ export default function Home() {
         const createAnnotationsAndShapes = (plotData, uniqueArmValues) => {
             let annotations = [];
 
-            for (let arm of uniqueArm1Values) {
+            for (let arm of uniqueArmValues) {
                 let middleX = middleMMapping[arm];  
                 
                 // label settings for how the arm labels are veiw
@@ -183,9 +184,9 @@ export default function Home() {
                 }
                 return {
                     type: 'line',
-                    x0: armPositions[arm].x,
+                    x0: endMMapping[arm],
                     y0: 0,
-                    x1: armPositions[arm].x,
+                    x1: endMMapping[arm],
                     y1: 1,
                     xref: 'x',
                     yref: 'paper',
@@ -422,13 +423,31 @@ export default function Home() {
         const plotWidth = screenWidth * .99;
         const plotHeight = screenHeight * 0.15;
 
+
+        const minX = Math.min(Math.min(...coloredPlotData1.map(d => d.x)), Math.min(...coloredPlotData2.map(d => d.x)));
+        const maxX = Math.max(Math.max(...coloredPlotData1.map(d => d.x)), Math.max(...coloredPlotData2.map(d => d.x)));
+
+
+        const numPointsPlot1 = coloredPlotData1.length;
+        const numPointsPlot2 = coloredPlotData2.length;
+
+        let pointSizePlot1 = 1;
+        let pointSizePlot2 = 1;
+
+        if (numPointsPlot1 * 10 <= numPointsPlot2) {
+            pointSizePlot1 = 2; // Double the point size for plot 1 if it has 10 times fewer points
+        } else if (numPointsPlot2 * 10 <= numPointsPlot1) {
+            pointSizePlot2 = 2; 
+        }
+
+
         // plot 1 coverage
         const scatterPlot1 = {
             x: coloredPlotData1.map(d => d.x),
             y: coloredPlotData1.map(d => (Math.log2(d.y/(lcv0)))),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 1, color: coloredPlotData1.map(d => d.color) },
+            marker: { size: pointSizePlot1, color: coloredPlotData1.map(d => d.color) },
             name: 'Coverage Plot',
             text: coloredPlotData1.map(d => {
                 const arm = d.customdata;
@@ -463,7 +482,7 @@ export default function Home() {
                 tickfont: {
                     size: 10
                 },
-                range: [Math.min(...coloredPlotData1.map(d => d.x)), Math.max(...coloredPlotData1.map(d => d.x))]
+                range: [minX, maxX]
             },
             yaxis: {
                 title: 'log2(med/ref)',
@@ -487,7 +506,7 @@ export default function Home() {
             y: coloredPlotData2.map(d => d.y),
             type: 'scatter',
             mode: 'markers',
-            marker: { size: 1, color: coloredPlotData2.map(d => d.color) },
+            marker: { size: pointSizePlot2, color: coloredPlotData2.map(d => d.color) },
             name: 'Vaf Plot',
             customdata: coloredPlotData2.map(d => d.customdata), 
             text: coloredPlotData2.map(d => {
@@ -522,7 +541,7 @@ export default function Home() {
                 tickfont: {
                     size: 10
                 },
-                range: [Math.min(...coloredPlotData2.map(d => d.x)), Math.max(...coloredPlotData2.map(d => d.x))] 
+                range: [minX, maxX]
             },
             yaxis: {
                 title: 'Vaf Score',
